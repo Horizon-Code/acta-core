@@ -22,3 +22,7 @@ venv/
 *.pem
 *.key
 .env
+
+# Github
+copilot-instructions.md
+copilot-instructions-aml-process.md
