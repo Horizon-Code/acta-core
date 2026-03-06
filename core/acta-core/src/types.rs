@@ -26,63 +26,32 @@ pub struct CommitmentsV0 {
 
 // Referencia a proceso (case/process)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProcessRefV0 {
+pub struct ProcessRef {
     pub process_id: String,
     pub process_type: String,
 }
 
-// Tipo semántico de evento en un proceso
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum EventTypeV0 {
-    ProcessOpened,
-    TransferRequested,
-    AmlScored,
-    ManualReview,
-    AccountFrozen,
-    AccountReleased,
-    ProcessClosed,
-}
-
-// Resultado de una revisión manual
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ManualReviewOutcomeV0 {
-    ConfirmFreeze,
-    Release,
-    Escalate,
-}
-
-// Payload de revisión manual (solo en MVP para manual_review)
+// Referencia semántica de tipo de evento (dominio externo al core)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ManualReviewPayloadV0 {
-    pub reviewer_role: String,
-    pub reviewer_ref: Option<String>,
-    pub outcome: ManualReviewOutcomeV0,
-    pub notes_commitment: Option<String>,
-}
-
-// Payload de evento (tagged enum para futuros tipos de payload)
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum EventPayloadV0 {
-    ManualReview(ManualReviewPayloadV0),
+pub struct EventKindRef {
+    pub namespace: String,
+    pub kind: String,
+    pub version: String,
 }
 
 // Hecho computacional
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActaEventV0 {
     pub protocol: String, // PROTOCOL_VERSION
-    pub event_id: String,
-    pub prev_event_hash: Option<String>,
+    pub event_id: String, // Todo pub event_id: uuid::Uuid v7
     pub issued_at: String, // ISO-8601 for MVP
-    pub epoch_id: String,
-    pub process_ref: ProcessRefV0,
-    pub event_type: EventTypeV0,
+    pub epoch_id: u64,
+    pub process_ref: ProcessRef,
+    pub event_kind: EventKindRef,
     pub commitments: CommitmentsV0,
     pub policy_ref: PolicyRefV0,
     pub actor_identity_ref: String,
-    pub payload: Option<EventPayloadV0>,
+    pub prev_event_hash: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

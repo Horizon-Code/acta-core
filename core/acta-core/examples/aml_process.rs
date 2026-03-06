@@ -2,20 +2,20 @@
 //!
 //! This example demonstrates:
 //! - Building a complete AML process with multiple chained events
-//! - Manual review with institutional signature
-//! - Full process validation (sequence, chronos, payload coherence)
+//! - Domain-specific event kinds represented with generic core fields
+//! - Core-level process validation (process consistency + chronos)
 
 use acta_core::types::*;
 use acta_core::hash::hash_event_v0;
-use acta_core::process::validate_aml_process_v0;
+use acta_core::process::validate_process_v0;
 
 fn main() {
     println!("=== ACTA AML Process Example (Phase 0) ===\n");
 
     // Setup: Process reference, policy, actor
-    let process_ref = ProcessRefV0 {
+    let process_ref = ProcessRef {
         process_id: "AML-CASE-2025-000341".to_string(),
-        process_type: "aml_account_control".to_string(),
+        process_type: "aml.transfer.v1".to_string(),
     };
 
     let policy_ref = PolicyRefV0 {
@@ -38,11 +38,14 @@ fn main() {
     let event1 = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: "aml-case-2025-000341-ev0001".to_string(),
-        prev_event_hash: None, // Genesis
         issued_at: "2025-01-15T10:00:00Z".to_string(),
-        epoch_id: "epoch-2025-01-15-001".to_string(),
+        epoch_id: 1,
         process_ref: process_ref.clone(),
-        event_type: EventTypeV0::ProcessOpened,
+        event_kind: EventKindRef {
+            namespace: "aml".to_string(),
+            kind: "process_opened".to_string(),
+            version: "1.0".to_string(),
+        },
         commitments: CommitmentsV0 {
             inputs_commitment: "sha256:process_opened_inputs".to_string(),
             outputs_commitment: "sha256:process_opened_outputs".to_string(),
@@ -50,7 +53,7 @@ fn main() {
         },
         policy_ref: policy_ref.clone(),
         actor_identity_ref: actor_ref.clone(),
-        payload: None,
+        prev_event_hash: None, // Genesis
     };
 
     let hash1 = hash_event_v0(&event1).expect("Failed to hash event1");
@@ -65,11 +68,14 @@ fn main() {
     let event2 = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: "aml-case-2025-000341-ev0002".to_string(),
-        prev_event_hash: Some(hashes[0].clone()),
         issued_at: "2025-01-15T10:15:00Z".to_string(),
-        epoch_id: "epoch-2025-01-15-001".to_string(),
+        epoch_id: 1,
         process_ref: process_ref.clone(),
-        event_type: EventTypeV0::TransferRequested,
+        event_kind: EventKindRef {
+            namespace: "aml".to_string(),
+            kind: "transfer_requested".to_string(),
+            version: "1.0".to_string(),
+        },
         commitments: CommitmentsV0 {
             inputs_commitment: "sha256:transfer_request_inputs".to_string(),
             outputs_commitment: "sha256:transfer_request_outputs".to_string(),
@@ -77,7 +83,7 @@ fn main() {
         },
         policy_ref: policy_ref.clone(),
         actor_identity_ref: actor_ref.clone(),
-        payload: None,
+        prev_event_hash: Some(hashes[0].clone()),
     };
 
     let hash2 = hash_event_v0(&event2).expect("Failed to hash event2");
@@ -92,11 +98,14 @@ fn main() {
     let event3 = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: "aml-case-2025-000341-ev0003".to_string(),
-        prev_event_hash: Some(hashes[1].clone()),
         issued_at: "2025-01-15T10:30:00Z".to_string(),
-        epoch_id: "epoch-2025-01-15-001".to_string(),
+        epoch_id: 1,
         process_ref: process_ref.clone(),
-        event_type: EventTypeV0::AmlScored,
+        event_kind: EventKindRef {
+            namespace: "aml".to_string(),
+            kind: "risk_scored".to_string(),
+            version: "1.0".to_string(),
+        },
         commitments: CommitmentsV0 {
             inputs_commitment: "sha256:aml_score_inputs".to_string(),
             outputs_commitment: "sha256:aml_score_outputs_with_risk_score".to_string(),
@@ -104,7 +113,7 @@ fn main() {
         },
         policy_ref: policy_ref.clone(),
         actor_identity_ref: actor_ref.clone(),
-        payload: None,
+        prev_event_hash: Some(hashes[1].clone()),
     };
 
     let hash3 = hash_event_v0(&event3).expect("Failed to hash event3");
@@ -119,11 +128,14 @@ fn main() {
     let event4 = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: "aml-case-2025-000341-ev0004".to_string(),
-        prev_event_hash: Some(hashes[2].clone()),
         issued_at: "2025-01-15T11:00:00Z".to_string(),
-        epoch_id: "epoch-2025-01-15-001".to_string(),
+        epoch_id: 1,
         process_ref: process_ref.clone(),
-        event_type: EventTypeV0::ManualReview,
+        event_kind: EventKindRef {
+            namespace: "aml".to_string(),
+            kind: "manual_review".to_string(),
+            version: "1.0".to_string(),
+        },
         commitments: CommitmentsV0 {
             inputs_commitment: "sha256:manual_review_inputs".to_string(),
             outputs_commitment: "sha256:manual_review_outputs".to_string(),
@@ -131,12 +143,7 @@ fn main() {
         },
         policy_ref: policy_ref.clone(),
         actor_identity_ref: actor_ref.clone(),
-        payload: Some(EventPayloadV0::ManualReview(ManualReviewPayloadV0 {
-            reviewer_role: "aml_analyst".to_string(),
-            reviewer_ref: Some("sha256:internal_user_aml_analyst_id_123".to_string()),
-            outcome: ManualReviewOutcomeV0::ConfirmFreeze,
-            notes_commitment: Some("sha256:review_notes_and_evidence".to_string()),
-        })),
+        prev_event_hash: Some(hashes[2].clone()),
     };
 
     let hash4 = hash_event_v0(&event4).expect("Failed to hash event4");
@@ -153,11 +160,14 @@ fn main() {
     let event5 = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: "aml-case-2025-000341-ev0005".to_string(),
-        prev_event_hash: Some(hashes[3].clone()),
         issued_at: "2025-01-15T11:05:00Z".to_string(),
-        epoch_id: "epoch-2025-01-15-001".to_string(),
+        epoch_id: 1,
         process_ref: process_ref.clone(),
-        event_type: EventTypeV0::AccountFrozen,
+        event_kind: EventKindRef {
+            namespace: "aml".to_string(),
+            kind: "account_frozen".to_string(),
+            version: "1.0".to_string(),
+        },
         commitments: CommitmentsV0 {
             inputs_commitment: "sha256:freeze_inputs".to_string(),
             outputs_commitment: "sha256:freeze_outputs".to_string(),
@@ -165,7 +175,7 @@ fn main() {
         },
         policy_ref: policy_ref.clone(),
         actor_identity_ref: actor_ref.clone(),
-        payload: None,
+        prev_event_hash: Some(hashes[3].clone()),
     };
 
     let hash5 = hash_event_v0(&event5).expect("Failed to hash event5");
@@ -180,11 +190,14 @@ fn main() {
     let event6 = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: "aml-case-2025-000341-ev0006".to_string(),
-        prev_event_hash: Some(hashes[4].clone()),
         issued_at: "2025-01-15T11:10:00Z".to_string(),
-        epoch_id: "epoch-2025-01-15-001".to_string(),
+        epoch_id: 1,
         process_ref: process_ref.clone(),
-        event_type: EventTypeV0::ProcessClosed,
+        event_kind: EventKindRef {
+            namespace: "aml".to_string(),
+            kind: "process_closed".to_string(),
+            version: "1.0".to_string(),
+        },
         commitments: CommitmentsV0 {
             inputs_commitment: "sha256:close_inputs".to_string(),
             outputs_commitment: "sha256:close_outputs".to_string(),
@@ -192,7 +205,7 @@ fn main() {
         },
         policy_ref: policy_ref.clone(),
         actor_identity_ref: actor_ref.clone(),
-        payload: None,
+        prev_event_hash: Some(hashes[4].clone()),
     };
 
     let hash6 = hash_event_v0(&event6).expect("Failed to hash event6");
@@ -204,16 +217,14 @@ fn main() {
 
     // Validate the complete process
     println!("=== Process Validation ===\n");
-    println!("Validating AML process with {} events...", events.len());
+    println!("Validating core process invariants for {} events...", events.len());
 
-    match validate_aml_process_v0(&events, &hashes) {
+    match validate_process_v0(&events, &hashes) {
         Ok(_) => {
             println!("✓ Process validation PASSED\n");
             println!("All checks passed:");
-            println!("  ✓ Event sequence is correct");
+            println!("  ✓ All events belong to the same process");
             println!("  ✓ Chronos chain (prev_event_hash) is intact");
-            println!("  ✓ Payload coherence verified");
-            println!("  ✓ Process ends with ProcessClosed");
         }
         Err(e) => {
             println!("✗ Process validation FAILED");
