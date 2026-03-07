@@ -1,24 +1,24 @@
 //! Chronos rules (Phase 0).
 //!
-//! Chronos provides anti-omission and deterministic ordering by chaining events
-//! via `prev_event_hash`.
+//! Chronos is responsible for temporal continuity and anti-omission:
+//! - epoch placement (`epoch_id`)
+//! - hash-chain linkage (`prev_event_hash`)
 //!
-//! Core scope (Phase 0):
-//! - Validate local chain consistency for a sequence of events.
-//! - Define simple invariants for genesis (first event) and continuity.
-//!
-//! Out of core scope:
-//! - Networking / consensus
-//! - Storage / DB lookups
-//! - Global time synchronization
+//! It does NOT validate event business semantics.
 
-use crate::types::ActaEventV0;
+use crate::types::{ChronosRefV0, ChronosStampedEventV0};
 
 /// Errors for Chronos verification.
 #[derive(Debug, thiserror::Error)]
 pub enum ChronosError {
     #[error("chain is empty")]
     EmptyChain,
+
+    #[error("events/hashes length mismatch: events={events}, hashes={hashes}")]
+    LengthMismatch { events: usize, hashes: usize },
+
+    #[error("event[{index}] has empty epoch_id")]
+    EmptyEpochId { index: usize },
 
     #[error("genesis event must have prev_event_hash = null")]
     GenesisPrevMustBeNull,
@@ -37,52 +37,42 @@ pub enum ChronosError {
     },
 }
 
-/// Verifies a local chain of events using their computed hashes.
-///
-/// Inputs:
-/// - `events`: the ordered list of events as claimed by the producer
-/// - `hashes`: the corresponding event hashes (same length, same order)
+/// Verifies a local chain of events using their Chronos refs and computed event hashes.
 ///
 /// Rules:
-/// - If chain has 1+ events: events[0].prev_event_hash must be None (genesis).
-/// - For each i > 0: events[i].prev_event_hash must equal hashes[i-1].
-///
-/// Note:
-/// - Hashes MUST be computed using `hash::hash_event_v0(...)`.
-pub fn verify_event_chain_v0(events: &[ActaEventV0], hashes: &[String]) -> Result<(), ChronosError> {
+/// - chain must be non-empty
+/// - events.len() must equal hashes.len()
+/// - first event: prev_event_hash must be None
+/// - for each i > 0: events[i].chronos_ref.prev_event_hash == hashes[i-1]
+/// - epoch_id must be non-empty for all items
+pub fn verify_event_chain_v0(
+    events: &[ChronosStampedEventV0],
+    hashes: &[String],
+) -> Result<(), ChronosError> {
     if events.is_empty() {
         return Err(ChronosError::EmptyChain);
     }
     if events.len() != hashes.len() {
-        // Keep Phase 0 minimal: we assume caller passes correct sizes.
-        // If you want strictness, we can add a dedicated error here.
-        return Err(ChronosError::EmptyChain);
+        return Err(ChronosError::LengthMismatch {
+            events: events.len(),
+            hashes: hashes.len(),
+        });
     }
 
-    // Genesis rule
-    if events[0].prev_event_hash.is_some() {
+    if events[0].chronos_ref.epoch_id.trim().is_empty() {
+        return Err(ChronosError::EmptyEpochId { index: 0 });
+    }
+    if events[0].chronos_ref.prev_event_hash.is_some() {
         return Err(ChronosError::GenesisPrevMustBeNull);
     }
 
-    // Continuity rule
     for i in 1..events.len() {
-        let expected = hashes[i - 1].clone();
-        match &events[i].prev_event_hash {
-            None => {
-                return Err(ChronosError::MissingPrevHash {
-                    index: i,
-                    expected,
-                })
-            }
-            Some(got) if *got != expected => {
-                return Err(ChronosError::PrevHashMismatch {
-                    index: i,
-                    expected,
-                    got: got.clone(),
-                })
-            }
-            Some(_) => {} // ok
+        if events[i].chronos_ref.epoch_id.trim().is_empty() {
+            return Err(ChronosError::EmptyEpochId { index: i });
         }
+
+        let expected = hashes[i - 1].clone();
+        verify_link_v0(&expected, &events[i].chronos_ref, i)?;
     }
 
     Ok(())
@@ -94,7 +84,7 @@ pub fn verify_event_chain_v0(events: &[ActaEventV0], hashes: &[String]) -> Resul
 /// - next.prev_event_hash == prev_hash
 pub fn verify_link_v0(
     prev_hash: &str,
-    next: &ActaEventV0,
+    next: &ChronosRefV0,
     next_index: usize,
 ) -> Result<(), ChronosError> {
     match &next.prev_event_hash {

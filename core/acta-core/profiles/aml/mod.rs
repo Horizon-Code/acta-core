@@ -6,7 +6,10 @@
 pub mod types;
 
 use acta_core::hash::hash_event_v0;
-use acta_core::types::{ActaEventV0, CommitmentsV0, PolicyRefV0, ProcessRef, PROTOCOL_VERSION};
+use acta_core::types::{
+    ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0, CommitmentsV0, PolicySnapshotV0,
+    ProcessRef, PROTOCOL_VERSION,
+};
 use types::{
     AmlDomainEventV0, AmlEventPayloadV0, EventTypeV0, ManualReviewOutcomeV0, ManualReviewPayloadV0,
 };
@@ -14,9 +17,10 @@ use types::{
 #[derive(Debug, Clone)]
 pub struct AmlDemoProcessV0 {
     pub process_ref: ProcessRef,
-    pub policy_ref: PolicyRefV0,
+    pub policy_snapshot: PolicySnapshotV0,
     pub domain_events: Vec<AmlDomainEventV0>,
-    pub core_events: Vec<ActaEventV0>,
+    pub core_events: Vec<ActaEventV0>, // base computational facts
+    pub chronos_events: Vec<ChronosStampedEventV0>, // continuity metadata
     pub core_hashes: Vec<String>,
 }
 
@@ -26,7 +30,7 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
         process_type: "aml.transfer.v1".to_string(),
     };
 
-    let policy_ref = PolicyRefV0 {
+    let policy_snapshot = PolicySnapshotV0 {
         policy_id: "AML-2025-Q1".to_string(),
         policy_hash: "sha256:aml_2025_q1_policy_hash".to_string(),
         policy_type: "regulatory".to_string(),
@@ -107,6 +111,7 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
 
     let mut domain_events = Vec::with_capacity(event_specs.len());
     let mut core_events = Vec::with_capacity(event_specs.len());
+    let mut chronos_events = Vec::with_capacity(event_specs.len());
     let mut core_hashes = Vec::with_capacity(event_specs.len());
     let mut prev_hash: Option<String> = None;
 
@@ -117,16 +122,21 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             protocol: PROTOCOL_VERSION.to_string(),
             event_id: format!("aml-case-2025-000341-ev{:04}", idx + 1),
             issued_at: issued_at.to_string(),
-            epoch_id: 1,
             process_ref: process_ref.clone(),
             event_kind: event_kind.clone(),
             commitments,
-            policy_ref: policy_ref.clone(),
-            actor_identity_ref: actor_ref.clone(),
-            prev_event_hash: prev_hash.clone(),
+            policy_snapshot: policy_snapshot.clone(),
+            actor_ref: ActorRefV0 {
+                actor_id: actor_ref.clone(),
+                actor_type: "service".to_string(),
+            },
         };
 
         let hash = hash_event_v0(&core_event).expect("hashing AML demo event must succeed");
+        let chronos_ref = ChronosRefV0 {
+            epoch_id: "epoch-2025-01-15-001".to_string(),
+            prev_event_hash: prev_hash.clone(),
+        };
         prev_hash = Some(hash.clone());
 
         domain_events.push(AmlDomainEventV0 {
@@ -134,15 +144,20 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             core_event_kind: event_kind,
             payload,
         });
+        chronos_events.push(ChronosStampedEventV0 {
+            event: core_event.clone(),
+            chronos_ref,
+        });
         core_events.push(core_event);
         core_hashes.push(hash);
     }
 
     AmlDemoProcessV0 {
         process_ref,
-        policy_ref,
+        policy_snapshot,
         domain_events,
         core_events,
+        chronos_events,
         core_hashes,
     }
 }

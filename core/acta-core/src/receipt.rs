@@ -29,7 +29,7 @@ pub fn receipt_v0_signing_payload(receipt: &ReceiptV0) -> Result<Vec<u8>, Receip
 pub fn validate_receipt_v0_shape(receipt: &ReceiptV0) -> Result<(), ReceiptError> {
     ensure_protocol(&receipt.protocol)?;
     ensure_non_empty(&receipt.event_hash, "event_hash")?;
-    ensure_non_empty(&receipt.epoch_id, "epoch_id")?;
+    ensure_non_empty(&receipt.chronos_ref.epoch_id, "chronos_ref.epoch_id")?;
     ensure_non_empty(&receipt.issued_at, "issued_at")?;
 
     // MVP expectation: at least 1 signature (single-signer).

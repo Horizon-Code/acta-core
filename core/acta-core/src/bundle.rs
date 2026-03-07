@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use crate::hash::{hash_event_v0, hash_receipt_body_v0, HashHex};
 use crate::merkle::{verify_merkle_proof_v0, MerkleProofV0};
 use crate::receipt::validate_receipt_v0_shape;
-use crate::types::{ActaEventV0, ReceiptV0, PROTOCOL_VERSION};
+use crate::types::{ActaEventV0, ChronosRefV0, ReceiptV0, PROTOCOL_VERSION};
 
 /// Minimal anchoring reference (Phase 0).
 /// Core does NOT verify it, but it carries the info needed to verify externally.
@@ -36,6 +36,7 @@ pub struct AnchorRefV0 {
 pub struct BundleV0 {
     pub protocol: String,        // "acta.v0"
     pub event: ActaEventV0,
+    pub chronos_ref: ChronosRefV0,
     pub event_hash: HashHex,     // claimed event hash
     pub receipt: ReceiptV0,
     pub receipt_body_hash: HashHex, // claimed signing payload hash
@@ -66,6 +67,9 @@ pub enum BundleError {
 
     #[error("invalid receipt shape: {0}")]
     InvalidReceiptShape(String),
+
+    #[error("receipt chronos_ref mismatch with bundle chronos_ref")]
+    ChronosRefMismatch,
 
     #[error("merkle proof error: {0}")]
     MerkleProofError(String),
@@ -101,6 +105,12 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
     // 2) Validate receipt shape (determinism / required fields)
     validate_receipt_v0_shape(&bundle.receipt)
         .map_err(|e| BundleError::InvalidReceiptShape(e.to_string()))?;
+
+    if bundle.receipt.chronos_ref.epoch_id != bundle.chronos_ref.epoch_id
+        || bundle.receipt.chronos_ref.prev_event_hash != bundle.chronos_ref.prev_event_hash
+    {
+        return Err(BundleError::ChronosRefMismatch);
+    }
 
     // 3) Recompute receipt body hash (signing payload hash)
     let computed_receipt_body_hash = hash_receipt_body_v0(&bundle.receipt)
@@ -148,4 +158,3 @@ fn ensure_protocol(got: &str) -> Result<(), BundleError> {
     }
     Ok(())
 }
-

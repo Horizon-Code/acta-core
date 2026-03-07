@@ -8,7 +8,7 @@ pub const PROTOCOL_VERSION: &str = "acta.v0";
 // Qué existe y Como se llama
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PolicyRefV0 {
+pub struct PolicySnapshotV0 {
     pub policy_id: String,
     pub policy_hash: String,
     pub policy_type: String, // regulatory | contractual | internal
@@ -39,19 +39,39 @@ pub struct EventKindRef {
     pub version: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ActorRefV0 {
+    pub actor_id: String,
+    pub actor_type: String, // service | user | oracle | validator
+}
+
+/// Flexible epoch identifier for forward compatibility.
+pub type EpochIdV0 = String;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChronosRefV0 {
+    pub epoch_id: EpochIdV0,
+    pub prev_event_hash: Option<String>,
+}
+
 // Hecho computacional
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActaEventV0 {
     pub protocol: String, // PROTOCOL_VERSION
     pub event_id: String, // Todo pub event_id: uuid::Uuid v7
     pub issued_at: String, // ISO-8601 for MVP
-    pub epoch_id: u64,
     pub process_ref: ProcessRef,
     pub event_kind: EventKindRef,
     pub commitments: CommitmentsV0,
-    pub policy_ref: PolicyRefV0,
-    pub actor_identity_ref: String,
-    pub prev_event_hash: Option<String>,
+    pub policy_snapshot: PolicySnapshotV0,
+    pub actor_ref: ActorRefV0,
+}
+
+/// Event + Chronos position reference.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChronosStampedEventV0 {
+    pub event: ActaEventV0,
+    pub chronos_ref: ChronosRefV0,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -67,8 +87,7 @@ pub struct SignatureV0 {
 pub struct ReceiptV0 {
     pub protocol: String,
     pub event_hash: String,
-    pub prev_event_hash: Option<String>,
-    pub epoch_id: String,
+    pub chronos_ref: ChronosRefV0,
     pub issued_at: String,
     pub signatures: Vec<SignatureV0>, // multi-signature-ready
 }

@@ -7,8 +7,8 @@
 //! field order. This yields stable bytes across implementations.
 
 use crate::types::{
-    ActaEventV0, CommitmentsV0, EventKindRef, PolicyRefV0, ProcessRef, ReceiptV0, SignatureV0,
-    PROTOCOL_VERSION,
+    ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRef, PolicySnapshotV0,
+    ProcessRef, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
 };
 use ciborium::value::Value;
 
@@ -28,20 +28,19 @@ pub enum CanonicalError {
 /// [
 ///   protocol,
 ///   event_id,
-///   prev_event_hash (or null),
 ///   issued_at,
-///   epoch_id,
 ///   process_ref_arr,
 ///   event_kind_ref_arr,
 ///   commitments_arr,
-///   policy_ref_arr,
-///   actor_identity_ref
+///   policy_snapshot_arr,
+///   actor_ref_arr
 /// ]
 pub fn canonical_event_v0_bytes(event: &ActaEventV0) -> Result<Vec<u8>, CanonicalError> {
     ensure_protocol(&event.protocol)?;
     ensure_non_empty(&event.event_id, "event_id")?;
     ensure_non_empty(&event.issued_at, "issued_at")?;
-    ensure_non_empty(&event.actor_identity_ref, "actor_identity_ref")?;
+    ensure_non_empty(&event.actor_ref.actor_id, "actor_ref.actor_id")?;
+    ensure_non_empty(&event.actor_ref.actor_type, "actor_ref.actor_type")?;
 
     let v = event_v0_to_value(event);
     Ok(value_to_cbor_bytes(&v))
@@ -53,14 +52,13 @@ pub fn canonical_event_v0_bytes(event: &ActaEventV0) -> Result<Vec<u8>, Canonica
 /// [
 ///   protocol,
 ///   event_hash,
-///   prev_event_hash (or null),
-///   epoch_id,
+///   chronos_ref_arr,
 ///   issued_at
 /// ]
 pub fn canonical_receipt_body_v0_bytes(receipt: &ReceiptV0) -> Result<Vec<u8>, CanonicalError> {
     ensure_protocol(&receipt.protocol)?;
     ensure_non_empty(&receipt.event_hash, "event_hash")?;
-    ensure_non_empty(&receipt.epoch_id, "epoch_id")?;
+    ensure_non_empty(&receipt.chronos_ref.epoch_id, "chronos_ref.epoch_id")?;
     ensure_non_empty(&receipt.issued_at, "issued_at")?;
 
     let v = receipt_body_v0_to_value(receipt);
@@ -92,14 +90,12 @@ fn event_v0_to_value(event: &ActaEventV0) -> Value {
     Value::Array(vec![
         Value::Text(event.protocol.clone()),
         Value::Text(event.event_id.clone()),
-        opt_text_or_null(&event.prev_event_hash),
         Value::Text(event.issued_at.clone()),
-        Value::from(event.epoch_id),
         process_ref_v0_to_value(&event.process_ref),
         event_kind_ref_to_value(&event.event_kind),
         commitments_v0_to_value(&event.commitments),
-        policy_ref_v0_to_value(&event.policy_ref),
-        Value::Text(event.actor_identity_ref.clone()),
+        policy_snapshot_v0_to_value(&event.policy_snapshot),
+        actor_ref_v0_to_value(&event.actor_ref),
     ])
 }
 
@@ -126,7 +122,7 @@ fn event_kind_ref_to_value(kind: &EventKindRef) -> Value {
     ])
 }
 
-fn policy_ref_v0_to_value(p: &PolicyRefV0) -> Value {
+fn policy_snapshot_v0_to_value(p: &PolicySnapshotV0) -> Value {
     Value::Array(vec![
         Value::Text(p.policy_id.clone()),
         Value::Text(p.policy_hash.clone()),
@@ -141,9 +137,22 @@ fn receipt_body_v0_to_value(r: &ReceiptV0) -> Value {
     Value::Array(vec![
         Value::Text(r.protocol.clone()),
         Value::Text(r.event_hash.clone()),
-        opt_text_or_null(&r.prev_event_hash),
-        Value::Text(r.epoch_id.clone()),
+        chronos_ref_v0_to_value(&r.chronos_ref),
         Value::Text(r.issued_at.clone()),
+    ])
+}
+
+fn chronos_ref_v0_to_value(c: &ChronosRefV0) -> Value {
+    Value::Array(vec![
+        Value::Text(c.epoch_id.clone()),
+        opt_text_or_null(&c.prev_event_hash),
+    ])
+}
+
+fn actor_ref_v0_to_value(a: &ActorRefV0) -> Value {
+    Value::Array(vec![
+        Value::Text(a.actor_id.clone()),
+        Value::Text(a.actor_type.clone()),
     ])
 }
 
