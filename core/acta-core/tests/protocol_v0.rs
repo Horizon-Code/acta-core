@@ -5,7 +5,7 @@ use acta_core::process::validate_process_v0;
 use acta_core::receipt::receipt_v0_signing_payload;
 use acta_core::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0, CommitmentsV0, EventKindRef,
-    PolicySnapshotV0, ProcessRef, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
+    PolicySnapshotV0, ProcessRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
 };
 
 fn sample_policy_snapshot() -> PolicySnapshotV0 {
@@ -24,7 +24,7 @@ fn sample_event(event_id: &str, process_id: &str) -> ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_id: event_id.to_string(),
         issued_at: "2026-01-24T10:00:00Z".to_string(),
-        process_ref: ProcessRef {
+        process_ref: ProcessRefV0 {
             process_id: process_id.to_string(),
             process_type: "aml.transfer.v1".to_string(),
         },
@@ -167,5 +167,24 @@ fn process_validates_only_process_invariants() {
         sample_event("evt-0001", "proc-001"),
         sample_event("evt-0002", "proc-002"),
     ];
-    assert!(validate_process_v0(&bad).is_err());
+    let err = validate_process_v0(&bad).unwrap_err();
+    assert!(matches!(
+        err,
+        acta_core::process::ProcessError::ProcessIdMismatch { .. }
+    ));
+}
+
+#[test]
+fn process_rejects_process_type_changes_with_same_process_id() {
+    let mut first = sample_event("evt-0001", "proc-001");
+    first.process_ref.process_type = "aml.transfer.v1".to_string();
+
+    let mut second = sample_event("evt-0002", "proc-001");
+    second.process_ref.process_type = "aml.review.v1".to_string();
+
+    let err = validate_process_v0(&[first, second]).unwrap_err();
+    assert!(matches!(
+        err,
+        acta_core::process::ProcessError::ProcessTypeMismatch { .. }
+    ));
 }

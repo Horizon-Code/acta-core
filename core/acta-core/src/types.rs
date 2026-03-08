@@ -26,7 +26,7 @@ pub struct CommitmentsV0 {
 
 // Referencia a proceso (case/process)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProcessRef {
+pub struct ProcessRefV0 {
     pub process_id: String,
     pub process_type: String,
 }
@@ -60,7 +60,7 @@ pub struct ActaEventV0 {
     pub protocol: String, // PROTOCOL_VERSION
     pub event_id: String, // Todo pub event_id: uuid::Uuid v7
     pub issued_at: String, // ISO-8601 for MVP
-    pub process_ref: ProcessRef,
+    pub process_ref: ProcessRefV0,
     pub event_kind: EventKindRef,
     pub commitments: CommitmentsV0,
     pub policy_snapshot: PolicySnapshotV0,

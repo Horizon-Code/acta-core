@@ -8,7 +8,7 @@ pub mod types;
 use acta_core::hash::hash_event_v0;
 use acta_core::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0, CommitmentsV0, PolicySnapshotV0,
-    ProcessRef, PROTOCOL_VERSION,
+    ProcessRefV0, PROTOCOL_VERSION,
 };
 use types::{
     AmlDomainEventV0, AmlEventPayloadV0, EventTypeV0, ManualReviewOutcomeV0, ManualReviewPayloadV0,
@@ -16,7 +16,7 @@ use types::{
 
 #[derive(Debug, Clone)]
 pub struct AmlDemoProcessV0 {
-    pub process_ref: ProcessRef,
+    pub process_ref: ProcessRefV0,
     pub policy_snapshot: PolicySnapshotV0,
     pub domain_events: Vec<AmlDomainEventV0>,
     pub core_events: Vec<ActaEventV0>, // base computational facts
@@ -25,7 +25,7 @@ pub struct AmlDemoProcessV0 {
 }
 
 pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
-    let process_ref = ProcessRef {
+    let process_ref = ProcessRefV0 {
         process_id: "AML-CASE-2025-000341".to_string(),
         process_type: "aml.transfer.v1".to_string(),
     };

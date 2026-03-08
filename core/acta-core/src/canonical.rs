@@ -8,7 +8,7 @@
 
 use crate::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRef, PolicySnapshotV0,
-    ProcessRef, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
+    ProcessRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
 };
 use ciborium::value::Value;
 
@@ -107,7 +107,7 @@ fn commitments_v0_to_value(c: &CommitmentsV0) -> Value {
     ])
 }
 
-fn process_ref_v0_to_value(p: &ProcessRef) -> Value {
+fn process_ref_v0_to_value(p: &ProcessRefV0) -> Value {
     Value::Array(vec![
         Value::Text(p.process_id.clone()),
         Value::Text(p.process_type.clone()),
