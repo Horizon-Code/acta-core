@@ -1,7 +1,7 @@
 //! AML profile example (outside acta-core domain-agnostic modules).
 //!
 //! This module preserves AML-specific semantics as domain types while
-//! projecting to generic core events (`ActaEventV0` + `EventKindRef`).
+//! projecting to generic core events (`ActaEventV0` + `EventKindRefV0`).
 
 pub mod types;
 
@@ -11,7 +11,7 @@ use acta_core::types::{
     ProcessRefV0, PROTOCOL_VERSION,
 };
 use types::{
-    AmlDomainEventV0, AmlEventPayloadV0, EventTypeV0, ManualReviewOutcomeV0, ManualReviewPayloadV0,
+    AmlDomainEventV0, ManualReviewOutcomeV0, ManualReviewPayloadV0,
 };
 
 #[derive(Debug, Clone)]
@@ -41,71 +41,65 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
 
     let actor_ref = "tap:AML-Sentinel-v4.5-build-2025-01-15".to_string();
 
-    let event_specs: Vec<(EventTypeV0, &str, CommitmentsV0, Option<AmlEventPayloadV0>)> = vec![
+    let event_specs: Vec<(AmlDomainEventV0, &str, CommitmentsV0)> = vec![
         (
-            EventTypeV0::ProcessOpened,
+            AmlDomainEventV0::ProcessOpened,
             "2025-01-15T10:00:00Z",
             CommitmentsV0 {
                 inputs_commitment: "sha256:process_opened_inputs".to_string(),
                 outputs_commitment: "sha256:process_opened_outputs".to_string(),
                 artifact_commitment: "sha256:process_opened_artifacts".to_string(),
             },
-            None,
         ),
         (
-            EventTypeV0::TransferRequested,
+            AmlDomainEventV0::TransferRequested,
             "2025-01-15T10:15:00Z",
             CommitmentsV0 {
                 inputs_commitment: "sha256:transfer_request_inputs".to_string(),
                 outputs_commitment: "sha256:transfer_request_outputs".to_string(),
                 artifact_commitment: "sha256:transfer_request_artifacts".to_string(),
             },
-            None,
         ),
         (
-            EventTypeV0::AmlScored,
+            AmlDomainEventV0::AmlScored,
             "2025-01-15T10:30:00Z",
             CommitmentsV0 {
                 inputs_commitment: "sha256:aml_score_inputs".to_string(),
                 outputs_commitment: "sha256:aml_score_outputs_with_risk_score".to_string(),
                 artifact_commitment: "sha256:aml_score_artifacts".to_string(),
             },
-            None,
         ),
         (
-            EventTypeV0::ManualReview,
+            AmlDomainEventV0::ManualReview(ManualReviewPayloadV0 {
+                reviewer_role: "aml_analyst".to_string(),
+                reviewer_ref: Some("sha256:internal_user_aml_analyst_id_123".to_string()),
+                outcome: ManualReviewOutcomeV0::ConfirmFreeze,
+                notes_commitment: Some("sha256:review_notes_and_evidence".to_string()),
+            }),
             "2025-01-15T11:00:00Z",
             CommitmentsV0 {
                 inputs_commitment: "sha256:manual_review_inputs".to_string(),
                 outputs_commitment: "sha256:manual_review_outputs".to_string(),
                 artifact_commitment: "sha256:manual_review_artifacts".to_string(),
             },
-            Some(AmlEventPayloadV0::ManualReview(ManualReviewPayloadV0 {
-                reviewer_role: "aml_analyst".to_string(),
-                reviewer_ref: Some("sha256:internal_user_aml_analyst_id_123".to_string()),
-                outcome: ManualReviewOutcomeV0::ConfirmFreeze,
-                notes_commitment: Some("sha256:review_notes_and_evidence".to_string()),
-            })),
         ),
         (
-            EventTypeV0::AccountFrozen,
+            AmlDomainEventV0::AccountFrozen,
             "2025-01-15T11:05:00Z",
             CommitmentsV0 {
                 inputs_commitment: "sha256:freeze_inputs".to_string(),
                 outputs_commitment: "sha256:freeze_outputs".to_string(),
                 artifact_commitment: "sha256:freeze_artifacts".to_string(),
             },
-            None,
         ),
         (
-            EventTypeV0::ProcessClosed,
+            AmlDomainEventV0::ProcessClosed,
             "2025-01-15T11:10:00Z",
             CommitmentsV0 {
                 inputs_commitment: "sha256:close_inputs".to_string(),
                 outputs_commitment: "sha256:close_outputs".to_string(),
                 artifact_commitment: "sha256:close_artifacts".to_string(),
             },
-            None,
         ),
     ];
 
@@ -115,8 +109,8 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
     let mut core_hashes = Vec::with_capacity(event_specs.len());
     let mut prev_hash: Option<String> = None;
 
-    for (idx, (event_type, issued_at, commitments, payload)) in event_specs.into_iter().enumerate() {
-        let event_kind = event_type.to_event_kind_ref();
+    for (idx, (domain_event, issued_at, commitments)) in event_specs.into_iter().enumerate() {
+        let event_kind = domain_event.to_event_kind_ref();
 
         let core_event = ActaEventV0 {
             protocol: PROTOCOL_VERSION.to_string(),
@@ -139,11 +133,7 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
         };
         prev_hash = Some(hash.clone());
 
-        domain_events.push(AmlDomainEventV0 {
-            event_type,
-            core_event_kind: event_kind,
-            payload,
-        });
+        domain_events.push(domain_event);
         chronos_events.push(ChronosStampedEventV0 {
             event: core_event.clone(),
             chronos_ref,
