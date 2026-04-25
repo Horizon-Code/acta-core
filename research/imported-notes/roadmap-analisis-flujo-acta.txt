@@ -1,0 +1,57 @@
+# TODO (classification): this was imported as analysis support material and is currently treated as research rather than normative roadmap.
+
+## Roadmap De Análisis Del Flujo ACTA (Desde `ActaEventV0`)
+
+### Resumen
+Partimos del JSON de entrada ya normalizado como `ActaEventV0` y recorremos el pipeline completo del core en orden de ejecución real: tipado -> canonicalización -> hash -> Chronos/proceso -> receipt -> bundle.  
+Objetivo: en cada paso entender **qué entra**, **qué valida**, **qué sale** y **qué invariantes protege**.
+
+### Plan De Recorrido (archivo por archivo)
+1. **Contrato de entrada (tipos core)**
+   - Archivo: `core/acta-core/src/types.rs`
+   - Qué revisamos: `ActaEventV0`, `ProcessRef`, `EventKindRef`, invariantes de campos.
+   - Entregable: tabla “campo -> propósito -> obligatorio/opcional”.
+
+2. **Transformación determinista**
+   - Archivo: `core/acta-core/src/canonical.rs`
+   - Qué revisamos: orden exacto de campos en CBOR, checks de `protocol` y campos requeridos.
+   - Entregable: esquema de array canónico `ActaEventV0 -> bytes`.
+
+3. **Huella criptográfica del evento**
+   - Archivo: `core/acta-core/src/hash.rs`
+   - Qué revisamos: `hash_event_v0`, dependencia directa de canonicalización.
+   - Entregable: fórmula exacta `event_hash = SHA256(canonical_event_v0_bytes)`.
+
+4. **Integridad temporal/encadenado**
+   - Archivos: `core/acta-core/src/chronos.rs` y `core/acta-core/src/process.rs`
+   - Qué revisamos: reglas sobre `ChronosRefV0` (`epoch_id`, `prev_event_hash`), continuidad de cadena, invariantes de proceso agnóstico.
+   - Entregable: checklist de validación por evento (`genesis`, `continuidad`, `process_id`, `epoch_id` no vacío).
+
+5. **Recibos y firma**
+   - Archivo: `core/acta-core/src/receipt.rs` (apoyado en `canonical.rs`/`hash.rs`)
+   - Qué revisamos: payload a firmar (body), shape del recibo, orden de firmas.
+   - Entregable: diagrama “Receipt BODY vs Receipt FULL”.
+
+6. **Prueba portable de verificación**
+   - Archivo: `core/acta-core/src/bundle.rs`
+   - Qué revisamos: recomputación de hashes + inclusión Merkle + resultado de verificación.
+   - Entregable: flujo final de verificación end-to-end del bundle.
+
+7. **Contexto de dominio (fuera del core)**
+   - Archivos: `core/acta-core/profiles/aml/types.rs`, `core/acta-core/profiles/aml/mod.rs`, `core/acta-core/examples/aml_process.rs`
+   - Qué revisamos: cómo dominio AML se proyecta a `EventKindRef` sin contaminar core.
+   - Entregable: mapa “tipo dominio -> ActaEventV0”.
+
+### Casos de prueba que iremos validando durante el análisis
+- `protocol` incorrecto.
+- Campo requerido vacío (`event_id`, `issued_at`, `actor_ref.actor_id`, `actor_ref.actor_type`).
+- `chronos_ref.prev_event_hash` nulo/no nulo en posición incorrecta.
+- Mismatch entre `hashes[i-1]` y `chronos_ref.prev_event_hash`.
+- Bundle con `event_hash` o `receipt_body_hash` no consistente.
+- Dominio AML mapeado correctamente a `event_kind` (`namespace/kind/version`).
+
+### Supuestos y decisiones por defecto
+- El input ya llega al core como `ActaEventV0` (normalización de dominio hecha en `services`/profiles).
+- No analizamos networking/DB/anchoring on-chain en este recorrido (fuera de `acta-core`).
+- Avanzamos en este orden para minimizar saltos conceptuales: **tipos -> bytes -> hash -> cadena -> recibo -> bundle**.
+

@@ -1,6 +1,5 @@
 [workspace]
 resolver = "2"
 members = [
-  "core/acta-core",
+  "core/rust/acta-core",
 ]
-

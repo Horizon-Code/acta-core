@@ -1,11 +1,11 @@
 //! AML profile runner example.
 //!
-//! Domain flow is defined in `core/acta-core/profiles/aml/`.
+//! Domain flow is defined in `profiles/aml/rust/`.
 
 use acta_core::chronos::verify_event_chain_v0;
 use acta_core::process::validate_process_v0;
 
-#[path = "../profiles/aml/mod.rs"]
+#[path = "../../../../profiles/aml/rust/mod.rs"]
 mod aml_profile;
 
 fn main() {
