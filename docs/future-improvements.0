@@ -1,0 +1,409 @@
+# ACTA — Mejoras Estratégicas y Especificación Ejecutable (v1)
+
+## 1. Objetivo de este documento
+
+Este documento define:
+
+* mejoras sobre ACTA basadas en análisis crítico
+* integración de control de LLM dentro del sistema
+* definición de un **runtime ejecutable real**
+* alineación con el principio clave:
+
+> ACTA no controla decisiones, ACTA responsabiliza actos
+
+---
+
+## 2. Principio rector (refinado)
+
+ACTA es:
+
+> infraestructura para ejecutar, validar y auditar actos computacionales con responsabilidad verificable
+
+Extensión clave:
+
+> el sistema debe ser fiable aunque la IA no lo sea
+
+---
+
+## 3. Problema detectado
+
+ACTA tiene:
+
+✅ Arquitectura sólida (PoE, Chronos, TAP, Policy, Evidence, Disputa)
+❌ Falta un **modelo de ejecución estándar (runtime)**
+
+Consecuencia:
+
+* difícil implementación práctica
+* cada sistema lo implementaría distinto
+* pérdida de consistencia
+
+---
+
+## 4. Solución: Execution Pipeline Oficial
+
+Se define un pipeline obligatorio para todo sistema ACTA:
+
+```
+Input
+→ Observed Event
+→ Assessment
+→ Act
+→ Validation
+→ Evidence
+→ Persistencia
+→ Evaluación
+```
+
+---
+
+## 5. Definición de cada fase
+
+### 5.1 Input
+
+* datos del caso
+* contexto externo
+* políticas relevantes
+
+---
+
+### 5.2 Observed Event (Chronos)
+
+Se genera un evento inicial:
+
+* chronos_event_id
+* prev_event
+* epoch
+
+👉 Aquí nace la historia verificable
+
+---
+
+### 5.3 Assessment (LLM o sistema)
+
+Proceso de decisión:
+
+* LLM (no determinista)
+* reglas deterministas
+* modelos ML
+
+⚠️ No es confiable por sí mismo
+
+---
+
+### 5.4 Act (núcleo ACTA)
+
+Toda decisión se convierte en un ACTO:
+
+```
+{
+  decision,
+  actor,
+  context,
+  policy_ref,
+  confidence
+}
+```
+
+Regla:
+
+> nunca almacenar decisiones sueltas
+
+---
+
+### 5.5 Validation (Policy + reglas)
+
+Validaciones obligatorias:
+
+* decisión permitida
+* policy vigente
+* actor autorizado (TAP)
+* confidence ≥ threshold
+
+Si falla:
+
+* reject
+* fallback
+* escalar a humano
+
+---
+
+### 5.6 Evidence
+
+Generación de commitments:
+
+* inputs_commitment
+* outputs_commitment
+* artifact_commitment (modelo / sistema)
+
+- evidence_bundle_id
+
+---
+
+### 5.7 Persistencia
+
+Se registra:
+
+* evento Chronos
+* commitments (PoE)
+* referencias a TAP y Policy
+
+👉 Se crea historia inmutable
+
+---
+
+### 5.8 Evaluación
+
+Cada acto se evalúa:
+
+```
+{
+  result: correct | incorrect | disputed,
+  score,
+  evaluated_by,
+  method
+}
+```
+
+---
+
+## 6. Estándar de interacción con LLM
+
+### 6.1 Output obligatorio
+
+El LLM SIEMPRE debe devolver:
+
+```
+{
+  decision: string,
+  reasoning: string,
+  confidence: number,
+  policy_ref: string,
+  status: "ok" | "insufficient_information"
+}
+```
+
+---
+
+### 6.2 Reglas críticas
+
+* ❌ prohibido texto libre
+* ❌ prohibido decidir sin contexto
+* ❌ prohibido inventar respuesta
+
+---
+
+### 6.3 Anti-alucinación
+
+Se introduce estado obligatorio:
+
+```
+status = insufficient_information
+```
+
+Esto implica:
+
+* no se ejecuta acto
+* se solicita más contexto o escala
+
+---
+
+### 6.4 Validación del output
+
+El sistema valida:
+
+* estructura correcta
+* campos obligatorios
+* valores permitidos
+* confianza mínima
+
+---
+
+## 7. Control total del LLM
+
+Principio:
+
+> El LLM propone, ACTA decide
+
+ACTA debe incluir:
+
+* validadores
+* restricciones
+* guardrails
+* fallback determinista
+
+---
+
+## 8. TAP (actor técnico obligatorio)
+
+Se refuerza:
+
+```
+actor ≠ "system"
+```
+
+Debe incluir:
+
+* sistema concreto
+* versión
+* capacidades
+* ámbito
+* vigencia
+
+👉 Esto habilita responsabilidad real
+
+---
+
+## 9. Policy (obligación previa)
+
+Regla clave:
+
+> toda decisión debe referenciar una policy versionada
+
+Validaciones:
+
+* vigencia
+* ámbito
+* obligatoriedad
+
+---
+
+## 10. Chronos (ventaja diferencial de ACTA)
+
+Se refuerza como obligatorio:
+
+* secuencia de eventos
+* prev_event
+* epoch
+* receipts
+
+👉 Garantiza:
+
+* anti-omisión
+* historia verificable
+* continuidad procesal
+
+---
+
+## 11. Evidence (estructura universal)
+
+Se define como estándar:
+
+```
+{
+  inputs_commitment,
+  outputs_commitment,
+  artifact_commitment,
+  evidence_bundle_id,
+  disclosure_policy
+}
+```
+
+---
+
+## 12. Evaluación → Disputa
+
+Cambio clave:
+
+❌ Evaluación aislada
+✅ Evaluación como precursor de disputa
+
+Flujo:
+
+```
+Evaluación → inconsistencia → claim → disputa → resolución
+```
+
+---
+
+## 13. Disputa (obligatoria en sistemas críticos)
+
+Debe permitir:
+
+* identificar acto cuestionado
+* solicitar evidencia
+* presentar pruebas
+* resolver sin re-ejecutar IA
+
+---
+
+## 14. Observabilidad total
+
+El sistema debe registrar:
+
+* input
+* contexto
+* prompt
+* output
+* modelo y versión
+* decisiones de validación
+
+---
+
+## 15. Versionado completo
+
+Cada ejecución incluye:
+
+* model_version
+* prompt_version
+* policy_version
+* tap_version
+
+---
+
+## 16. Seguridad
+
+Debe incluir:
+
+* control de accesos
+* protección de datos
+* auditoría de uso
+* disclosure controlado
+
+---
+
+## 17. Principios reforzados
+
+### 17.1 Nunca decisiones, siempre actos
+
+### 17.2 Separar:
+
+* descriptivo (logs)
+* constitutivo (validez)
+
+### 17.3 No depender del LLM
+
+### 17.4 Diseñar para disputa desde el inicio
+
+---
+
+## 18. Insight final
+
+ACTA no es:
+
+* un wrapper de LLM
+* un sistema de logging
+* un framework de prompts
+
+ACTA es:
+
+> infraestructura de responsabilidad para sistemas computacionales
+
+---
+
+## 19. Regla final
+
+> El LLM propone
+> ACTA valida, ejecuta, registra y responde
+
+---
+
+## 20. Próximo paso recomendado
+
+Definir:
+
+* schemas formales (JSON/CBOR)
+* contratos de validación
+* implementación base (SDK / backend)
+
+👉 Pasar de arquitectura → sistema operativo real
