@@ -1,32 +1,38 @@
 # ACTA
 
-ACTA MVP (Cardano-native), organized by authority level to keep direction, architecture, core implementation, profiles, decisions, research, and roadmap separate.
+ACTA MVP (Cardano-native), organized by authority level so constitutional texts, architecture, directional references, implementation, and exploratory work remain disciplined.
 
 ## Authority hierarchy
 
-1. `direction/`
+1. `constitution/`
 2. `architecture/`
-3. `core/`
-4. `profiles/`
-5. `decisions/`
-6. `research/`
-7. `roadmap/`
+3. `direction/`
+4. `core/`
+5. `profiles/`
+6. `decisions/`
+7. `research/`
+8. `roadmap/`
+
+No lower authority level may redefine a higher authority level.
 
 ## Repository map
 
-- `direction/` — external and directional intellectual sources that guide ACTA.
-- `architecture/` — ACTA internal architectural model, semantic layers, and system boundaries.
+- `constitution/` — ACTA's highest-authority internal constitutional texts.
+- `architecture/` — ACTA internal architectural model, semantic layers, system boundaries, and execution structure.
+- `direction/` — external and non-binding intellectual sources that guide thinking, but do not define ACTA internally.
 - `core/` — implementation of protocol primitives and invariants.
-- `profiles/` — domain-specific specializations (for example AML), subordinate to architecture.
-- `decisions/` — ADR records that freeze key boundaries.
-- `research/` — exploratory notes, imports, open questions, comparisons.
+- `profiles/` — domain-specific specializations subordinate to architecture.
+- `decisions/` — ADR records that freeze key boundaries and choices.
+- `research/` — exploratory notes, imports, open questions, and analysis.
 - `roadmap/` — current state, milestones, risks, and sequencing of work.
+
+## Governance rules
+
+- `direction/` guides ACTA, but does not define ACTA's internal constitutional or architectural categories.
+- If a file mixes authority levels, split it into classified files at the correct levels.
+- Absorbed ideas from external sources become binding only if rewritten explicitly under `constitution/`, `architecture/`, or `decisions/`.
 
 ## Core code location
 
 - Rust workspace crate: `core/rust/acta-core`
 - AML profile Rust helpers for examples: `profiles/aml/rust`
-
-## Working rule
-
-If a file mixes levels, split it by authority and keep architectural truth in `architecture/` and binding boundaries in `decisions/`.

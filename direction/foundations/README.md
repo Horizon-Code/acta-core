@@ -1,9 +1,9 @@
-# Foundations Sources
+# Foundations Direction Sources
 
-This folder contains foundational directional material.
+This folder is reserved for external foundational direction sources.
 
-## Current source
+## Authority boundary
 
-- `ACTA_Foundations_v1.1_FINAL.pdf`
+Material here is non-binding and cannot define ACTA constitutional or architectural categories.
 
-TODO: Confirm whether this document should remain purely directional or if parts should be distilled into architectural text under `architecture/`.
+External ideas become binding only when rewritten explicitly under `constitution/`, `architecture/`, or `decisions/`.

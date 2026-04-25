@@ -5,24 +5,28 @@
 
 ## Context
 
-Repository materials were mixed across philosophy, architecture, implementation, and exploratory notes, which made boundaries hard to enforce.
+Repository materials were mixed across constitutional foundations, architecture, implementation, and exploratory notes, which made boundaries hard to enforce.
 
 ## Decision
 
 Adopt the following authority hierarchy for repository organization:
 
-1. `direction`
+1. `constitution`
 2. `architecture`
-3. `core`
-4. `profiles`
-5. `decisions`
-6. `research`
-7. `roadmap`
+3. `direction`
+4. `core`
+5. `profiles`
+6. `decisions`
+7. `research`
+8. `roadmap`
 
-Each top-level folder is authoritative only for its level. Lower levels may not redefine higher levels.
+Each top-level folder is authoritative only for its level. No lower level may redefine a higher level.
+
+`direction/` may guide thinking but is non-binding by itself. External ideas become binding only when rewritten under `constitution/`, `architecture/`, or `decisions/`.
 
 ## Consequences
 
-- Material placement is now explicit by authority.
-- Architectural and profile boundaries are easier to maintain.
-- Exploratory notes are preserved without becoming normative by accident.
+- Material placement is explicit by authority level.
+- Constitutional and architectural boundaries are easier to maintain.
+- External direction remains useful without becoming normative by accident.
+- Exploratory notes are preserved without redefining internal governance.

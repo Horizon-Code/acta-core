@@ -1,18 +1,16 @@
 # Direction
 
-Directional sources that guide ACTA but are not the normative architecture of the repository.
+`direction/` contains external, non-binding intellectual sources.
 
-## Belongs here
+## Scope
 
-- Foundations texts and external intellectual inputs.
-- Extracted high-level principles used to inform architecture drafts.
+- Directional references and imported frameworks from outside ACTA.
+- Principle extraction material that can inform ACTA evolution.
 
-## Does not belong here
+## Authority boundary
 
-- Internal ACTA dependency rules.
-- Core implementation details.
-- Profile-specific semantics.
+- `direction/` may inform `architecture/` and `decisions/`.
+- `direction/` does not define ACTA's internal constitutional or architectural categories.
+- No text in `direction/` is binding by itself.
 
-## Relationship to other folders
-
-`direction/` informs `architecture/`, but does not override ADRs in `decisions/`.
+External ideas become binding only when rewritten explicitly under `constitution/`, `architecture/`, or `decisions/`.
