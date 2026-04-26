@@ -1,17 +1,23 @@
 # Core
 
-Implementation of ACTA primitives and invariants.
+Implementation of ACTA protocol primitives and invariants.
 
 ## Belongs here
 
 - Deterministic protocol logic.
 - Cryptographic and structural verification primitives.
-- Replaceable technical modules that do not redefine architecture.
+- Technical placeholders and replaceable modules under `core/modules/`.
+
+## Authority boundary
+
+- Location in `core/` does not imply constitutional rank.
+- Modules in `core/modules/` do not gain constitutional authority by placement.
+- Domain semantics must stay out of `core/` unless explicitly promoted by higher-authority texts.
 
 ## Does not belong here
 
 - Domain semantic taxonomies (for example AML event semantics).
-- Architectural governance text.
+- Constitutional or architectural governance definitions.
 
 ## Current layout
 

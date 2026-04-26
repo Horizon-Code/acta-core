@@ -2,18 +2,20 @@
 
 ACTA's internal architectural model: semantic layers, dependency boundaries, lifecycle structure, and system-level design.
 
+## Authority boundary
+
+- `architecture/` is subordinate to `constitution/`.
+- `profiles/` may specialize architecture but may not redefine it.
+- `architecture/` defines internal structure, not exploratory notes.
+
 ## Belongs here
 
-- Architecture drafts and models.
+- Architecture models and constraints.
 - Dependency and lifecycle definitions.
-- Profile architecture constraints.
+- Profile architecture boundaries.
 
 ## Does not belong here
 
-- Core code.
-- Domain profile implementation.
-- Exploratory notes without architectural commitment.
-
-## Relationship to other folders
-
-`architecture/` translates `direction/` into ACTA-internal structure. Binding boundary choices are frozen in `decisions/`.
+- Core implementation code.
+- Domain profile implementation details.
+- Exploratory material without architectural commitment.
