@@ -3,8 +3,8 @@
 Highest-authority internal ACTA texts.
 
 Reference note:
-- Current file present: `ACTA_Foundations_v1.1_FINAL.pdf`.
-- Canonical target reference is ACTA Foundations v1.2; TODO to add the v1.2 source artifact in this folder.
+- Canonical internal constitutional reference is ACTA Foundations v1.2:
+  `ACTA_Foundations_v1.2_consolidado.pdf`.
 
 ## Purpose
 

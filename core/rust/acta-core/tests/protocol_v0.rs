@@ -1,5 +1,5 @@
-use acta_core::chronos::{verify_event_chain_v0, ChronosError};
 use acta_core::bundle::{verify_bundle_v0, AnchorRefV0, BundleError, BundleV0};
+use acta_core::chronos::{verify_event_chain_v0, ChronosError};
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0, hash_receipt_full_v0};
 use acta_core::merkle::{merkle_proof_v0, merkle_root_v0, verify_merkle_proof_v0, Sibling};
 use acta_core::process::validate_process_v0;
@@ -36,12 +36,15 @@ fn sample_event(event_id: &str, process_id: &str) -> ActaEventV0 {
             version: "1.0".to_string(),
         },
         commitments: CommitmentsV0 {
-            inputs_commitment: "sha256:1111111111111111111111111111111111111111111111111111111111111111"
-                .to_string(),
-            outputs_commitment: "sha256:2222222222222222222222222222222222222222222222222222222222222222"
-                .to_string(),
-            artifact_commitment: "sha256:3333333333333333333333333333333333333333333333333333333333333333"
-                .to_string(),
+            inputs_commitment:
+                "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+                    .to_string(),
+            outputs_commitment:
+                "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+                    .to_string(),
+            artifact_commitment:
+                "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+                    .to_string(),
         },
         policy_snapshot: sample_policy_snapshot(),
         actor_ref: ActorRefV0 {
@@ -61,7 +64,11 @@ fn stamped(event: ActaEventV0, epoch: &str, prev: Option<String>) -> ChronosStam
     }
 }
 
-fn sample_receipt(event_hash: &str, chronos_ref: ChronosRefV0, signatures: Vec<SignatureV0>) -> ReceiptV0 {
+fn sample_receipt(
+    event_hash: &str,
+    chronos_ref: ChronosRefV0,
+    signatures: Vec<SignatureV0>,
+) -> ReceiptV0 {
     ReceiptV0 {
         protocol: PROTOCOL_VERSION.to_string(),
         event_hash: event_hash.to_string(),
@@ -271,6 +278,22 @@ fn merkle_leaf_index_is_enforced() {
         siblings: proof.siblings.clone(),
     };
     assert!(!verify_merkle_proof_v0(&leaves[1], &wrong_index_proof, &root).unwrap());
+}
+
+#[test]
+fn merkle_rejects_unconsumed_high_bits_in_leaf_index() {
+    let leaves = vec![
+        hash_event_v0(&sample_event("evt-0211", "proc-0210")).unwrap(),
+        hash_event_v0(&sample_event("evt-0212", "proc-0210")).unwrap(),
+        hash_event_v0(&sample_event("evt-0213", "proc-0210")).unwrap(),
+    ];
+    let root = merkle_root_v0(&leaves).unwrap();
+    let proof = merkle_proof_v0(&leaves, 1).unwrap();
+    assert!(verify_merkle_proof_v0(&leaves[1], &proof, &root).unwrap());
+
+    let mut high_bits_index_proof = proof.clone();
+    high_bits_index_proof.leaf_index = proof.leaf_index + (1 << proof.siblings.len());
+    assert!(!verify_merkle_proof_v0(&leaves[1], &high_bits_index_proof, &root).unwrap());
 }
 
 fn sample_bundle() -> BundleV0 {

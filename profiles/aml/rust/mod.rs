@@ -10,9 +10,7 @@ use acta_core::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0, CommitmentsV0, PolicySnapshotV0,
     ProcessRefV0, PROTOCOL_VERSION,
 };
-use types::{
-    AmlDomainEventV0, ManualReviewOutcomeV0, ManualReviewPayloadV0,
-};
+use types::{AmlDomainEventV0, ManualReviewOutcomeV0, ManualReviewPayloadV0};
 
 #[derive(Debug, Clone)]
 pub struct AmlDemoProcessV0 {
@@ -46,8 +44,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             AmlDomainEventV0::ProcessOpened,
             "2025-01-15T10:00:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:1111111111111111111111111111111111111111111111111111111111111111"
-                    .to_string(),
+                inputs_commitment:
+                    "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+                        .to_string(),
                 outputs_commitment:
                     "sha256:2222222222222222222222222222222222222222222222222222222222222222"
                         .to_string(),
@@ -60,8 +59,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             AmlDomainEventV0::TransferRequested,
             "2025-01-15T10:15:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:4444444444444444444444444444444444444444444444444444444444444444"
-                    .to_string(),
+                inputs_commitment:
+                    "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+                        .to_string(),
                 outputs_commitment:
                     "sha256:5555555555555555555555555555555555555555555555555555555555555555"
                         .to_string(),
@@ -74,8 +74,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             AmlDomainEventV0::AmlScored,
             "2025-01-15T10:30:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:7777777777777777777777777777777777777777777777777777777777777777"
-                    .to_string(),
+                inputs_commitment:
+                    "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+                        .to_string(),
                 outputs_commitment:
                     "sha256:8888888888888888888888888888888888888888888888888888888888888888"
                         .to_string(),
@@ -99,8 +100,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             }),
             "2025-01-15T11:00:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-                    .to_string(),
+                inputs_commitment:
+                    "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                        .to_string(),
                 outputs_commitment:
                     "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
                         .to_string(),
@@ -113,8 +115,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             AmlDomainEventV0::AccountFrozen,
             "2025-01-15T11:05:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-                    .to_string(),
+                inputs_commitment:
+                    "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+                        .to_string(),
                 outputs_commitment:
                     "sha256:1212121212121212121212121212121212121212121212121212121212121212"
                         .to_string(),
@@ -127,8 +130,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             AmlDomainEventV0::ProcessClosed,
             "2025-01-15T11:10:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:1414141414141414141414141414141414141414141414141414141414141414"
-                    .to_string(),
+                inputs_commitment:
+                    "sha256:1414141414141414141414141414141414141414141414141414141414141414"
+                        .to_string(),
                 outputs_commitment:
                     "sha256:1515151515151515151515151515151515151515151515151515151515151515"
                         .to_string(),

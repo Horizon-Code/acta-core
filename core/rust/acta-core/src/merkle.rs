@@ -11,8 +11,8 @@
 //! - Internal node hash = SHA256(left_bytes || right_bytes).
 //! - Leaves are expected as hex-encoded SHA-256 hashes (32 bytes).
 
-use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 /// Hex string of a SHA-256 hash (32 bytes).
 pub type HashHex = String;
@@ -65,7 +65,10 @@ pub fn merkle_root_v0(leaves: &[HashHex]) -> Result<HashHex, MerkleError> {
 }
 
 /// Generate an inclusion proof for the leaf at `leaf_index`.
-pub fn merkle_proof_v0(leaves: &[HashHex], leaf_index: usize) -> Result<MerkleProofV0, MerkleError> {
+pub fn merkle_proof_v0(
+    leaves: &[HashHex],
+    leaf_index: usize,
+) -> Result<MerkleProofV0, MerkleError> {
     if leaves.is_empty() {
         return Err(MerkleError::EmptyLeaves);
     }
@@ -102,7 +105,10 @@ pub fn merkle_proof_v0(leaves: &[HashHex], leaf_index: usize) -> Result<MerklePr
         let _ = sib_idx;
     }
 
-    Ok(MerkleProofV0 { leaf_index, siblings })
+    Ok(MerkleProofV0 {
+        leaf_index,
+        siblings,
+    })
 }
 
 /// Verify an inclusion proof: does `leaf_hash` belong to a Merkle tree with `expected_root`?
@@ -138,6 +144,9 @@ pub fn verify_merkle_proof_v0(
             }
         };
         idx /= 2;
+    }
+    if idx != 0 {
+        return Ok(false);
     }
 
     let got_root = hex::encode(current);

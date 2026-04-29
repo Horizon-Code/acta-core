@@ -25,22 +25,22 @@ use crate::types::{ActaEventV0, ChronosRefV0, ReceiptV0, PROTOCOL_VERSION};
 /// Core does NOT verify it, but it carries the info needed to verify externally.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnchorRefV0 {
-    pub chain: String,      // e.g. "cardano"
-    pub tx_id: String,      // transaction id
-    pub slot: Option<u64>,  // optional, if known
-    pub epoch_root: HashHex // the anchored root (hex sha256)
+    pub chain: String,       // e.g. "cardano"
+    pub tx_id: String,       // transaction id
+    pub slot: Option<u64>,   // optional, if known
+    pub epoch_root: HashHex, // the anchored root (hex sha256)
 }
 
 /// A portable proof bundle for a single ACTA event.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BundleV0 {
-    pub protocol: String,        // "acta.v0"
+    pub protocol: String, // "acta.v0"
     pub event: ActaEventV0,
     pub chronos_ref: ChronosRefV0,
-    pub event_hash: HashHex,     // claimed event hash
+    pub event_hash: HashHex, // claimed event hash
     pub receipt: ReceiptV0,
-    pub receipt_body_hash: HashHex, // claimed signing payload hash
-    pub epoch_root: HashHex,     // Merkle root for the epoch
+    pub receipt_body_hash: HashHex,  // claimed signing payload hash
+    pub epoch_root: HashHex,         // Merkle root for the epoch
     pub merkle_proof: MerkleProofV0, // inclusion proof for event_hash
     pub anchor: Option<AnchorRefV0>, // optional reference for external verification
 }
@@ -106,8 +106,8 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
     }
 
     // 1) Recompute event hash from canonical bytes
-    let computed_event_hash = hash_event_v0(&bundle.event)
-        .map_err(|e| BundleError::EventHashMismatch {
+    let computed_event_hash =
+        hash_event_v0(&bundle.event).map_err(|e| BundleError::EventHashMismatch {
             claimed: bundle.event_hash.clone(),
             computed: format!("hash error: {e}"),
         })?;
@@ -124,11 +124,12 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
         .map_err(|e| BundleError::InvalidReceiptShape(e.to_string()))?;
 
     // 3) Recompute receipt body hash (signing payload hash)
-    let computed_receipt_body_hash = hash_receipt_body_v0(&bundle.receipt)
-        .map_err(|e| BundleError::ReceiptBodyHashMismatch {
+    let computed_receipt_body_hash = hash_receipt_body_v0(&bundle.receipt).map_err(|e| {
+        BundleError::ReceiptBodyHashMismatch {
             claimed: bundle.receipt_body_hash.clone(),
             computed: format!("hash error: {e}"),
-        })?;
+        }
+    })?;
 
     if computed_receipt_body_hash != bundle.receipt_body_hash {
         return Err(BundleError::ReceiptBodyHashMismatch {
@@ -138,12 +139,9 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
     }
 
     // 4) Verify Merkle inclusion: event_hash ∈ epoch_root via proof
-    let merkle_inclusion_ok = verify_merkle_proof_v0(
-        &bundle.event_hash,
-        &bundle.merkle_proof,
-        &bundle.epoch_root,
-    )
-    .map_err(|_| BundleError::InvalidMerkleProof)?;
+    let merkle_inclusion_ok =
+        verify_merkle_proof_v0(&bundle.event_hash, &bundle.merkle_proof, &bundle.epoch_root)
+            .map_err(|_| BundleError::InvalidMerkleProof)?;
 
     if !merkle_inclusion_ok {
         return Err(BundleError::InvalidMerkleProof);

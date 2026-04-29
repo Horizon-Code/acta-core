@@ -14,9 +14,7 @@
 use sha2::{Digest, Sha256};
 
 use crate::canonical::{
-    canonical_event_v0_bytes,
-    canonical_receipt_body_v0_bytes,
-    canonical_receipt_v0_bytes,
+    canonical_event_v0_bytes, canonical_receipt_body_v0_bytes, canonical_receipt_v0_bytes,
 };
 use crate::types::{validate_event_v0_shape, ActaEventV0, EventValidationError, ReceiptV0};
 
@@ -25,6 +23,11 @@ pub type HashHex = String;
 
 /// Compute the canonical hash of an ACTA event (v0).
 ///
+/// Boundary:
+/// - `hash_event_v0` validates structural event shape first.
+/// - Use `hash_event_v0_unchecked` only for low-level/internal paths where
+///   validation is intentionally handled separately.
+///
 /// event_hash = SHA256(canonical_event_bytes)
 pub fn hash_event_v0(event: &ActaEventV0) -> Result<HashHex, HashError> {
     validate_event_v0_shape(event).map_err(HashError::EventValidation)?;
@@ -32,6 +35,9 @@ pub fn hash_event_v0(event: &ActaEventV0) -> Result<HashHex, HashError> {
 }
 
 /// Compute the canonical hash without running event shape validation.
+///
+/// This function is intentionally unchecked and must not be used as a
+/// substitute for structural validation in public/edge-facing paths.
 pub fn hash_event_v0_unchecked(event: &ActaEventV0) -> Result<HashHex, HashError> {
     let bytes = canonical_event_v0_bytes(event)?;
     Ok(sha256_hex(&bytes))

@@ -36,10 +36,7 @@ pub enum ChronosError {
     },
 
     #[error("event[{index}] has missing prev_event_hash (expected {expected})")]
-    MissingPrevHash {
-        index: usize,
-        expected: String,
-    },
+    MissingPrevHash { index: usize, expected: String },
 }
 
 /// Verifies a local chain of events using their Chronos refs and computed event hashes.

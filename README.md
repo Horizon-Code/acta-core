@@ -41,5 +41,5 @@ No lower authority level may redefine a higher authority level.
 
 ## Foundations reference note
 
-Current repo file present: `constitution/ACTA_Foundations_v1.1_FINAL.pdf`.
-TODO: update to explicit ACTA Foundations v1.2 file/reference once it is added to `constitution/`.
+Canonical internal constitutional reference:
+`constitution/ACTA_Foundations_v1.2_consolidado.pdf`.

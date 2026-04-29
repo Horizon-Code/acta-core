@@ -24,6 +24,12 @@ pub enum CanonicalError {
 
 /// Canonical CBOR bytes for ActaEventV0.
 ///
+/// Boundary:
+/// - This function provides deterministic encoding for hash-critical paths.
+/// - It performs only minimal shape checks needed for canonical stability.
+/// - It is not a full event validation API; use `validate_event_v0_shape`
+///   for structural validation.
+///
 /// Encoding is a CBOR array in this exact order:
 /// [
 ///   protocol,

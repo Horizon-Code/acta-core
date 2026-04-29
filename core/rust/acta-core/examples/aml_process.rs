@@ -18,7 +18,10 @@ fn main() {
     let chronos_events = &process.chronos_events;
     let hashes = &process.core_hashes;
 
-    println!("Validating core process invariants for {} events...", events.len());
+    println!(
+        "Validating core process invariants for {} events...",
+        events.len()
+    );
     match validate_process_v0(events) {
         Ok(_) => {
             println!("✓ Process validation PASSED\n");

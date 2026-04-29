@@ -114,5 +114,6 @@ fn ensure_non_empty(v: &str, field: &str) -> Result<(), ReceiptError> {
 }
 
 fn is_sorted_by_attestor_id(sigs: &[SignatureV0]) -> bool {
-    sigs.windows(2).all(|w| w[0].attestor_id <= w[1].attestor_id)
+    sigs.windows(2)
+        .all(|w| w[0].attestor_id <= w[1].attestor_id)
 }

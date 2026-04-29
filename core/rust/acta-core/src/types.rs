@@ -43,7 +43,10 @@ pub fn validate_commitment_v0(value: &str) -> Result<(), CommitmentError> {
     if digest.len() != 64 {
         return Err(CommitmentError::InvalidLength { got: digest.len() });
     }
-    if !digest.chars().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()) {
+    if !digest
+        .chars()
+        .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+    {
         return Err(CommitmentError::InvalidHexDigest);
     }
     Ok(())
@@ -107,6 +110,7 @@ pub struct ActaEventV0 {
     pub policy_snapshot: PolicySnapshotV0,
     pub actor_ref: ActorRefV0,
 }
+}
 
 /// Structural validation only. This does not validate domain/legal/material semantics.
 pub fn validate_event_v0_shape(event: &ActaEventV0) -> Result<(), EventValidationError> {
@@ -132,9 +136,18 @@ pub fn validate_event_v0_shape(event: &ActaEventV0) -> Result<(), EventValidatio
         &event.commitments.artifact_commitment,
         "commitments.artifact_commitment",
     )?;
-    ensure_non_empty(&event.policy_snapshot.policy_id, "policy_snapshot.policy_id")?;
-    ensure_non_empty(&event.policy_snapshot.policy_hash, "policy_snapshot.policy_hash")?;
-    ensure_non_empty(&event.policy_snapshot.policy_type, "policy_snapshot.policy_type")?;
+    ensure_non_empty(
+        &event.policy_snapshot.policy_id,
+        "policy_snapshot.policy_id",
+    )?;
+    ensure_non_empty(
+        &event.policy_snapshot.policy_hash,
+        "policy_snapshot.policy_hash",
+    )?;
+    ensure_non_empty(
+        &event.policy_snapshot.policy_type,
+        "policy_snapshot.policy_type",
+    )?;
     ensure_non_empty(
         &event.policy_snapshot.jurisdiction,
         "policy_snapshot.jurisdiction",
@@ -170,7 +183,6 @@ fn ensure_non_empty(v: &str, field: &str) -> Result<(), EventValidationError> {
         return Err(EventValidationError::MissingField(field.to_string()));
     }
     Ok(())
-}
 }
 
 /// Event plus Chronos placement.
