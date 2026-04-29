@@ -1,11 +1,13 @@
 use acta_core::chronos::{verify_event_chain_v0, ChronosError};
+use acta_core::bundle::{verify_bundle_v0, AnchorRefV0, BundleError, BundleV0};
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0, hash_receipt_full_v0};
-use acta_core::merkle::{merkle_proof_v0, merkle_root_v0, verify_merkle_proof_v0};
+use acta_core::merkle::{merkle_proof_v0, merkle_root_v0, verify_merkle_proof_v0, Sibling};
 use acta_core::process::validate_process_v0;
 use acta_core::receipt::receipt_v0_signing_payload;
 use acta_core::types::{
-    ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0, CommitmentsV0, EventKindRef,
-    PolicySnapshotV0, ProcessRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
+    validate_commitment_v0, validate_event_v0_shape, ActaEventV0, ActorRefV0, ChronosRefV0,
+    ChronosStampedEventV0, CommitmentsV0, EventKindRefV0, EventValidationError, PolicySnapshotV0,
+    ProcessRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
 };
 
 fn sample_policy_snapshot() -> PolicySnapshotV0 {
@@ -28,15 +30,17 @@ fn sample_event(event_id: &str, process_id: &str) -> ActaEventV0 {
             process_id: process_id.to_string(),
             process_type: "aml.transfer.v1".to_string(),
         },
-        event_kind: EventKindRef {
+        event_kind: EventKindRefV0 {
             namespace: "aml".to_string(),
             kind: "risk_scored".to_string(),
             version: "1.0".to_string(),
         },
         commitments: CommitmentsV0 {
-            inputs_commitment: "1111111111111111111111111111111111111111111111111111111111111111".to_string(),
-            outputs_commitment: "2222222222222222222222222222222222222222222222222222222222222222".to_string(),
-            artifact_commitment: "3333333333333333333333333333333333333333333333333333333333333333"
+            inputs_commitment: "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+                .to_string(),
+            outputs_commitment: "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+                .to_string(),
+            artifact_commitment: "sha256:3333333333333333333333333333333333333333333333333333333333333333"
                 .to_string(),
         },
         policy_snapshot: sample_policy_snapshot(),
@@ -186,5 +190,166 @@ fn process_rejects_process_type_changes_with_same_process_id() {
     assert!(matches!(
         err,
         acta_core::process::ProcessError::ProcessTypeMismatch { .. }
+    ));
+}
+
+#[test]
+fn event_shape_validation_works() {
+    let valid = sample_event("evt-0100", "proc-0100");
+    assert!(validate_event_v0_shape(&valid).is_ok());
+
+    let mut missing_event_id = valid.clone();
+    missing_event_id.event_id = " ".to_string();
+    assert!(matches!(
+        validate_event_v0_shape(&missing_event_id),
+        Err(EventValidationError::MissingField(ref f)) if f == "event_id"
+    ));
+
+    let mut missing_kind = valid.clone();
+    missing_kind.event_kind.kind.clear();
+    assert!(matches!(
+        validate_event_v0_shape(&missing_kind),
+        Err(EventValidationError::MissingField(ref f)) if f == "event_kind.kind"
+    ));
+
+    let mut missing_process_id = valid.clone();
+    missing_process_id.process_ref.process_id.clear();
+    assert!(matches!(
+        validate_event_v0_shape(&missing_process_id),
+        Err(EventValidationError::MissingField(ref f)) if f == "process_ref.process_id"
+    ));
+
+    let mut missing_commitment = valid.clone();
+    missing_commitment.commitments.outputs_commitment.clear();
+    assert!(matches!(
+        validate_event_v0_shape(&missing_commitment),
+        Err(EventValidationError::MissingField(ref f)) if f == "commitments.outputs_commitment"
+    ));
+
+    let mut missing_policy_hash = valid.clone();
+    missing_policy_hash.policy_snapshot.policy_hash.clear();
+    assert!(matches!(
+        validate_event_v0_shape(&missing_policy_hash),
+        Err(EventValidationError::MissingField(ref f)) if f == "policy_snapshot.policy_hash"
+    ));
+}
+
+#[test]
+fn commitment_format_validation_works() {
+    assert!(validate_commitment_v0(
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    )
+    .is_ok());
+    assert!(validate_commitment_v0(
+        "sha512:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    )
+    .is_err());
+    assert!(validate_commitment_v0("sha256:abcd").is_err());
+    assert!(validate_commitment_v0(
+        "sha256:zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+    )
+    .is_err());
+}
+
+#[test]
+fn merkle_leaf_index_is_enforced() {
+    let leaves = vec![
+        hash_event_v0(&sample_event("evt-0201", "proc-0200")).unwrap(),
+        hash_event_v0(&sample_event("evt-0202", "proc-0200")).unwrap(),
+        hash_event_v0(&sample_event("evt-0203", "proc-0200")).unwrap(),
+    ];
+    let root = merkle_root_v0(&leaves).unwrap();
+    let proof = merkle_proof_v0(&leaves, 1).unwrap();
+    assert!(verify_merkle_proof_v0(&leaves[1], &proof, &root).unwrap());
+
+    let wrong_index_proof = acta_core::merkle::MerkleProofV0 {
+        leaf_index: 0,
+        siblings: proof.siblings.clone(),
+    };
+    assert!(!verify_merkle_proof_v0(&leaves[1], &wrong_index_proof, &root).unwrap());
+}
+
+fn sample_bundle() -> BundleV0 {
+    let event = sample_event("evt-0301", "proc-0300");
+    let event_hash = hash_event_v0(&event).unwrap();
+    let chronos_ref = ChronosRefV0 {
+        epoch_id: "epoch-0300".to_string(),
+        prev_event_hash: None,
+    };
+    let receipt = sample_receipt(
+        &event_hash,
+        chronos_ref.clone(),
+        vec![SignatureV0 {
+            attestor_id: "attestor-a".to_string(),
+            scheme: "ed25519".to_string(),
+            signature: "sig-a".to_string(),
+        }],
+    );
+    let receipt_body_hash = hash_receipt_body_v0(&receipt).unwrap();
+    let leaves = vec![event_hash.clone()];
+    let epoch_root = merkle_root_v0(&leaves).unwrap();
+    let merkle_proof = merkle_proof_v0(&leaves, 0).unwrap();
+
+    BundleV0 {
+        protocol: PROTOCOL_VERSION.to_string(),
+        event,
+        chronos_ref,
+        event_hash,
+        receipt,
+        receipt_body_hash,
+        epoch_root,
+        merkle_proof,
+        anchor: None,
+    }
+}
+
+#[test]
+fn bundle_valid_passes() {
+    let bundle = sample_bundle();
+    assert!(verify_bundle_v0(&bundle).is_ok());
+}
+
+#[test]
+fn bundle_receipt_event_hash_mismatch_fails() {
+    let mut bundle = sample_bundle();
+    bundle.receipt.event_hash = "0".repeat(64);
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::ReceiptEventHashMismatch)
+    ));
+}
+
+#[test]
+fn bundle_receipt_chronos_ref_mismatch_fails() {
+    let mut bundle = sample_bundle();
+    bundle.receipt.chronos_ref.epoch_id = "other-epoch".to_string();
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::ReceiptChronosRefMismatch)
+    ));
+}
+
+#[test]
+fn bundle_anchor_root_mismatch_fails() {
+    let mut bundle = sample_bundle();
+    bundle.anchor = Some(AnchorRefV0 {
+        chain: "cardano".to_string(),
+        tx_id: "txid".to_string(),
+        slot: None,
+        epoch_root: "f".repeat(64),
+    });
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::AnchorRootMismatch)
+    ));
+}
+
+#[test]
+fn bundle_invalid_merkle_proof_fails() {
+    let mut bundle = sample_bundle();
+    bundle.merkle_proof.siblings = vec![Sibling::Left("1".repeat(64))];
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::InvalidMerkleProof)
     ));
 }

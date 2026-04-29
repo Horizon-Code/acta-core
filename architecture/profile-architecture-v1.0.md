@@ -4,6 +4,10 @@ Status: internal architectural draft for repository adoption
 
 Authority: subordinate to `ACTA Foundations v1.1`
 
+Reference note:
+- Canonical reference target is ACTA Foundations v1.2.
+- TODO: update these v1.1 citations after `constitution/` includes the v1.2 source artifact.
+
 ## 1. Preamble
 
 An ACTA profile is a domain-specific semantic layer that constrains how ACTA events, references, commitments, and lifecycle transitions are used for a class of significant computational acts. A profile exists to make a domain legible without expanding the Core beyond its constitutional limits.

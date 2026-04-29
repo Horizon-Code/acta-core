@@ -59,6 +59,12 @@ pub enum BundleError {
     #[error("protocol mismatch: expected {expected}, got {got}")]
     ProtocolMismatch { expected: String, got: String },
 
+    #[error("receipt.event_hash mismatch with bundle.event_hash")]
+    ReceiptEventHashMismatch,
+
+    #[error("receipt.chronos_ref mismatch with bundle.chronos_ref")]
+    ReceiptChronosRefMismatch,
+
     #[error("event hash mismatch: claimed {claimed}, computed {computed}")]
     EventHashMismatch { claimed: String, computed: String },
 
@@ -68,14 +74,11 @@ pub enum BundleError {
     #[error("invalid receipt shape: {0}")]
     InvalidReceiptShape(String),
 
-    #[error("receipt chronos_ref mismatch with bundle chronos_ref")]
-    ChronosRefMismatch,
+    #[error("invalid merkle proof")]
+    InvalidMerkleProof,
 
-    #[error("merkle proof error: {0}")]
-    MerkleProofError(String),
-
-    #[error("merkle inclusion failed")]
-    MerkleInclusionFailed,
+    #[error("anchor epoch_root mismatch with bundle.epoch_root")]
+    AnchorRootMismatch,
 }
 
 /// Verify a bundle end-to-end (within core scope).
@@ -87,6 +90,20 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
     ensure_protocol(&bundle.protocol)?;
     ensure_protocol(&bundle.event.protocol)?;
     ensure_protocol(&bundle.receipt.protocol)?;
+
+    if bundle.receipt.event_hash != bundle.event_hash {
+        return Err(BundleError::ReceiptEventHashMismatch);
+    }
+    if bundle.receipt.chronos_ref.epoch_id != bundle.chronos_ref.epoch_id
+        || bundle.receipt.chronos_ref.prev_event_hash != bundle.chronos_ref.prev_event_hash
+    {
+        return Err(BundleError::ReceiptChronosRefMismatch);
+    }
+    if let Some(anchor) = &bundle.anchor {
+        if anchor.epoch_root != bundle.epoch_root {
+            return Err(BundleError::AnchorRootMismatch);
+        }
+    }
 
     // 1) Recompute event hash from canonical bytes
     let computed_event_hash = hash_event_v0(&bundle.event)
@@ -105,12 +122,6 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
     // 2) Validate receipt shape (determinism / required fields)
     validate_receipt_v0_shape(&bundle.receipt)
         .map_err(|e| BundleError::InvalidReceiptShape(e.to_string()))?;
-
-    if bundle.receipt.chronos_ref.epoch_id != bundle.chronos_ref.epoch_id
-        || bundle.receipt.chronos_ref.prev_event_hash != bundle.chronos_ref.prev_event_hash
-    {
-        return Err(BundleError::ChronosRefMismatch);
-    }
 
     // 3) Recompute receipt body hash (signing payload hash)
     let computed_receipt_body_hash = hash_receipt_body_v0(&bundle.receipt)
@@ -132,10 +143,10 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
         &bundle.merkle_proof,
         &bundle.epoch_root,
     )
-    .map_err(|e| BundleError::MerkleProofError(e.to_string()))?;
+    .map_err(|_| BundleError::InvalidMerkleProof)?;
 
     if !merkle_inclusion_ok {
-        return Err(BundleError::MerkleInclusionFailed);
+        return Err(BundleError::InvalidMerkleProof);
     }
 
     Ok(BundleVerificationV0 {

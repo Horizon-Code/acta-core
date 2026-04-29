@@ -6,13 +6,12 @@ Implementation of ACTA protocol primitives and invariants.
 
 - Deterministic protocol logic.
 - Cryptographic and structural verification primitives.
-- Technical placeholders and replaceable modules under `core/modules/`.
 
 ## Authority boundary
 
 - Location in `core/` does not imply constitutional rank.
-- Modules in `core/modules/` do not gain constitutional authority by placement.
 - Domain semantics must stay out of `core/` unless explicitly promoted by higher-authority texts.
+- External integrations (Cardano anchoring, DID/key resolution, external ledgers) are adapters and must remain outside Core.
 
 ## Does not belong here
 
@@ -22,4 +21,3 @@ Implementation of ACTA protocol primitives and invariants.
 ## Current layout
 
 - `rust/acta-core` — Rust protocol core crate.
-- `modules/` — replaceable technical module placeholders.

@@ -7,7 +7,7 @@
 //! field order. This yields stable bytes across implementations.
 
 use crate::types::{
-    ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRef, PolicySnapshotV0,
+    ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRefV0, PolicySnapshotV0,
     ProcessRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
 };
 use ciborium::value::Value;
@@ -114,7 +114,7 @@ fn process_ref_v0_to_value(p: &ProcessRefV0) -> Value {
     ])
 }
 
-fn event_kind_ref_to_value(kind: &EventKindRef) -> Value {
+fn event_kind_ref_to_value(kind: &EventKindRefV0) -> Value {
     Value::Array(vec![
         Value::Text(kind.namespace.clone()),
         Value::Text(kind.kind.clone()),

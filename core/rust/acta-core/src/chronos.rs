@@ -1,10 +1,15 @@
 //! Chronos rules (Phase 0).
 //!
-//! Chronos is responsible for temporal continuity and anti-omission:
+//! Chronos in Core provides local continuity primitives:
 //! - epoch placement (`epoch_id`)
 //! - hash-chain linkage (`prev_event_hash`)
+//! - sequence consistency for supplied events/hashes
 //!
-//! It does NOT validate event business semantics.
+//! Core Chronos alone does NOT prove global anti-omission.
+//! Strong anti-omission requires chain + epoch closure + receipt issuance +
+//! Merkle root anchoring + external indexer/auditor expectations + profile rules.
+//!
+//! Core does NOT validate event business/domain semantics.
 
 use crate::types::{ChronosRefV0, ChronosStampedEventV0};
 

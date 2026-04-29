@@ -32,7 +32,7 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
 
     let policy_snapshot = PolicySnapshotV0 {
         policy_id: "AML-2025-Q1".to_string(),
-        policy_hash: "sha256:aml_2025_q1_policy_hash".to_string(),
+        policy_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string(),
         policy_type: "regulatory".to_string(),
         jurisdiction: "US".to_string(),
         effective_from: "2025-01-01T00:00:00Z".to_string(),
@@ -46,59 +46,95 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             AmlDomainEventV0::ProcessOpened,
             "2025-01-15T10:00:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:process_opened_inputs".to_string(),
-                outputs_commitment: "sha256:process_opened_outputs".to_string(),
-                artifact_commitment: "sha256:process_opened_artifacts".to_string(),
+                inputs_commitment: "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+                    .to_string(),
+                outputs_commitment:
+                    "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+                        .to_string(),
+                artifact_commitment:
+                    "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+                        .to_string(),
             },
         ),
         (
             AmlDomainEventV0::TransferRequested,
             "2025-01-15T10:15:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:transfer_request_inputs".to_string(),
-                outputs_commitment: "sha256:transfer_request_outputs".to_string(),
-                artifact_commitment: "sha256:transfer_request_artifacts".to_string(),
+                inputs_commitment: "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+                    .to_string(),
+                outputs_commitment:
+                    "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+                        .to_string(),
+                artifact_commitment:
+                    "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+                        .to_string(),
             },
         ),
         (
             AmlDomainEventV0::AmlScored,
             "2025-01-15T10:30:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:aml_score_inputs".to_string(),
-                outputs_commitment: "sha256:aml_score_outputs_with_risk_score".to_string(),
-                artifact_commitment: "sha256:aml_score_artifacts".to_string(),
+                inputs_commitment: "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+                    .to_string(),
+                outputs_commitment:
+                    "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+                        .to_string(),
+                artifact_commitment:
+                    "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+                        .to_string(),
             },
         ),
         (
             AmlDomainEventV0::ManualReview(ManualReviewPayloadV0 {
                 reviewer_role: "aml_analyst".to_string(),
-                reviewer_ref: Some("sha256:internal_user_aml_analyst_id_123".to_string()),
+                reviewer_ref: Some(
+                    "sha256:abababababababababababababababababababababababababababababababab"
+                        .to_string(),
+                ),
                 outcome: ManualReviewOutcomeV0::ConfirmFreeze,
-                notes_commitment: Some("sha256:review_notes_and_evidence".to_string()),
+                notes_commitment: Some(
+                    "sha256:bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbc"
+                        .to_string(),
+                ),
             }),
             "2025-01-15T11:00:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:manual_review_inputs".to_string(),
-                outputs_commitment: "sha256:manual_review_outputs".to_string(),
-                artifact_commitment: "sha256:manual_review_artifacts".to_string(),
+                inputs_commitment: "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                    .to_string(),
+                outputs_commitment:
+                    "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                        .to_string(),
+                artifact_commitment:
+                    "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                        .to_string(),
             },
         ),
         (
             AmlDomainEventV0::AccountFrozen,
             "2025-01-15T11:05:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:freeze_inputs".to_string(),
-                outputs_commitment: "sha256:freeze_outputs".to_string(),
-                artifact_commitment: "sha256:freeze_artifacts".to_string(),
+                inputs_commitment: "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+                    .to_string(),
+                outputs_commitment:
+                    "sha256:1212121212121212121212121212121212121212121212121212121212121212"
+                        .to_string(),
+                artifact_commitment:
+                    "sha256:1313131313131313131313131313131313131313131313131313131313131313"
+                        .to_string(),
             },
         ),
         (
             AmlDomainEventV0::ProcessClosed,
             "2025-01-15T11:10:00Z",
             CommitmentsV0 {
-                inputs_commitment: "sha256:close_inputs".to_string(),
-                outputs_commitment: "sha256:close_outputs".to_string(),
-                artifact_commitment: "sha256:close_artifacts".to_string(),
+                inputs_commitment: "sha256:1414141414141414141414141414141414141414141414141414141414141414"
+                    .to_string(),
+                outputs_commitment:
+                    "sha256:1515151515151515151515151515151515151515151515151515151515151515"
+                        .to_string(),
+                artifact_commitment:
+                    "sha256:1616161616161616161616161616161616161616161616161616161616161616"
+                        .to_string(),
             },
         ),
     ];

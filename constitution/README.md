@@ -2,6 +2,10 @@
 
 Highest-authority internal ACTA texts.
 
+Reference note:
+- Current file present: `ACTA_Foundations_v1.1_FINAL.pdf`.
+- Canonical target reference is ACTA Foundations v1.2; TODO to add the v1.2 source artifact in this folder.
+
 ## Purpose
 
 `constitution/` contains ACTA's own constitutional foundations. This is the top of the repository authority hierarchy.

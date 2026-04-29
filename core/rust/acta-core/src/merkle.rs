@@ -12,12 +12,13 @@
 //! - Leaves are expected as hex-encoded SHA-256 hashes (32 bytes).
 
 use sha2::{Digest, Sha256};
+use serde::{Deserialize, Serialize};
 
 /// Hex string of a SHA-256 hash (32 bytes).
 pub type HashHex = String;
 
 /// Proof element: sibling hash + its position relative to the current node.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Sibling {
     /// Sibling is on the left: parent = H(sibling || current)
     Left(HashHex),
@@ -26,7 +27,7 @@ pub enum Sibling {
 }
 
 /// Inclusion proof for a leaf at a given index.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MerkleProofV0 {
     pub leaf_index: usize,
     pub siblings: Vec<Sibling>,
@@ -113,7 +114,15 @@ pub fn verify_merkle_proof_v0(
     let mut current = decode_hash_hex(leaf_hash)
         .map_err(|e| MerkleError::InvalidProof(format!("invalid leaf hash: {e}")))?;
 
+    let mut idx = proof.leaf_index;
     for sib in &proof.siblings {
+        let expected_right = idx % 2 == 0;
+        match (expected_right, sib) {
+            (true, Sibling::Left(_)) => return Ok(false),
+            (false, Sibling::Right(_)) => return Ok(false),
+            _ => {}
+        }
+
         current = match sib {
             Sibling::Left(h) => {
                 let left = decode_hash_hex(h).map_err(|e| {
@@ -128,6 +137,7 @@ pub fn verify_merkle_proof_v0(
                 hash_pair(&current, &right)
             }
         };
+        idx /= 2;
     }
 
     let got_root = hex::encode(current);
@@ -188,4 +198,3 @@ fn hash_pair(left: &[u8], right: &[u8]) -> Vec<u8> {
     hasher.update(right);
     hasher.finalize().to_vec()
 }
-
