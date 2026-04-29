@@ -249,6 +249,10 @@ fn commitment_format_validation_works() {
         "sha256:zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
     )
     .is_err());
+    assert!(validate_commitment_v0(
+        "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    )
+    .is_err());
 }
 
 #[test]

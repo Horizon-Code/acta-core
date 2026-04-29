@@ -1,6 +1,6 @@
 # ACTA
 
-ACTA MVP (Cardano-native), organized by authority level so constitutional texts, architecture, direction, implementation, and exploratory work remain disciplined.
+ACTA MVP (substrate-aware with substrate-independent Core), organized by authority level so constitutional texts, architecture, direction, implementation, and exploratory work remain disciplined.
 
 ## Authority hierarchy
 

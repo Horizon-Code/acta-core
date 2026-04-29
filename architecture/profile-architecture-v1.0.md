@@ -2,7 +2,7 @@
 
 Status: internal architectural draft for repository adoption
 
-Authority: subordinate to `ACTA Foundations v1.1`
+Authority: subordinate to `ACTA Foundations v1.2`
 
 Reference note:
 - Canonical reference target is ACTA Foundations v1.2.
@@ -14,7 +14,7 @@ An ACTA profile is a domain-specific semantic layer that constrains how ACTA eve
 
 ACTA requires profile discipline because semantic freedom destroys interoperability faster than schema divergence. If profiles are allowed to define names, event meanings, closure semantics, policy linkage, and lifecycle behavior without common constraints, ACTA degrades into unrelated JSON dialects with shared branding but no shared accountability model.
 
-This document defines the architectural rules that every ACTA profile MUST satisfy to remain compatible with the ACTA ecosystem. These rules translate `ACTA Foundations v1.1` into repository governance for profile design, registration, review, evolution, and retirement.
+This document defines the architectural rules that every ACTA profile MUST satisfy to remain compatible with the ACTA ecosystem. These rules translate `ACTA Foundations v1.2` into repository governance for profile design, registration, review, evolution, and retirement.
 
 ## 2. Central Thesis
 
@@ -206,7 +206,7 @@ A new profile MAY be proposed by any contributor able to supply the required spe
 
 Until the repository defines a stricter governance body, approval MUST require:
 - one maintainer approval for repository fit, and
-- one substantive semantic review confirming compatibility with `ACTA Foundations v1.1`.
+- one substantive semantic review confirming compatibility with `ACTA Foundations v1.2`.
 
 If the repo later defines a formal architecture or protocol council, that body MAY replace the second role.
 
@@ -241,7 +241,7 @@ Each profile submission MUST provide:
 ### 6.5 Rejection conditions
 
 A profile MUST be rejected if any of the following holds:
-- it contradicts `ACTA Foundations v1.1`
+- it contradicts `ACTA Foundations v1.2`
 - it attempts to move institutional judgment into ACTA semantics
 - it defines event kinds with ambiguous names and no stable meaning
 - it captures broad monitoring data without bounded material effect
@@ -322,7 +322,7 @@ This architecture protects semantic interoperability, disciplined profile evolut
 
 This architecture does not protect or guarantee justice, truth material, legitimacy of external policy, institutional adoption, or correct action by external authorities. It does not authorize ACTA profiles to convert traceability into sanction, nor does it permit semantic sprawl to be justified by domain convenience alone.
 
-When a profile-specific interpretation conflicts with `ACTA Foundations v1.1`, Foundations prevails.
+When a profile-specific interpretation conflicts with `ACTA Foundations v1.2`, Foundations prevails.
 
 ## 10. Core Implications
 
