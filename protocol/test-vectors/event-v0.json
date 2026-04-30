@@ -1,0 +1,31 @@
+{
+  "protocol": "acta.v0",
+  "event_id": "evt-vector-0001",
+  "issued_at": "2026-02-01T12:00:00Z",
+  "process_ref": {
+    "process_id": "proc-vector-0001",
+    "process_type": "aml.transfer.v1"
+  },
+  "event_kind": {
+    "namespace": "aml",
+    "kind": "risk_scored",
+    "version": "1.0"
+  },
+  "commitments": {
+    "inputs_commitment": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "outputs_commitment": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "artifact_commitment": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "policy_snapshot": {
+    "policy_id": "aml-policy-v0",
+    "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policy_type": "regulatory",
+    "jurisdiction": "US",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": null
+  },
+  "actor_ref": {
+    "actor_id": "tap:aml-svc",
+    "actor_type": "service"
+  }
+}

@@ -106,21 +106,29 @@ impl AmlDomainEventV0 {
 
 #[derive(Debug, thiserror::Error, Clone, PartialEq, Eq)]
 pub enum AmlLifecycleError {
+    #[error("empty aml lifecycle")]
+    EmptyLifecycle,
     #[error("invalid initial event: expected process_opened first")]
     InvalidInitialEvent,
+    #[error("process_opened must appear exactly once at index 0")]
+    RepeatedProcessOpened,
     #[error("event appears after process_closed at index {index}")]
     EventAfterProcessClosed { index: usize },
     #[error("aml score requires prior transfer_requested")]
     MissingTransferBeforeScore,
+    #[error("manual review requires prior transfer_requested")]
+    MissingTransferBeforeManualReview,
     #[error("account_frozen requires prior aml_scored or manual_review")]
     MissingJustificationForFreeze,
+    #[error("account_released requires prior account_frozen")]
+    ReleaseWithoutFreeze,
     #[error("invalid transition: {0}")]
     InvalidTransition(String),
 }
 
 pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlLifecycleError> {
     if events.is_empty() {
-        return Err(AmlLifecycleError::InvalidInitialEvent);
+        return Err(AmlLifecycleError::EmptyLifecycle);
     }
     if !matches!(events[0], AmlDomainEventV0::ProcessOpened(_)) {
         return Err(AmlLifecycleError::InvalidInitialEvent);
@@ -129,6 +137,7 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
     let mut seen_transfer = false;
     let mut seen_score = false;
     let mut seen_review = false;
+    let mut seen_frozen = false;
     let mut closed_at: Option<usize> = None;
 
     for (i, ev) in events.iter().enumerate() {
@@ -137,7 +146,11 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
         }
 
         match ev {
-            AmlDomainEventV0::ProcessOpened(_) => {}
+            AmlDomainEventV0::ProcessOpened(_) => {
+                if i != 0 {
+                    return Err(AmlLifecycleError::RepeatedProcessOpened);
+                }
+            }
             AmlDomainEventV0::TransferRequested(_) => {
                 seen_transfer = true;
             }
@@ -148,14 +161,22 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
                 seen_score = true;
             }
             AmlDomainEventV0::ManualReview(_) => {
+                if !seen_transfer {
+                    return Err(AmlLifecycleError::MissingTransferBeforeManualReview);
+                }
                 seen_review = true;
             }
             AmlDomainEventV0::AccountFrozen(_) => {
                 if !seen_score && !seen_review {
                     return Err(AmlLifecycleError::MissingJustificationForFreeze);
                 }
+                seen_frozen = true;
             }
-            AmlDomainEventV0::AccountReleased(_) => {}
+            AmlDomainEventV0::AccountReleased(_) => {
+                if !seen_frozen {
+                    return Err(AmlLifecycleError::ReleaseWithoutFreeze);
+                }
+            }
             AmlDomainEventV0::ProcessClosed(_) => {
                 closed_at = Some(i);
             }

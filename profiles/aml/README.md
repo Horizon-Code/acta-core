@@ -19,3 +19,15 @@ AML Profile is outside Core.
 AML must not redefine ACTA Core hashing, canonicalization, commitment syntax, receipt semantics, Merkle proof verification, or bundle verification.
 
 AML defines domain event kinds, domain payload placeholders, and profile lifecycle validation.
+
+## Lifecycle v0 (current subset)
+
+- `ProcessOpened` must appear exactly once at index 0.
+- `ProcessClosed` is terminal.
+- `AmlScored` requires prior `TransferRequested`.
+- `ManualReview` requires prior `TransferRequested`.
+- `AccountFrozen` requires prior `AmlScored` or `ManualReview`.
+- `AccountReleased` requires prior `AccountFrozen`.
+
+TODO:
+- Expand transition matrix and richer profile semantics without moving AML rules into Core.

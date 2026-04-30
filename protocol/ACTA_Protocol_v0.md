@@ -213,19 +213,18 @@ Purpose:
 - Optional external anchoring reference metadata carried by a bundle.
 
 Current implemented fields:
-- `chain`
-- `tx_id`
+- `substrate`
+- optional `network`
+- optional `tx_id`
 - optional `slot`
 - `epoch_root`
 
 Core rule:
 - If anchor is present, Core checks `anchor.epoch_root == bundle.epoch_root`.
+- Core also validates anchor shape (`substrate` non-empty; `network`/`tx_id` non-empty when present; strict hash form for `epoch_root`).
 
 Core does not check:
 - Cardano tx existence, slot validity, metadata inclusion, Midnight state, or external verifier acceptance.
-
-TODO:
-- Architecture language often uses `substrate` and `network`; current code uses `chain` and does not include a separate `network` field in `AnchorRefV0`.
 
 ## 3. Canonicalization and Hashing Boundary
 
@@ -358,3 +357,9 @@ Note:
 - `protocol` field identifies protocol version (`acta.v0` in current Core).
 - Canonicalization changes are breaking unless versioned.
 - Hash format changes are breaking unless versioned.
+
+## 11. Protocol Test Vectors
+
+ACTA Protocol v0 includes fixed vectors under `protocol/test-vectors/`.
+
+These vectors are normative for draft v0 compatibility unless explicitly versioned otherwise. Implementations should match the published expected hashes and verification outcomes.

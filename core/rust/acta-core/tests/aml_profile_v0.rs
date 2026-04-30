@@ -149,6 +149,15 @@ fn aml_lifecycle_valid_minimal_passes() {
 }
 
 #[test]
+fn aml_lifecycle_empty_fails() {
+    let events: Vec<AmlDomainEventV0> = vec![];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&events),
+        Err(AmlLifecycleError::EmptyLifecycle)
+    ));
+}
+
+#[test]
 fn aml_lifecycle_requires_process_opened_first() {
     let events = vec![
         AmlDomainEventV0::TransferRequested(TransferRequestedPayloadV0 { transfer_ref: None }),
@@ -159,6 +168,22 @@ fn aml_lifecycle_requires_process_opened_first() {
     assert!(matches!(
         validate_aml_lifecycle_v0(&events),
         Err(AmlLifecycleError::InvalidInitialEvent)
+    ));
+}
+
+#[test]
+fn aml_lifecycle_rejects_repeated_process_opened() {
+    let events = vec![
+        AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+            process_label: None,
+        }),
+        AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+            process_label: Some("reopened".to_string()),
+        }),
+    ];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&events),
+        Err(AmlLifecycleError::RepeatedProcessOpened)
     ));
 }
 
@@ -174,6 +199,76 @@ fn aml_lifecycle_rejects_event_after_process_closed() {
     assert!(matches!(
         validate_aml_lifecycle_v0(&events),
         Err(AmlLifecycleError::EventAfterProcessClosed { .. })
+    ));
+}
+
+#[test]
+fn aml_lifecycle_rejects_score_before_transfer() {
+    let events = vec![
+        AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+            process_label: None,
+        }),
+        AmlDomainEventV0::AmlScored(AmlScoredPayloadV0 {
+            score_ref: None,
+            score_band: None,
+        }),
+    ];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&events),
+        Err(AmlLifecycleError::MissingTransferBeforeScore)
+    ));
+}
+
+#[test]
+fn aml_lifecycle_rejects_manual_review_before_transfer() {
+    let events = vec![
+        AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+            process_label: None,
+        }),
+        AmlDomainEventV0::ManualReview(aml_profile::types::ManualReviewPayloadV0 {
+            reviewer_role: "aml_reviewer".to_string(),
+            reviewer_ref: None,
+            outcome: aml_profile::types::ManualReviewOutcomeV0::Escalate,
+            notes_commitment: None,
+        }),
+    ];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&events),
+        Err(AmlLifecycleError::MissingTransferBeforeManualReview)
+    ));
+}
+
+#[test]
+fn aml_lifecycle_rejects_freeze_without_score_or_review() {
+    let events = vec![
+        AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+            process_label: None,
+        }),
+        AmlDomainEventV0::TransferRequested(TransferRequestedPayloadV0 { transfer_ref: None }),
+        AmlDomainEventV0::AccountFrozen(AccountFrozenPayloadV0 { reason_ref: None }),
+    ];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&events),
+        Err(AmlLifecycleError::MissingJustificationForFreeze)
+    ));
+}
+
+#[test]
+fn aml_lifecycle_rejects_release_without_freeze() {
+    let events = vec![
+        AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+            process_label: None,
+        }),
+        AmlDomainEventV0::TransferRequested(TransferRequestedPayloadV0 { transfer_ref: None }),
+        AmlDomainEventV0::AmlScored(AmlScoredPayloadV0 {
+            score_ref: None,
+            score_band: None,
+        }),
+        AmlDomainEventV0::AccountReleased(AccountReleasedPayloadV0 { reason_ref: None }),
+    ];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&events),
+        Err(AmlLifecycleError::ReleaseWithoutFreeze)
     ));
 }
 

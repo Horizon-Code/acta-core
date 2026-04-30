@@ -514,14 +514,44 @@ fn bundle_receipt_body_hash_mismatch_fails() {
 fn bundle_anchor_root_mismatch_fails() {
     let mut bundle = sample_bundle();
     bundle.anchor = Some(AnchorRefV0 {
-        chain: "cardano".to_string(),
-        tx_id: "txid".to_string(),
+        substrate: "cardano".to_string(),
+        network: Some("preprod".to_string()),
+        tx_id: Some("txid".to_string()),
         slot: None,
         epoch_root: "f".repeat(64),
     });
     assert!(matches!(
         verify_bundle_v0(&bundle),
         Err(BundleError::AnchorRootMismatch)
+    ));
+}
+
+#[test]
+fn bundle_anchor_without_tx_id_can_be_valid() {
+    let mut bundle = sample_bundle();
+    bundle.anchor = Some(AnchorRefV0 {
+        substrate: "local".to_string(),
+        network: None,
+        tx_id: None,
+        slot: None,
+        epoch_root: bundle.epoch_root.clone(),
+    });
+    assert!(verify_bundle_v0(&bundle).is_ok());
+}
+
+#[test]
+fn bundle_invalid_anchor_shape_fails() {
+    let mut bundle = sample_bundle();
+    bundle.anchor = Some(AnchorRefV0 {
+        substrate: " ".to_string(),
+        network: Some("".to_string()),
+        tx_id: Some("".to_string()),
+        slot: None,
+        epoch_root: bundle.epoch_root.clone(),
+    });
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::InvalidAnchorRef(_))
     ));
 }
 

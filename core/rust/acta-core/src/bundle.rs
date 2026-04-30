@@ -28,10 +28,11 @@ use crate::types::{ActaEventV0, ChronosRefV0, ReceiptV0, PROTOCOL_VERSION};
 /// verification acceptance) is out of scope for Core.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnchorRefV0 {
-    pub chain: String,       // e.g. "cardano"
-    pub tx_id: String,       // transaction id
-    pub slot: Option<u64>,   // optional, if known
-    pub epoch_root: HashHex, // the anchored root (hex sha256)
+    pub substrate: String, // e.g. "cardano", "midnight", "local"
+    pub network: Option<String>,
+    pub tx_id: Option<String>, // optional, substrate-dependent
+    pub slot: Option<u64>,     // optional, substrate-dependent
+    pub epoch_root: HashHex,   // anchored root (hex sha256)
 }
 
 /// A portable proof bundle for a single ACTA event.
@@ -82,6 +83,9 @@ pub enum BundleError {
 
     #[error("anchor epoch_root mismatch with bundle.epoch_root")]
     AnchorRootMismatch,
+
+    #[error("invalid anchor reference: {0}")]
+    InvalidAnchorRef(String),
 }
 
 /// Verify a bundle end-to-end (within core scope).
@@ -103,6 +107,7 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
         return Err(BundleError::ReceiptChronosRefMismatch);
     }
     if let Some(anchor) = &bundle.anchor {
+        validate_anchor_ref_v0(anchor)?;
         if anchor.epoch_root != bundle.epoch_root {
             return Err(BundleError::AnchorRootMismatch);
         }
@@ -169,4 +174,38 @@ fn ensure_protocol(got: &str) -> Result<(), BundleError> {
         });
     }
     Ok(())
+}
+
+fn validate_anchor_ref_v0(anchor: &AnchorRefV0) -> Result<(), BundleError> {
+    if anchor.substrate.trim().is_empty() {
+        return Err(BundleError::InvalidAnchorRef(
+            "substrate must be non-empty".to_string(),
+        ));
+    }
+    if let Some(network) = &anchor.network {
+        if network.trim().is_empty() {
+            return Err(BundleError::InvalidAnchorRef(
+                "network must be non-empty when provided".to_string(),
+            ));
+        }
+    }
+    if let Some(tx_id) = &anchor.tx_id {
+        if tx_id.trim().is_empty() {
+            return Err(BundleError::InvalidAnchorRef(
+                "tx_id must be non-empty when provided".to_string(),
+            ));
+        }
+    }
+    if !is_strict_hash_hex(&anchor.epoch_root) {
+        return Err(BundleError::InvalidAnchorRef(
+            "epoch_root must be 64 lowercase hex chars".to_string(),
+        ));
+    }
+    Ok(())
+}
+
+fn is_strict_hash_hex(v: &str) -> bool {
+    v.len() == 64
+        && v.chars()
+            .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
 }

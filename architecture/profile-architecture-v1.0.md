@@ -6,7 +6,6 @@ Authority: subordinate to `ACTA Foundations v1.2`
 
 Reference note:
 - Canonical reference target is ACTA Foundations v1.2.
-- TODO: update these v1.1 citations after `constitution/` includes the v1.2 source artifact.
 
 ## 1. Preamble
 
