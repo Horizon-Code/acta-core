@@ -3,6 +3,10 @@
 //! IMPORTANT:
 //! - Hashes are computed ONLY over canonical CBOR bytes.
 //! - Never hash structs, JSON, or non-canonical encodings.
+//! - Public event hashing (`hash_event_v0`) is a validated path.
+//! - Unchecked event hashing (`hash_event_v0_unchecked`) is for internal/test/
+//!   migration/specialized low-level use where validation is handled elsewhere.
+//! - Externally accepted ACTA events should not use unchecked hashing.
 //!
 //! Receipt-specific rules:
 //! - The SIGNING payload is the canonical RECEIPT BODY (no signatures).
@@ -27,6 +31,7 @@ pub type HashHex = String;
 /// - `hash_event_v0` validates structural event shape first.
 /// - Use `hash_event_v0_unchecked` only for low-level/internal paths where
 ///   validation is intentionally handled separately.
+/// - This is the recommended public API for hashing externally accepted events.
 ///
 /// event_hash = SHA256(canonical_event_bytes)
 pub fn hash_event_v0(event: &ActaEventV0) -> Result<HashHex, HashError> {
@@ -38,6 +43,7 @@ pub fn hash_event_v0(event: &ActaEventV0) -> Result<HashHex, HashError> {
 ///
 /// This function is intentionally unchecked and must not be used as a
 /// substitute for structural validation in public/edge-facing paths.
+/// Prefer `hash_event_v0` unless validation is guaranteed by the caller.
 pub fn hash_event_v0_unchecked(event: &ActaEventV0) -> Result<HashHex, HashError> {
     let bytes = canonical_event_v0_bytes(event)?;
     Ok(sha256_hex(&bytes))

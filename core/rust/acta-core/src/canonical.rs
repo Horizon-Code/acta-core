@@ -5,6 +5,16 @@
 //!
 //! Instead, we define a positional CBOR encoding using ARRAYS with a fixed
 //! field order. This yields stable bytes across implementations.
+//!
+//! Boundary:
+//! - Canonicalization is deterministic encoding, not full semantic/domain/legal
+//!   validation.
+//! - Canonical bytes must be stable across runtime environments.
+//! - Canonicalization must not depend on current time, randomness, locale,
+//!   external lookups, or unstable map iteration.
+//! - Public event hashing validates shape before calling canonicalization
+//!   (`hash_event_v0`), while low-level canonical helpers remain focused on
+//!   deterministic encoding.
 
 use crate::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRefV0, PolicySnapshotV0,

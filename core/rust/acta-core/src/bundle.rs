@@ -13,6 +13,7 @@
 //! - Fetching Cardano transaction data
 //! - Verifying on-chain anchoring (that belongs to an AnchorBackend/module/tool)
 //! - Resolving attestor_id -> pubkey (signature crypto verification)
+//! - Verifying Midnight/other external proof-system acceptance
 
 use serde::{Deserialize, Serialize};
 
@@ -22,7 +23,9 @@ use crate::receipt::validate_receipt_v0_shape;
 use crate::types::{ActaEventV0, ChronosRefV0, ReceiptV0, PROTOCOL_VERSION};
 
 /// Minimal anchoring reference (Phase 0).
-/// Core does NOT verify it, but it carries the info needed to verify externally.
+/// Core only checks internal consistency with bundle `epoch_root`.
+/// External truth (tx existence, slot validity, metadata inclusion, external
+/// verification acceptance) is out of scope for Core.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnchorRefV0 {
     pub chain: String,       // e.g. "cardano"

@@ -10,6 +10,8 @@
 //! Merkle root anchoring + external indexer/auditor expectations + profile rules.
 //!
 //! Core does NOT validate event business/domain semantics.
+//! Core Chronos also does NOT validate external ledger truth, institutional
+//! authority, or profile lifecycle completeness.
 
 use crate::types::{ChronosRefV0, ChronosStampedEventV0};
 
