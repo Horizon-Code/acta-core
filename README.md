@@ -19,6 +19,7 @@ No lower authority level may redefine a higher authority level.
 
 - `constitution/` — ACTA's highest-authority internal constitutional texts.
 - `architecture/` — ACTA internal structural model, semantic layers, and system boundaries.
+- `protocol/` — ACTA interoperable technical protocol specifications.
 - `direction/` — external, non-binding intellectual sources that guide ACTA.
 - `core/` — implementation of protocol primitives and invariants.
 - `adapters/` — substrate/integration adapters (for example Cardano anchoring, signer adapters).
