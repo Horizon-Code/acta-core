@@ -36,8 +36,7 @@ pub struct CommitmentsV0 {
 /// v0 format is textual to keep Core surface small and interoperable:
 /// `sha256:<64 lowercase hex chars>`
 pub fn validate_commitment_v0(value: &str) -> Result<(), CommitmentError> {
-    let trimmed = value.trim();
-    let Some(digest) = trimmed.strip_prefix("sha256:") else {
+    let Some(digest) = value.strip_prefix("sha256:") else {
         return Err(CommitmentError::InvalidAlgorithm);
     };
     if digest.len() != 64 {

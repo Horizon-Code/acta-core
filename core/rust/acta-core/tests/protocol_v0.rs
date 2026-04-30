@@ -333,6 +333,18 @@ fn commitment_format_validation_works() {
     )
     .is_err());
     assert!(validate_commitment_v0("sha256:manual_review_inputs").is_err());
+    assert!(validate_commitment_v0(
+        " sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    )
+    .is_err());
+    assert!(validate_commitment_v0(
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+    )
+    .is_err());
+    assert!(validate_commitment_v0(
+        "SHA256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    )
+    .is_err());
 }
 
 #[test]
@@ -382,6 +394,39 @@ fn merkle_rejects_unconsumed_high_bits_in_leaf_index() {
     let mut high_bits_index_proof = proof.clone();
     high_bits_index_proof.leaf_index = proof.leaf_index + (1 << proof.siblings.len());
     assert!(!verify_merkle_proof_v0(&leaves[1], &high_bits_index_proof, &root).unwrap());
+}
+
+#[test]
+fn merkle_rejects_non_canonical_hash_lexical_forms() {
+    let leaves = vec![
+        hash_event_v0(&sample_event("evt-0214", "proc-0210")).unwrap(),
+        hash_event_v0(&sample_event("evt-0215", "proc-0210")).unwrap(),
+        hash_event_v0(&sample_event("evt-0216", "proc-0210")).unwrap(),
+    ];
+    let root = merkle_root_v0(&leaves).unwrap();
+    let proof = merkle_proof_v0(&leaves, 1).unwrap();
+    assert!(verify_merkle_proof_v0(&leaves[1], &proof, &root).unwrap());
+
+    let mut uppercase_root = root.clone();
+    uppercase_root.make_ascii_uppercase();
+    assert!(!verify_merkle_proof_v0(&leaves[1], &proof, &uppercase_root).unwrap());
+
+    let root_with_whitespace = format!(" {root}");
+    assert!(!verify_merkle_proof_v0(&leaves[1], &proof, &root_with_whitespace).unwrap());
+
+    let mut bad_sibling_proof = proof.clone();
+    if let Some(first) = bad_sibling_proof.siblings.first_mut() {
+        match first {
+            Sibling::Left(h) | Sibling::Right(h) => {
+                *h = format!("{h} ");
+            }
+        }
+    }
+    assert!(verify_merkle_proof_v0(&leaves[1], &bad_sibling_proof, &root).is_err());
+
+    let mut short_root = root.clone();
+    short_root.pop();
+    assert!(!verify_merkle_proof_v0(&leaves[1], &proof, &short_root).unwrap());
 }
 
 fn sample_bundle() -> BundleV0 {

@@ -150,7 +150,7 @@ pub fn verify_merkle_proof_v0(
     }
 
     let got_root = hex::encode(current);
-    Ok(got_root == expected_root.to_lowercase())
+    Ok(got_root == *expected_root)
 }
 
 /* -----------------------------
@@ -174,11 +174,16 @@ fn decode_leaf_hashes(leaves: &[HashHex]) -> Result<Vec<Vec<u8>>, MerkleError> {
 }
 
 fn decode_hash_hex(h: &str) -> Result<Vec<u8>, String> {
-    let s = h.trim().to_lowercase();
-    if s.len() != 64 {
-        return Err(format!("expected 64 hex chars (32 bytes), got {}", s.len()));
+    if h.len() != 64 {
+        return Err(format!("expected 64 hex chars (32 bytes), got {}", h.len()));
     }
-    hex::decode(s).map_err(|e| e.to_string())
+    if !h
+        .chars()
+        .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+    {
+        return Err("expected lowercase hex".to_string());
+    }
+    hex::decode(h).map_err(|e| e.to_string())
 }
 
 fn parent_level(level: &[Vec<u8>]) -> Vec<Vec<u8>> {
