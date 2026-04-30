@@ -391,6 +391,27 @@ fn bundle_receipt_chronos_ref_mismatch_fails() {
 }
 
 #[test]
+fn bundle_event_hash_mismatch_fails() {
+    let mut bundle = sample_bundle();
+    bundle.event_hash = "0".repeat(64);
+    bundle.receipt.event_hash = bundle.event_hash.clone();
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::EventHashMismatch { .. })
+    ));
+}
+
+#[test]
+fn bundle_receipt_body_hash_mismatch_fails() {
+    let mut bundle = sample_bundle();
+    bundle.receipt_body_hash = "f".repeat(64);
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::ReceiptBodyHashMismatch { .. })
+    ));
+}
+
+#[test]
 fn bundle_anchor_root_mismatch_fails() {
     let mut bundle = sample_bundle();
     bundle.anchor = Some(AnchorRefV0 {
