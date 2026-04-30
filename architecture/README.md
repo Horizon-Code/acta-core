@@ -16,6 +16,7 @@ ACTA's internal architectural model: semantic layers, dependency boundaries, lif
 - Core boundary clarifications (`core-boundaries.md`).
 - Failure-jurisdiction mapping (`failure-taxonomy.md`).
 - Core/Protocol/Profile/Adapter/Institution boundaries (`boundaries.md`).
+- Foundations-to-modules mapping (`foundations-to-modules.md`).
 
 ## Does not belong here
 
