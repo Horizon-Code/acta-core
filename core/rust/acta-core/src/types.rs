@@ -61,6 +61,29 @@ pub enum CommitmentError {
     InvalidHexDigest,
 }
 
+/// Strict lexical hash format used by hash-critical Core paths:
+/// exactly 64 lowercase hex characters.
+pub fn validate_hash_hex_v0(value: &str) -> Result<(), HashLexicalError> {
+    if value.len() != 64 {
+        return Err(HashLexicalError::InvalidLength { got: value.len() });
+    }
+    if !value
+        .chars()
+        .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+    {
+        return Err(HashLexicalError::InvalidLowercaseHex);
+    }
+    Ok(())
+}
+
+#[derive(Debug, thiserror::Error, Clone, PartialEq, Eq)]
+pub enum HashLexicalError {
+    #[error("invalid hash length: expected 64, got {got}")]
+    InvalidLength { got: usize },
+    #[error("invalid hash hex: expected lowercase hex")]
+    InvalidLowercaseHex,
+}
+
 /// Semantic identity of the enclosing process instance.
 acta_derive! {
 pub struct ProcessRefV0 {

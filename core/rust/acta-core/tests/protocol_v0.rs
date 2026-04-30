@@ -6,6 +6,7 @@ use acta_core::hash::{
 use acta_core::merkle::{merkle_proof_v0, merkle_root_v0, verify_merkle_proof_v0, Sibling};
 use acta_core::process::validate_process_v0;
 use acta_core::receipt::receipt_v0_signing_payload;
+use acta_core::receipt::validate_receipt_v0_shape;
 use acta_core::types::{
     validate_commitment_v0, validate_event_v0_shape, ActaEventV0, ActorRefV0, ChronosRefV0,
     ChronosStampedEventV0, CommitmentsV0, EventKindRefV0, EventValidationError, PolicySnapshotV0,
@@ -141,6 +142,33 @@ fn receipt_body_hash_does_not_depend_on_signatures() {
 }
 
 #[test]
+fn receipt_shape_rejects_malformed_hash_fields() {
+    let event_hash = "a".repeat(64);
+    let mut receipt = sample_receipt(
+        &event_hash,
+        ChronosRefV0 {
+            epoch_id: "epoch-0001".to_string(),
+            prev_event_hash: None,
+        },
+        vec![SignatureV0 {
+            attestor_id: "attestor-a".to_string(),
+            scheme: "ed25519".to_string(),
+            signature: "sig-a".to_string(),
+        }],
+    );
+
+    receipt.event_hash = "abcd".to_string();
+    assert!(validate_receipt_v0_shape(&receipt).is_err());
+
+    receipt.event_hash = "A".repeat(64);
+    assert!(validate_receipt_v0_shape(&receipt).is_err());
+
+    receipt.event_hash = "a".repeat(64);
+    receipt.chronos_ref.prev_event_hash = Some(format!("{} ", "b".repeat(64)));
+    assert!(validate_receipt_v0_shape(&receipt).is_err());
+}
+
+#[test]
 fn merkle_proof_verifies_inclusion() {
     let e1 = sample_event("evt-0001", "proc-001");
     let h1 = hash_event_v0(&e1).unwrap();
@@ -200,6 +228,26 @@ fn chronos_rejects_length_mismatch_with_explicit_error() {
     let s1 = stamped(e1, "epoch-0001", None);
     let err = verify_event_chain_v0(&[s1], &[]).unwrap_err();
     assert!(matches!(err, ChronosError::LengthMismatch { .. }));
+}
+
+#[test]
+fn chronos_rejects_malformed_supplied_hashes() {
+    let e1 = sample_event("evt-0001", "proc-001");
+    let e2 = sample_event("evt-0002", "proc-001");
+    let h1 = hash_event_v0(&e1).unwrap();
+    let s1 = stamped(e1, "epoch-0001", None);
+    let s2 = stamped(e2, "epoch-0001", Some(h1.clone()));
+    let mut bad_hashes = vec![h1, "ABCD".to_string()];
+    let err = verify_event_chain_v0(&[s1, s2], &bad_hashes).unwrap_err();
+    assert!(matches!(err, ChronosError::InvalidHashLexical { .. }));
+
+    bad_hashes[1] = "a".repeat(64);
+    let mut s2_bad = stamped(sample_event("evt-0002", "proc-001"), "epoch-0001", None);
+    s2_bad.chronos_ref.prev_event_hash = Some(format!("{} ", "a".repeat(64)));
+    let s1_ok = stamped(sample_event("evt-0001", "proc-001"), "epoch-0001", None);
+    let h_ok = hash_event_v0(&s1_ok.event).unwrap();
+    let err2 = verify_event_chain_v0(&[s1_ok, s2_bad], &[h_ok, bad_hashes[1].clone()]).unwrap_err();
+    assert!(matches!(err2, ChronosError::InvalidHashLexical { .. }));
 }
 
 #[test]
@@ -553,6 +601,67 @@ fn bundle_invalid_anchor_shape_fails() {
         verify_bundle_v0(&bundle),
         Err(BundleError::InvalidAnchorRef(_))
     ));
+}
+
+#[test]
+fn bundle_anchor_rejects_surrounding_whitespace_fields() {
+    let mut bundle = sample_bundle();
+    bundle.anchor = Some(AnchorRefV0 {
+        substrate: " cardano".to_string(),
+        network: Some("preprod".to_string()),
+        tx_id: Some("txid".to_string()),
+        slot: None,
+        epoch_root: bundle.epoch_root.clone(),
+    });
+    assert!(matches!(
+        verify_bundle_v0(&bundle),
+        Err(BundleError::InvalidAnchorRef(_))
+    ));
+
+    let mut bundle2 = sample_bundle();
+    bundle2.anchor = Some(AnchorRefV0 {
+        substrate: "cardano".to_string(),
+        network: Some(" preprod ".to_string()),
+        tx_id: Some("txid".to_string()),
+        slot: None,
+        epoch_root: bundle2.epoch_root.clone(),
+    });
+    assert!(matches!(
+        verify_bundle_v0(&bundle2),
+        Err(BundleError::InvalidAnchorRef(_))
+    ));
+
+    let mut bundle3 = sample_bundle();
+    bundle3.anchor = Some(AnchorRefV0 {
+        substrate: "cardano".to_string(),
+        network: Some("preprod".to_string()),
+        tx_id: Some(" tx ".to_string()),
+        slot: None,
+        epoch_root: bundle3.epoch_root.clone(),
+    });
+    assert!(matches!(
+        verify_bundle_v0(&bundle3),
+        Err(BundleError::InvalidAnchorRef(_))
+    ));
+}
+
+#[test]
+fn hash_receipt_full_rejects_protocol_mismatch() {
+    let event_hash = hash_event_v0(&sample_event("evt-0501", "proc-0500")).unwrap();
+    let mut receipt = sample_receipt(
+        &event_hash,
+        ChronosRefV0 {
+            epoch_id: "epoch-0500".to_string(),
+            prev_event_hash: None,
+        },
+        vec![SignatureV0 {
+            attestor_id: "attestor-a".to_string(),
+            scheme: "ed25519".to_string(),
+            signature: "sig-a".to_string(),
+        }],
+    );
+    receipt.protocol = "acta.vX".to_string();
+    assert!(hash_receipt_full_v0(&receipt).is_err());
 }
 
 #[test]

@@ -5,15 +5,15 @@
 
 pub mod types;
 
+use self::types::{
+    AccountFrozenPayloadV0, AmlDomainEventV0, AmlScoredPayloadV0, ManualReviewOutcomeV0,
+    ManualReviewPayloadV0, ProcessClosedPayloadV0, ProcessOpenedPayloadV0,
+    TransferRequestedPayloadV0,
+};
 use acta_core::hash::hash_event_v0;
 use acta_core::types::{
     validate_event_v0_shape, ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0,
     CommitmentsV0, EventValidationError, PolicySnapshotV0, ProcessRefV0, PROTOCOL_VERSION,
-};
-use types::{
-    AccountFrozenPayloadV0, AmlDomainEventV0, AmlScoredPayloadV0, ManualReviewOutcomeV0,
-    ManualReviewPayloadV0, ProcessClosedPayloadV0, ProcessOpenedPayloadV0,
-    TransferRequestedPayloadV0,
 };
 
 #[derive(Debug, thiserror::Error)]

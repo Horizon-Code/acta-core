@@ -13,6 +13,7 @@
 //! Core Chronos also does NOT validate external ledger truth, institutional
 //! authority, or profile lifecycle completeness.
 
+use crate::types::validate_hash_hex_v0;
 use crate::types::{ChronosRefV0, ChronosStampedEventV0};
 
 /// Errors for Chronos verification.
@@ -39,6 +40,13 @@ pub enum ChronosError {
 
     #[error("event[{index}] has missing prev_event_hash (expected {expected})")]
     MissingPrevHash { index: usize, expected: String },
+
+    #[error("event[{index}] has invalid hash lexical form in {field}: {reason}")]
+    InvalidHashLexical {
+        index: usize,
+        field: String,
+        reason: String,
+    },
 }
 
 /// Verifies a local chain of events using their Chronos refs and computed event hashes.
@@ -66,6 +74,11 @@ pub fn verify_event_chain_v0(
     if events[0].chronos_ref.epoch_id.trim().is_empty() {
         return Err(ChronosError::EmptyEpochId { index: 0 });
     }
+    validate_hash_hex_v0(&hashes[0]).map_err(|e| ChronosError::InvalidHashLexical {
+        index: 0,
+        field: "hashes[0]".to_string(),
+        reason: e.to_string(),
+    })?;
     if events[0].chronos_ref.prev_event_hash.is_some() {
         return Err(ChronosError::GenesisPrevMustBeNull);
     }
@@ -74,6 +87,12 @@ pub fn verify_event_chain_v0(
         if events[i].chronos_ref.epoch_id.trim().is_empty() {
             return Err(ChronosError::EmptyEpochId { index: i });
         }
+
+        validate_hash_hex_v0(&hashes[i]).map_err(|e| ChronosError::InvalidHashLexical {
+            index: i,
+            field: format!("hashes[{i}]"),
+            reason: e.to_string(),
+        })?;
 
         let expected = hashes[i - 1].clone();
         verify_link_v0(&expected, &events[i].chronos_ref, i)?;
@@ -96,11 +115,25 @@ pub fn verify_link_v0(
             index: next_index,
             expected: prev_hash.to_string(),
         }),
-        Some(got) if got != prev_hash => Err(ChronosError::PrevHashMismatch {
-            index: next_index,
-            expected: prev_hash.to_string(),
-            got: got.clone(),
-        }),
-        Some(_) => Ok(()),
+        Some(got) => {
+            validate_hash_hex_v0(prev_hash).map_err(|e| ChronosError::InvalidHashLexical {
+                index: next_index,
+                field: "expected_prev_hash".to_string(),
+                reason: e.to_string(),
+            })?;
+            validate_hash_hex_v0(got).map_err(|e| ChronosError::InvalidHashLexical {
+                index: next_index,
+                field: "chronos_ref.prev_event_hash".to_string(),
+                reason: e.to_string(),
+            })?;
+            if got != prev_hash {
+                return Err(ChronosError::PrevHashMismatch {
+                    index: next_index,
+                    expected: prev_hash.to_string(),
+                    got: got.clone(),
+                });
+            }
+            Ok(())
+        }
     }
 }

@@ -92,6 +92,11 @@ pub fn canonical_receipt_body_v0_bytes(receipt: &ReceiptV0) -> Result<Vec<u8>, C
 /// `signatures` are sorted by `attestor_id` (lexicographic) to avoid different
 /// byte outputs for the same logical receipt.
 pub fn canonical_receipt_v0_bytes(receipt: &ReceiptV0) -> Result<Vec<u8>, CanonicalError> {
+    ensure_protocol(&receipt.protocol)?;
+    ensure_non_empty(&receipt.event_hash, "event_hash")?;
+    ensure_non_empty(&receipt.chronos_ref.epoch_id, "chronos_ref.epoch_id")?;
+    ensure_non_empty(&receipt.issued_at, "issued_at")?;
+
     let body = receipt_body_v0_to_value(receipt);
 
     let mut sigs = receipt.signatures.clone();

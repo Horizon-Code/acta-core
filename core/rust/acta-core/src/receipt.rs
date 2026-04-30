@@ -9,7 +9,7 @@
 //! which is intentionally outside the core (module/service responsibility).
 
 use crate::canonical::canonical_receipt_body_v0_bytes;
-use crate::types::{ReceiptV0, SignatureV0, PROTOCOL_VERSION};
+use crate::types::{validate_hash_hex_v0, ReceiptV0, SignatureV0, PROTOCOL_VERSION};
 
 /// Returns the canonical bytes that MUST be signed for a ReceiptV0.
 /// This is the Receipt BODY (no signatures).
@@ -29,7 +29,14 @@ pub fn receipt_v0_signing_payload(receipt: &ReceiptV0) -> Result<Vec<u8>, Receip
 pub fn validate_receipt_v0_shape(receipt: &ReceiptV0) -> Result<(), ReceiptError> {
     ensure_protocol(&receipt.protocol)?;
     ensure_non_empty(&receipt.event_hash, "event_hash")?;
+    validate_hash_hex_v0(&receipt.event_hash)
+        .map_err(|e| ReceiptError::InvalidHashField(format!("event_hash: {e}")))?;
     ensure_non_empty(&receipt.chronos_ref.epoch_id, "chronos_ref.epoch_id")?;
+    if let Some(prev) = &receipt.chronos_ref.prev_event_hash {
+        validate_hash_hex_v0(prev).map_err(|e| {
+            ReceiptError::InvalidHashField(format!("chronos_ref.prev_event_hash: {e}"))
+        })?;
+    }
     ensure_non_empty(&receipt.issued_at, "issued_at")?;
 
     // MVP expectation: at least 1 signature (single-signer).
@@ -85,6 +92,9 @@ pub enum ReceiptError {
 
     #[error("invalid signature entry: {0}")]
     InvalidSignatureEntry(String),
+
+    #[error("invalid hash field: {0}")]
+    InvalidHashField(String),
 
     #[error("canonicalization error: {0}")]
     Canonicalization(String),

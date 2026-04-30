@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use crate::hash::{hash_event_v0, hash_receipt_body_v0, HashHex};
 use crate::merkle::{verify_merkle_proof_v0, MerkleProofV0};
 use crate::receipt::validate_receipt_v0_shape;
-use crate::types::{ActaEventV0, ChronosRefV0, ReceiptV0, PROTOCOL_VERSION};
+use crate::types::{validate_hash_hex_v0, ActaEventV0, ChronosRefV0, ReceiptV0, PROTOCOL_VERSION};
 
 /// Minimal anchoring reference (Phase 0).
 /// Core only checks internal consistency with bundle `epoch_root`.
@@ -86,6 +86,9 @@ pub enum BundleError {
 
     #[error("invalid anchor reference: {0}")]
     InvalidAnchorRef(String),
+
+    #[error("invalid hash lexical form: {0}")]
+    InvalidHashLexical(String),
 }
 
 /// Verify a bundle end-to-end (within core scope).
@@ -112,6 +115,12 @@ pub fn verify_bundle_v0(bundle: &BundleV0) -> Result<BundleVerificationV0, Bundl
             return Err(BundleError::AnchorRootMismatch);
         }
     }
+    validate_hash_hex_v0(&bundle.event_hash)
+        .map_err(|e| BundleError::InvalidHashLexical(format!("bundle.event_hash: {e}")))?;
+    validate_hash_hex_v0(&bundle.receipt_body_hash)
+        .map_err(|e| BundleError::InvalidHashLexical(format!("bundle.receipt_body_hash: {e}")))?;
+    validate_hash_hex_v0(&bundle.epoch_root)
+        .map_err(|e| BundleError::InvalidHashLexical(format!("bundle.epoch_root: {e}")))?;
 
     // 1) Recompute event hash from canonical bytes
     let computed_event_hash =
@@ -177,35 +186,28 @@ fn ensure_protocol(got: &str) -> Result<(), BundleError> {
 }
 
 fn validate_anchor_ref_v0(anchor: &AnchorRefV0) -> Result<(), BundleError> {
-    if anchor.substrate.trim().is_empty() {
+    if anchor.substrate.is_empty() || anchor.substrate != anchor.substrate.trim() {
         return Err(BundleError::InvalidAnchorRef(
-            "substrate must be non-empty".to_string(),
+            "substrate must be non-empty and without surrounding whitespace".to_string(),
         ));
     }
     if let Some(network) = &anchor.network {
-        if network.trim().is_empty() {
+        if network.is_empty() || network != network.trim() {
             return Err(BundleError::InvalidAnchorRef(
-                "network must be non-empty when provided".to_string(),
+                "network must be non-empty and without surrounding whitespace when provided"
+                    .to_string(),
             ));
         }
     }
     if let Some(tx_id) = &anchor.tx_id {
-        if tx_id.trim().is_empty() {
+        if tx_id.is_empty() || tx_id != tx_id.trim() {
             return Err(BundleError::InvalidAnchorRef(
-                "tx_id must be non-empty when provided".to_string(),
+                "tx_id must be non-empty and without surrounding whitespace when provided"
+                    .to_string(),
             ));
         }
     }
-    if !is_strict_hash_hex(&anchor.epoch_root) {
-        return Err(BundleError::InvalidAnchorRef(
-            "epoch_root must be 64 lowercase hex chars".to_string(),
-        ));
-    }
+    validate_hash_hex_v0(&anchor.epoch_root)
+        .map_err(|e| BundleError::InvalidAnchorRef(format!("epoch_root: {e}")))?;
     Ok(())
-}
-
-fn is_strict_hash_hex(v: &str) -> bool {
-    v.len() == 64
-        && v.chars()
-            .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
 }

@@ -11,6 +11,7 @@
 //! - Internal node hash = SHA256(left_bytes || right_bytes).
 //! - Leaves are expected as hex-encoded SHA-256 hashes (32 bytes).
 
+use crate::types::validate_hash_hex_v0;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -174,15 +175,7 @@ fn decode_leaf_hashes(leaves: &[HashHex]) -> Result<Vec<Vec<u8>>, MerkleError> {
 }
 
 fn decode_hash_hex(h: &str) -> Result<Vec<u8>, String> {
-    if h.len() != 64 {
-        return Err(format!("expected 64 hex chars (32 bytes), got {}", h.len()));
-    }
-    if !h
-        .chars()
-        .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
-    {
-        return Err("expected lowercase hex".to_string());
-    }
+    validate_hash_hex_v0(h).map_err(|e| e.to_string())?;
     hex::decode(h).map_err(|e| e.to_string())
 }
 
