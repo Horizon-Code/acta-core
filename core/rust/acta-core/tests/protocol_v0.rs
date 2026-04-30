@@ -1,6 +1,8 @@
 use acta_core::bundle::{verify_bundle_v0, AnchorRefV0, BundleError, BundleV0};
 use acta_core::chronos::{verify_event_chain_v0, ChronosError};
-use acta_core::hash::{hash_event_v0, hash_receipt_body_v0, hash_receipt_full_v0};
+use acta_core::hash::{
+    hash_event_v0, hash_event_v0_unchecked, hash_receipt_body_v0, hash_receipt_full_v0, HashError,
+};
 use acta_core::merkle::{merkle_proof_v0, merkle_root_v0, verify_merkle_proof_v0, Sibling};
 use acta_core::process::validate_process_v0;
 use acta_core::receipt::receipt_v0_signing_payload;
@@ -260,6 +262,13 @@ fn event_shape_validation_works() {
         Err(EventValidationError::MissingField(ref f)) if f == "process_ref.process_id"
     ));
 
+    let mut missing_actor_id = valid.clone();
+    missing_actor_id.actor_ref.actor_id = " ".to_string();
+    assert!(matches!(
+        validate_event_v0_shape(&missing_actor_id),
+        Err(EventValidationError::MissingField(ref f)) if f == "actor_ref.actor_id"
+    ));
+
     let mut missing_commitment = valid.clone();
     missing_commitment.commitments.outputs_commitment.clear();
     assert!(matches!(
@@ -272,6 +281,35 @@ fn event_shape_validation_works() {
     assert!(matches!(
         validate_event_v0_shape(&missing_policy_hash),
         Err(EventValidationError::MissingField(ref f)) if f == "policy_snapshot.policy_hash"
+    ));
+
+    let mut empty_effective_to = valid.clone();
+    empty_effective_to.policy_snapshot.effective_to = Some("".to_string());
+    assert!(matches!(
+        validate_event_v0_shape(&empty_effective_to),
+        Err(EventValidationError::MissingField(ref f)) if f == "policy_snapshot.effective_to"
+    ));
+
+    let mut bad_inputs = valid.clone();
+    bad_inputs.commitments.inputs_commitment = "sha256:manual_review_inputs".to_string();
+    assert!(matches!(
+        validate_event_v0_shape(&bad_inputs),
+        Err(EventValidationError::InvalidCommitment(_))
+    ));
+
+    let mut bad_outputs = valid.clone();
+    bad_outputs.commitments.outputs_commitment = "sha256:zz".to_string();
+    assert!(matches!(
+        validate_event_v0_shape(&bad_outputs),
+        Err(EventValidationError::InvalidCommitment(_))
+    ));
+
+    let mut bad_artifact = valid.clone();
+    bad_artifact.commitments.artifact_commitment =
+        "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".to_string();
+    assert!(matches!(
+        validate_event_v0_shape(&bad_artifact),
+        Err(EventValidationError::InvalidCommitment(_))
     ));
 }
 
@@ -294,6 +332,22 @@ fn commitment_format_validation_works() {
         "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     )
     .is_err());
+    assert!(validate_commitment_v0("sha256:manual_review_inputs").is_err());
+}
+
+#[test]
+fn hash_event_api_respects_validation_boundary() {
+    let valid = sample_event("evt-0401", "proc-0400");
+    assert!(hash_event_v0(&valid).is_ok());
+
+    let mut invalid = valid.clone();
+    invalid.commitments.inputs_commitment = "sha256:manual_review_inputs".to_string();
+
+    assert!(matches!(
+        hash_event_v0(&invalid),
+        Err(HashError::EventValidation(_))
+    ));
+    assert!(hash_event_v0_unchecked(&invalid).is_ok());
 }
 
 #[test]
