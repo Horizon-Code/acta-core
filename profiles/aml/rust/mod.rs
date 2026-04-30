@@ -7,10 +7,43 @@ pub mod types;
 
 use acta_core::hash::hash_event_v0;
 use acta_core::types::{
-    ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0, CommitmentsV0, PolicySnapshotV0,
-    ProcessRefV0, PROTOCOL_VERSION,
+    validate_event_v0_shape, ActaEventV0, ActorRefV0, ChronosRefV0, ChronosStampedEventV0,
+    CommitmentsV0, EventValidationError, PolicySnapshotV0, ProcessRefV0, PROTOCOL_VERSION,
 };
-use types::{AmlDomainEventV0, ManualReviewOutcomeV0, ManualReviewPayloadV0};
+use types::{
+    AccountFrozenPayloadV0, AmlDomainEventV0, AmlScoredPayloadV0, ManualReviewOutcomeV0,
+    ManualReviewPayloadV0, ProcessClosedPayloadV0, ProcessOpenedPayloadV0,
+    TransferRequestedPayloadV0,
+};
+
+#[derive(Debug, thiserror::Error)]
+pub enum AmlProfileError {
+    #[error("core event validation failed: {0}")]
+    CoreEventValidation(#[from] EventValidationError),
+}
+
+pub fn map_aml_event_to_core_v0(
+    domain_event: &AmlDomainEventV0,
+    event_id: String,
+    issued_at: String,
+    process_ref: ProcessRefV0,
+    commitments: CommitmentsV0,
+    policy_snapshot: PolicySnapshotV0,
+    actor_ref: ActorRefV0,
+) -> Result<ActaEventV0, AmlProfileError> {
+    let event = ActaEventV0 {
+        protocol: PROTOCOL_VERSION.to_string(),
+        event_id,
+        issued_at,
+        process_ref,
+        event_kind: domain_event.to_event_kind_ref(),
+        commitments,
+        policy_snapshot,
+        actor_ref,
+    };
+    validate_event_v0_shape(&event)?;
+    Ok(event)
+}
 
 #[derive(Debug, Clone)]
 pub struct AmlDemoProcessV0 {
@@ -41,7 +74,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
 
     let event_specs: Vec<(AmlDomainEventV0, &str, CommitmentsV0)> = vec![
         (
-            AmlDomainEventV0::ProcessOpened,
+            AmlDomainEventV0::ProcessOpened(ProcessOpenedPayloadV0 {
+                process_label: Some("initial-open".to_string()),
+            }),
             "2025-01-15T10:00:00Z",
             CommitmentsV0 {
                 inputs_commitment:
@@ -56,7 +91,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             },
         ),
         (
-            AmlDomainEventV0::TransferRequested,
+            AmlDomainEventV0::TransferRequested(TransferRequestedPayloadV0 {
+                transfer_ref: Some("trf-2025-000341".to_string()),
+            }),
             "2025-01-15T10:15:00Z",
             CommitmentsV0 {
                 inputs_commitment:
@@ -71,7 +108,10 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             },
         ),
         (
-            AmlDomainEventV0::AmlScored,
+            AmlDomainEventV0::AmlScored(AmlScoredPayloadV0 {
+                score_ref: Some("score-2025-000341".to_string()),
+                score_band: Some("high".to_string()),
+            }),
             "2025-01-15T10:30:00Z",
             CommitmentsV0 {
                 inputs_commitment:
@@ -112,7 +152,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             },
         ),
         (
-            AmlDomainEventV0::AccountFrozen,
+            AmlDomainEventV0::AccountFrozen(AccountFrozenPayloadV0 {
+                reason_ref: Some("freeze-justification-001".to_string()),
+            }),
             "2025-01-15T11:05:00Z",
             CommitmentsV0 {
                 inputs_commitment:
@@ -127,7 +169,9 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
             },
         ),
         (
-            AmlDomainEventV0::ProcessClosed,
+            AmlDomainEventV0::ProcessClosed(ProcessClosedPayloadV0 {
+                closure_ref: Some("closure-001".to_string()),
+            }),
             "2025-01-15T11:10:00Z",
             CommitmentsV0 {
                 inputs_commitment:
@@ -150,21 +194,19 @@ pub fn build_aml_demo_process() -> AmlDemoProcessV0 {
     let mut prev_hash: Option<String> = None;
 
     for (idx, (domain_event, issued_at, commitments)) in event_specs.into_iter().enumerate() {
-        let event_kind = domain_event.to_event_kind_ref();
-
-        let core_event = ActaEventV0 {
-            protocol: PROTOCOL_VERSION.to_string(),
-            event_id: format!("aml-case-2025-000341-ev{:04}", idx + 1),
-            issued_at: issued_at.to_string(),
-            process_ref: process_ref.clone(),
-            event_kind: event_kind.clone(),
+        let core_event = map_aml_event_to_core_v0(
+            &domain_event,
+            format!("aml-case-2025-000341-ev{:04}", idx + 1),
+            issued_at.to_string(),
+            process_ref.clone(),
             commitments,
-            policy_snapshot: policy_snapshot.clone(),
-            actor_ref: ActorRefV0 {
+            policy_snapshot.clone(),
+            ActorRefV0 {
                 actor_id: actor_ref.clone(),
                 actor_type: "service".to_string(),
             },
-        };
+        )
+        .expect("AML-to-core mapping must produce valid core events");
 
         let hash = hash_event_v0(&core_event).expect("hashing AML demo event must succeed");
         let chronos_ref = ChronosRefV0 {

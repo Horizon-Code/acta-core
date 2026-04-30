@@ -72,7 +72,7 @@ The following concerns remain outside Core:
 - TODO: dispute/audit runtime implementation is intentionally outside Core.
 - TODO: Cardano adapter exists under `adapters/cardano-anchor` and must remain adapter-level.
 - TODO: protocol skeleton exists at `protocol/ACTA_Protocol_v0.md` and may need iterative expansion.
-- TODO: AML lifecycle validation remains profile-level work under `profiles/aml`, not Core.
+- AML lifecycle validation skeleton exists under `profiles/aml/rust` and remains profile-level (outside Core).
 
 ## Executor Guidance
 
