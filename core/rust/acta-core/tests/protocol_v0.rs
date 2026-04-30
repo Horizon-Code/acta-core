@@ -159,6 +159,40 @@ fn merkle_proof_verifies_inclusion() {
 }
 
 #[test]
+fn merkle_tampered_sibling_direction_fails() {
+    let leaves = vec![
+        hash_event_v0(&sample_event("evt-0004", "proc-001")).unwrap(),
+        hash_event_v0(&sample_event("evt-0005", "proc-001")).unwrap(),
+        hash_event_v0(&sample_event("evt-0006", "proc-001")).unwrap(),
+    ];
+    let root = merkle_root_v0(&leaves).unwrap();
+    let proof = merkle_proof_v0(&leaves, 1).unwrap();
+    assert!(verify_merkle_proof_v0(&leaves[1], &proof, &root).unwrap());
+
+    let mut tampered = proof.clone();
+    tampered.siblings[0] = match &proof.siblings[0] {
+        Sibling::Left(h) => Sibling::Right(h.clone()),
+        Sibling::Right(h) => Sibling::Left(h.clone()),
+    };
+    assert!(!verify_merkle_proof_v0(&leaves[1], &tampered, &root).unwrap());
+}
+
+#[test]
+fn merkle_invalid_root_fails() {
+    let leaves = vec![
+        hash_event_v0(&sample_event("evt-0007", "proc-001")).unwrap(),
+        hash_event_v0(&sample_event("evt-0008", "proc-001")).unwrap(),
+        hash_event_v0(&sample_event("evt-0009", "proc-001")).unwrap(),
+    ];
+    let root = merkle_root_v0(&leaves).unwrap();
+    let proof = merkle_proof_v0(&leaves, 1).unwrap();
+    assert!(verify_merkle_proof_v0(&leaves[1], &proof, &root).unwrap());
+
+    let invalid_root = "f".repeat(64);
+    assert!(!verify_merkle_proof_v0(&leaves[1], &proof, &invalid_root).unwrap());
+}
+
+#[test]
 fn chronos_rejects_length_mismatch_with_explicit_error() {
     let e1 = sample_event("evt-0001", "proc-001");
     let s1 = stamped(e1, "epoch-0001", None);
