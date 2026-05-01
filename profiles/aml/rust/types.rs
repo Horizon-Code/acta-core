@@ -304,26 +304,28 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
     if events.is_empty() {
         return Err(AmlLifecycleError::EmptyLifecycle);
     }
-    if !matches!(events[0], AmlDomainEventV0::ProcessOpened(_)) {
-        return Err(AmlLifecycleError::InvalidInitialEvent);
-    }
 
+    let mut seen_process_opened = false;
     let mut seen_risk_scored = false;
     let mut seen_manual_review = false;
     let mut seen_account_frozen = false;
-    let mut closed_at: Option<usize> = None;
-    let mut case_id: Option<String> = None;
-    let mut account_ref: Option<String> = None;
+    let mut seen_process_closed = false;
+    let mut expected_case_id: Option<String> = None;
+    let mut expected_account_ref: Option<String> = None;
 
     for (i, ev) in events.iter().enumerate() {
         validate_aml_payload_v0(ev)?;
 
-        if closed_at.is_some() {
+        if seen_process_closed {
             return Err(AmlLifecycleError::EventAfterProcessClosed { index: i });
         }
 
+        if i == 0 && !matches!(ev, AmlDomainEventV0::ProcessOpened(_)) {
+            return Err(AmlLifecycleError::InvalidInitialEvent);
+        }
+
         let this_case = ev.case_id();
-        if let Some(expected_case) = &case_id {
+        if let Some(expected_case) = &expected_case_id {
             if this_case != expected_case {
                 return Err(AmlLifecycleError::CaseMismatch {
                     expected: expected_case.clone(),
@@ -331,11 +333,11 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
                 });
             }
         } else {
-            case_id = Some(this_case.to_string());
+            expected_case_id = Some(this_case.to_string());
         }
 
         if let Some(this_account) = ev.account_ref() {
-            if let Some(expected_account) = &account_ref {
+            if let Some(expected_account) = &expected_account_ref {
                 if this_account != expected_account {
                     return Err(AmlLifecycleError::AccountMismatch {
                         expected: expected_account.clone(),
@@ -343,18 +345,19 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
                     });
                 }
             } else {
-                account_ref = Some(this_account.to_string());
+                expected_account_ref = Some(this_account.to_string());
             }
         }
 
         match ev {
             AmlDomainEventV0::ProcessOpened(_) => {
-                if i != 0 {
+                if seen_process_opened {
                     return Err(AmlLifecycleError::RepeatedProcessOpened);
                 }
+                seen_process_opened = true;
             }
             AmlDomainEventV0::RiskScored(_) => {
-                if i == 0 {
+                if !seen_process_opened {
                     return Err(AmlLifecycleError::MissingProcessOpened);
                 }
                 seen_risk_scored = true;
@@ -383,7 +386,7 @@ pub fn validate_aml_lifecycle_v0(events: &[AmlDomainEventV0]) -> Result<(), AmlL
                 }
             }
             AmlDomainEventV0::ProcessClosed(_) => {
-                closed_at = Some(i);
+                seen_process_closed = true;
             }
         }
     }

@@ -5,9 +5,9 @@ use acta_core::hash::hash_event_v0;
 use acta_core::types::validate_commitment_v0;
 use aml_profile::map_aml_event_to_core_v0;
 use aml_profile::types::{
-    validate_aml_lifecycle_v0, validate_aml_payload_v0, AccountFrozenPayloadV0, AmlDomainEventV0,
-    AmlLifecycleError, ManualReviewCompletedPayloadV0, ManualReviewOutcomeV0,
-    ProcessOpenedPayloadV0, RiskScoredPayloadV0,
+    validate_aml_lifecycle_v0, validate_aml_payload_v0, AccountFrozenPayloadV0,
+    AccountReleasedPayloadV0, AmlDomainEventV0, AmlLifecycleError, ManualReviewCompletedPayloadV0,
+    ManualReviewOutcomeV0, ProcessClosedPayloadV0, ProcessOpenedPayloadV0, RiskScoredPayloadV0,
 };
 
 fn valid_flow() -> Vec<AmlDomainEventV0> {
@@ -171,6 +171,45 @@ fn aml_lifecycle_negative_cases_fail() {
     assert!(matches!(
         validate_aml_lifecycle_v0(&mismatch_case),
         Err(AmlLifecycleError::CaseMismatch { .. })
+    ));
+
+    let only_risk = vec![valid_flow()[1].clone()];
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&only_risk),
+        Err(AmlLifecycleError::InvalidInitialEvent)
+    ));
+
+    let mut after_closed = valid_flow();
+    after_closed.push(AmlDomainEventV0::ProcessClosed(ProcessClosedPayloadV0 {
+        case_id: "AML-CASE-2026-0001".to_string(),
+        closure_ref: Some("closure:001".to_string()),
+        closed_at: "2026-02-01T12:04:00Z".to_string(),
+    }));
+    after_closed.push(AmlDomainEventV0::TransferFlagged(
+        aml_profile::types::TransferFlaggedPayloadV0 {
+            case_id: "AML-CASE-2026-0001".to_string(),
+            account_ref: "acct:demo:0001".to_string(),
+            flagged_at: "2026-02-01T12:05:00Z".to_string(),
+        },
+    ));
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&after_closed),
+        Err(AmlLifecycleError::EventAfterProcessClosed { .. })
+    ));
+
+    let mut release_without_freeze = valid_flow();
+    release_without_freeze.pop();
+    release_without_freeze.push(AmlDomainEventV0::AccountReleased(
+        AccountReleasedPayloadV0 {
+            case_id: "AML-CASE-2026-0001".to_string(),
+            account_ref: "acct:demo:0001".to_string(),
+            reason_ref: Some("manual_release".to_string()),
+            released_at: "2026-02-01T12:04:00Z".to_string(),
+        },
+    ));
+    assert!(matches!(
+        validate_aml_lifecycle_v0(&release_without_freeze),
+        Err(AmlLifecycleError::InvalidTransition(_))
     ));
 }
 
