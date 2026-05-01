@@ -1,58 +1,48 @@
 # AML Demo Readiness
 
-## Scope
+## Status
 
-AML account freeze demo/profile validates that ACTA can represent and locally verify a significant compliance flow without moving AML semantics into Core.
+AML freeze demo/profile closure candidate.
 
-## Closed
+## Definition Of Done
 
-- AML minimum event set for freeze demo:
-  - `aml.process_opened`
-  - `aml.risk_scored`
-  - `aml.manual_review_completed`
-  - `aml.account_frozen`
-- AML payloads for those events.
-- AML lifecycle validation outside Core.
-- AML -> Core `ActaEventV0` mapping outside Core.
-- Positive freeze flow tests.
-- Negative lifecycle/payload tests.
-- Core integration path for hash/receipt/local epoch/Merkle proof/bundle.
-- Local bundle verification with `verify_bundle_v0`.
+- [x] `cargo fmt --all` passes.
+- [x] `cargo test --workspace` passes.
+- [x] minimum AML flow exists.
+- [x] payload validation exists.
+- [x] lifecycle validation exists.
+- [x] mapping AML -> Core exists.
+- [x] positive tests exist.
+- [x] negative tests exist.
+- [x] e2e `BundleV0` verification exists.
+- [x] Core remains domain-neutral.
 
-## Deferred
+## Tests Covered
 
-- AML Profile as independent crate (currently path-based module use in tests/examples).
-- `transfer_flagged` full flow.
-- `account_released` full flow.
-- `process_closed` full flow.
-- Regulator/auditor report outputs.
-- Cardano anchor integration.
-- DID/TAP real credential resolution.
-- Storage adapter.
-- ZK/selective disclosure.
-- `policy_commitment` / neutral `NormativeRefV0` evolution.
-- UI.
-- Human-readable presentation report.
+- Positive AML freeze flow (`process_opened -> risk_scored -> manual_review_completed -> account_frozen`).
+- AML kind mapping stability tests.
+- AML lifecycle negative tests.
+- AML invalid payload field tests.
+- AML invalid commitment field tests.
+- e2e AML freeze bundle verification.
+- e2e tampering failure checks (event hash mismatch, proof/index mismatch, receipt-body mismatch, chronos mismatch).
 
-## Forbidden in Core
+## Known Deferred Debt
+
+- Local Epoch Builder not yet used by AML e2e (direct Merkle APIs currently used).
+- AML Profile is not yet an independent crate (path import in Core tests/examples).
+- Optional events are preserved but not fully expanded into full closure flows (`transfer_flagged`, `account_released`, `process_closed`).
+- No regulator/auditor report artifact.
+- No Cardano/DID/ZK/storage integrations.
+
+## Forbidden In Core
 
 - AML event enums.
-- AML lifecycle logic.
+- AML lifecycle.
 - AML payload semantics.
-- Freeze decision logic.
-- Regulatory interpretation.
-- Sanctions/remedies.
-- Legal judgment.
-- Institutional adjudication.
-
-## Definition of Done
-
-- `cargo fmt --all` passes.
-- `cargo test --workspace` passes.
-- Valid AML freeze flow exists.
-- Lifecycle validation outside Core exists.
-- Mapping AML -> Core exists.
-- Each AML event produces valid Core Event.
-- AML flow generates a verifiable bundle.
-- Positive and negative tests exist.
-- Core remains domain-neutral.
+- freeze logic.
+- regulatory interpretation.
+- sanctions.
+- legal judgment.
+- institutional adjudication.
+- external substrate verification.
