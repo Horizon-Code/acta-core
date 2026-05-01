@@ -13,3 +13,4 @@ Current vectors:
 - `event-v0.json` + `event-v0.hash`
 - `receipt-v0.json` + `receipt-body-v0.hash`
 - `bundle-v0.json`
+- `merkle-v0-nontrivial.json` + `merkle-v0-nontrivial.root`

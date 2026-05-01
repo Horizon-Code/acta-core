@@ -5,8 +5,8 @@ use acta_core::hash::{
 };
 use acta_core::merkle::{merkle_proof_v0, merkle_root_v0, verify_merkle_proof_v0, Sibling};
 use acta_core::process::validate_process_v0;
-use acta_core::receipt::receipt_v0_signing_payload;
 use acta_core::receipt::validate_receipt_v0_shape;
+use acta_core::receipt::{receipt_v0_signing_payload, validate_receipt_body_v0_shape};
 use acta_core::types::{
     validate_commitment_v0, validate_event_v0_shape, ActaEventV0, ActorRefV0, ChronosRefV0,
     ChronosStampedEventV0, CommitmentsV0, EventKindRefV0, EventValidationError, PolicySnapshotV0,
@@ -165,6 +165,60 @@ fn receipt_shape_rejects_malformed_hash_fields() {
 
     receipt.event_hash = "a".repeat(64);
     receipt.chronos_ref.prev_event_hash = Some(format!("{} ", "b".repeat(64)));
+    assert!(validate_receipt_v0_shape(&receipt).is_err());
+}
+
+#[test]
+fn receipt_body_shape_validation_works() {
+    let event_hash = "a".repeat(64);
+    let mut receipt = sample_receipt(
+        &event_hash,
+        ChronosRefV0 {
+            epoch_id: "epoch-0001".to_string(),
+            prev_event_hash: Some("b".repeat(64)),
+        },
+        vec![SignatureV0 {
+            attestor_id: "attestor-a".to_string(),
+            scheme: "ed25519".to_string(),
+            signature: "sig-a".to_string(),
+        }],
+    );
+    assert!(validate_receipt_body_v0_shape(&receipt).is_ok());
+
+    receipt.protocol = "acta.v9".to_string();
+    assert!(validate_receipt_body_v0_shape(&receipt).is_err());
+    receipt.protocol = PROTOCOL_VERSION.to_string();
+
+    receipt.event_hash = "xyz".to_string();
+    assert!(validate_receipt_body_v0_shape(&receipt).is_err());
+    receipt.event_hash = "a".repeat(64);
+
+    receipt.chronos_ref.prev_event_hash = Some("ABCDEF".to_string());
+    assert!(validate_receipt_body_v0_shape(&receipt).is_err());
+    receipt.chronos_ref.prev_event_hash = Some("b".repeat(64));
+
+    receipt.issued_at = "   ".to_string();
+    assert!(validate_receipt_body_v0_shape(&receipt).is_err());
+}
+
+#[test]
+fn receipt_full_validation_rejects_invalid_body() {
+    let event_hash = "a".repeat(64);
+    let mut receipt = sample_receipt(
+        &event_hash,
+        ChronosRefV0 {
+            epoch_id: "epoch-0001".to_string(),
+            prev_event_hash: None,
+        },
+        vec![SignatureV0 {
+            attestor_id: "attestor-a".to_string(),
+            scheme: "ed25519".to_string(),
+            signature: "sig-a".to_string(),
+        }],
+    );
+    assert!(validate_receipt_v0_shape(&receipt).is_ok());
+
+    receipt.event_hash = "not-hash".to_string();
     assert!(validate_receipt_v0_shape(&receipt).is_err());
 }
 

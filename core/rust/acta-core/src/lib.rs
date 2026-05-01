@@ -13,6 +13,7 @@
 pub mod bundle;
 pub mod canonical;
 pub mod chronos;
+pub mod epoch;
 pub mod hash;
 pub mod merkle;
 pub mod process;

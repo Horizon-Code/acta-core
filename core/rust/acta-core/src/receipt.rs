@@ -15,18 +15,18 @@ use crate::types::{validate_hash_hex_v0, ReceiptV0, SignatureV0, PROTOCOL_VERSIO
 /// This is the Receipt BODY (no signatures).
 pub fn receipt_v0_signing_payload(receipt: &ReceiptV0) -> Result<Vec<u8>, ReceiptError> {
     ensure_protocol(&receipt.protocol)?;
+    validate_receipt_body_v0_shape(receipt)?;
     Ok(canonical_receipt_body_v0_bytes(receipt)?)
 }
 
-/// Validates the receipt structure and deterministic invariants (Phase 0).
+/// Validates only the signature-critical receipt body.
 ///
-/// This does NOT verify cryptographic signatures (no pubkey resolution in core).
-/// It validates:
-/// - protocol matches
-/// - required fields are present
-/// - signatures are present (MVP expectation)
-/// - signatures are sorted by attestor_id (determinism)
-pub fn validate_receipt_v0_shape(receipt: &ReceiptV0) -> Result<(), ReceiptError> {
+/// This excludes signatures and focuses on:
+/// - protocol
+/// - event_hash
+/// - chronos_ref
+/// - issued_at
+pub fn validate_receipt_body_v0_shape(receipt: &ReceiptV0) -> Result<(), ReceiptError> {
     ensure_protocol(&receipt.protocol)?;
     ensure_non_empty(&receipt.event_hash, "event_hash")?;
     validate_hash_hex_v0(&receipt.event_hash)
@@ -38,6 +38,19 @@ pub fn validate_receipt_v0_shape(receipt: &ReceiptV0) -> Result<(), ReceiptError
         })?;
     }
     ensure_non_empty(&receipt.issued_at, "issued_at")?;
+    Ok(())
+}
+
+/// Validates the receipt structure and deterministic invariants (Phase 0).
+///
+/// This does NOT verify cryptographic signatures (no pubkey resolution in core).
+/// It validates:
+/// - protocol matches
+/// - required fields are present
+/// - signatures are present (MVP expectation)
+/// - signatures are sorted by attestor_id (determinism)
+pub fn validate_receipt_v0_shape(receipt: &ReceiptV0) -> Result<(), ReceiptError> {
+    validate_receipt_body_v0_shape(receipt)?;
 
     // MVP expectation: at least 1 signature (single-signer).
     if receipt.signatures.is_empty() {
