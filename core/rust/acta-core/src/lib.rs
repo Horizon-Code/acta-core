@@ -18,4 +18,5 @@ pub mod hash;
 pub mod merkle;
 pub mod process;
 pub mod receipt;
+pub mod report;
 pub mod types;

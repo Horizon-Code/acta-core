@@ -28,6 +28,7 @@
 
 ## Accepted Deferred Debt
 
+- Local Verification Report v0 is a post-freeze explanatory layer and does not change Core judgment semantics.
 - AML Profile not independent crate.
 - AML example/demo temporarily under `acta-core/examples`.
 - AML e2e/package cleanup.
