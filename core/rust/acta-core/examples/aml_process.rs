@@ -4,14 +4,12 @@
 
 use acta_core::chronos::verify_event_chain_v0;
 use acta_core::process::validate_process_v0;
-
-#[path = "../../../../profiles/aml/rust/mod.rs"]
-mod aml_profile;
+use acta_aml_profile::build_aml_demo_process;
 
 fn main() {
     println!("=== ACTA AML Profile Example ===\n");
 
-    let process = aml_profile::build_aml_demo_process();
+    let process = build_aml_demo_process();
     let process_ref = &process.process_ref;
     let policy_snapshot = &process.policy_snapshot;
     let events = &process.core_events;

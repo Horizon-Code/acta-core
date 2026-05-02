@@ -20,6 +20,10 @@
 - Merkle proof validity.
 - bundle internal consistency via local Core checks.
 - anchor root internal consistency when `anchor` is present.
+- check status semantics are explicit:
+  - `Pass`: check executed and passed.
+  - `Fail`: check executed and failed.
+  - `NotChecked`: check was not executed because a required prior check failed (or not applicable, e.g. missing optional anchor).
 
 ## What It Does Not Verify
 

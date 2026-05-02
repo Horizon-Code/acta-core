@@ -1,7 +1,9 @@
 use acta_core::bundle::{AnchorRefV0, BundleV0};
 use acta_core::epoch::build_local_epoch_v0;
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0};
-use acta_core::report::{verify_bundle_report_v0, VerificationReportStatus};
+use acta_core::report::{
+    verify_bundle_report_v0, VerificationCheckStatus, VerificationReportStatus,
+};
 use acta_core::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRefV0, PolicySnapshotV0,
     ProcessRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
@@ -91,13 +93,20 @@ fn report_passes_for_valid_bundle() {
     let report = verify_bundle_report_v0(&bundle);
     assert_eq!(report.overall_status, VerificationReportStatus::Pass);
     assert!(report.failures.is_empty());
-    assert!(report.checks.iter().any(|c| c.name == "event_hash_valid"));
-    assert!(report.checks.iter().any(|c| c.name == "receipt_valid"));
-    assert!(report.checks.iter().any(|c| c.name == "merkle_proof_valid"));
-    assert!(report
-        .checks
-        .iter()
-        .any(|c| c.name == "bundle_internal_consistency"));
+    for check_name in [
+        "receipt_event_hash_matches_bundle",
+        "chronos_ref_matches_bundle",
+        "event_hash_valid",
+        "receipt_body_valid",
+        "receipt_valid",
+        "receipt_body_hash_matches_bundle",
+        "epoch_root_matches",
+        "merkle_proof_valid",
+        "bundle_internal_consistency",
+    ] {
+        let c = report.checks.iter().find(|c| c.name == check_name).unwrap();
+        assert_eq!(c.status, VerificationCheckStatus::Pass);
+    }
     assert!(report.not_claimed.iter().any(|v| v == "material truth"));
     assert!(report.not_claimed.iter().any(|v| v == "legality"));
 }
@@ -125,6 +134,26 @@ fn report_fails_for_receipt_event_hash_mismatch() {
         .failures
         .iter()
         .any(|f| f.code == "ReceiptEventHashMismatch"));
+    let fail = report
+        .checks
+        .iter()
+        .find(|c| c.name == "receipt_event_hash_matches_bundle")
+        .unwrap();
+    assert_eq!(fail.status, VerificationCheckStatus::Fail);
+    let merkle = report
+        .checks
+        .iter()
+        .find(|c| c.name == "merkle_proof_valid")
+        .unwrap();
+    assert_eq!(merkle.status, VerificationCheckStatus::NotChecked);
+    assert_ne!(merkle.status, VerificationCheckStatus::Pass);
+    let final_check = report
+        .checks
+        .iter()
+        .find(|c| c.name == "bundle_internal_consistency")
+        .unwrap();
+    assert_eq!(final_check.status, VerificationCheckStatus::NotChecked);
+    assert!(!report.not_claimed.is_empty());
 }
 
 #[test]
@@ -155,6 +184,12 @@ fn report_fails_for_receipt_body_hash_mismatch_and_anchor_root_mismatch() {
         .failures
         .iter()
         .any(|f| f.code == "ReceiptBodyHashMismatch"));
+    let anchor_check = report
+        .checks
+        .iter()
+        .find(|c| c.name == "anchor_root_matches_bundle")
+        .unwrap();
+    assert_eq!(anchor_check.status, VerificationCheckStatus::NotChecked);
 
     let mut bundle_with_anchor = valid_bundle();
     bundle_with_anchor.anchor = Some(AnchorRefV0 {
@@ -170,4 +205,10 @@ fn report_fails_for_receipt_body_hash_mismatch_and_anchor_root_mismatch() {
         .failures
         .iter()
         .any(|f| f.code == "AnchorRootMismatch"));
+    let anchor_check2 = report2
+        .checks
+        .iter()
+        .find(|c| c.name == "anchor_root_matches_bundle")
+        .unwrap();
+    assert_eq!(anchor_check2.status, VerificationCheckStatus::Fail);
 }

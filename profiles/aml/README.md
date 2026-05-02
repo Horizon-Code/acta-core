@@ -17,6 +17,7 @@ Canonical reference: `constitution/ACTA_Foundations_v1.2_consolidado.pdf`.
 ## Boundary
 
 AML Profile is outside Core.
+AML Rust profile is packaged as crate `acta-aml-profile` under `profiles/aml/rust` and is a workspace member.
 
 AML must not redefine ACTA Core hashing, canonicalization, commitment syntax, receipt semantics, Merkle proof verification, or bundle verification.
 

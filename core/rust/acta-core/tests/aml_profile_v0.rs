@@ -1,10 +1,7 @@
-#[path = "../../../../profiles/aml/rust/mod.rs"]
-mod aml_profile;
-
 use acta_core::hash::hash_event_v0;
 use acta_core::types::validate_commitment_v0;
-use aml_profile::map_aml_event_to_core_v0;
-use aml_profile::types::{
+use acta_aml_profile::map_aml_event_to_core_v0;
+use acta_aml_profile::types::{
     validate_aml_lifecycle_v0, validate_aml_payload_v0, AccountFrozenPayloadV0,
     AccountReleasedPayloadV0, AmlDomainEventV0, AmlLifecycleError, ManualReviewCompletedPayloadV0,
     ManualReviewOutcomeV0, ProcessClosedPayloadV0, ProcessOpenedPayloadV0, RiskScoredPayloadV0,
@@ -186,7 +183,7 @@ fn aml_lifecycle_negative_cases_fail() {
         closed_at: "2026-02-01T12:04:00Z".to_string(),
     }));
     after_closed.push(AmlDomainEventV0::TransferFlagged(
-        aml_profile::types::TransferFlaggedPayloadV0 {
+        acta_aml_profile::types::TransferFlaggedPayloadV0 {
             case_id: "AML-CASE-2026-0001".to_string(),
             account_ref: "acct:demo:0001".to_string(),
             flagged_at: "2026-02-01T12:05:00Z".to_string(),
