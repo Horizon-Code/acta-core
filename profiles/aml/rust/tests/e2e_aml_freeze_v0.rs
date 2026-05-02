@@ -1,3 +1,5 @@
+use acta_aml_profile::build_aml_demo_process;
+use acta_aml_profile::types::validate_aml_lifecycle_v0;
 use acta_core::bundle::{verify_bundle_v0, BundleError, BundleV0};
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0};
 use acta_core::merkle::{merkle_proof_v0, merkle_root_v0};
@@ -5,8 +7,6 @@ use acta_core::receipt::validate_receipt_v0_shape;
 use acta_core::types::{
     validate_event_v0_shape, ChronosRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION,
 };
-use acta_aml_profile::build_aml_demo_process;
-use acta_aml_profile::types::validate_aml_lifecycle_v0;
 
 #[test]
 fn e2e_aml_freeze_flow_produces_verifiable_bundle() {

@@ -15,6 +15,3 @@ sha2 = "0.10"
 thiserror = "1.0"
 ciborium = "0.2"
 hex = "0.4"
-
-[dev-dependencies]
-acta-aml-profile = { path = "../../../profiles/aml/rust" }

@@ -2,9 +2,9 @@
 //!
 //! Domain flow is defined in `profiles/aml/rust/`.
 
+use acta_aml_profile::build_aml_demo_process;
 use acta_core::chronos::verify_event_chain_v0;
 use acta_core::process::validate_process_v0;
-use acta_aml_profile::build_aml_demo_process;
 
 fn main() {
     println!("=== ACTA AML Profile Example ===\n");

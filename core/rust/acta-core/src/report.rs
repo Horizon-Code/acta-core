@@ -89,10 +89,10 @@ pub fn verify_bundle_report_v0(bundle: &BundleV0) -> VerificationReportV0 {
         overall_status: VerificationReportStatus::Pass,
         bundle_id: Some(bundle.event.event_id.clone()),
         event_count: 1,
-        checked_events: 1,
-        checked_receipts: 1,
-        checked_epoch_root: Some(bundle.epoch_root.clone()),
-        checked_merkle_proofs: 1,
+        checked_events: 0,
+        checked_receipts: 0,
+        checked_epoch_root: None,
+        checked_merkle_proofs: 0,
         checks: check_names.iter().map(|name| not_checked(name)).collect(),
         failures: Vec::new(),
         warnings: Vec::new(),
@@ -141,7 +141,9 @@ pub fn verify_bundle_report_v0(bundle: &BundleV0) -> VerificationReportV0 {
     pass_check(&mut report, "chronos_ref_matches_bundle");
 
     match hash_event_v0(&bundle.event) {
-        Ok(computed) if computed == bundle.event_hash => pass_check(&mut report, "event_hash_valid"),
+        Ok(computed) if computed == bundle.event_hash => {
+            pass_check(&mut report, "event_hash_valid")
+        }
         Ok(computed) => {
             fail_check_and_stop(
                 &mut report,
@@ -198,7 +200,10 @@ pub fn verify_bundle_report_v0(bundle: &BundleV0) -> VerificationReportV0 {
                 "receipt_body_hash_matches_bundle",
                 "ReceiptBodyHashMismatch",
                 "receipt",
-                &format!("claimed {}, computed {}", bundle.receipt_body_hash, computed),
+                &format!(
+                    "claimed {}, computed {}",
+                    bundle.receipt_body_hash, computed
+                ),
             );
             return report;
         }
@@ -214,6 +219,7 @@ pub fn verify_bundle_report_v0(bundle: &BundleV0) -> VerificationReportV0 {
         }
     }
 
+    report.checked_epoch_root = Some(bundle.epoch_root.clone());
     if let Err(e) = validate_hash_hex_v0(&bundle.epoch_root) {
         fail_check_and_stop(
             &mut report,
@@ -281,7 +287,10 @@ fn not_checked(name: &str) -> VerificationCheckV0 {
 }
 
 fn pass_check(report: &mut VerificationReportV0, check_name: &str) {
-    if let Some(check) = report.checks.iter_mut().find(|c| c.name == check_name) {
+    if let Some(idx) = report.checks.iter().position(|c| c.name == check_name) {
+        let first_execution = report.checks[idx].status == VerificationCheckStatus::NotChecked;
+        mark_check_executed(report, check_name, first_execution);
+        let check = &mut report.checks[idx];
         check.status = VerificationCheckStatus::Pass;
         check.details = "check passed".to_string();
         check.failure_code = None;
@@ -303,7 +312,10 @@ fn fail_check_and_stop(
     component: &str,
     detail: &str,
 ) {
-    if let Some(check) = report.checks.iter_mut().find(|c| c.name == check_name) {
+    if let Some(idx) = report.checks.iter().position(|c| c.name == check_name) {
+        let first_execution = report.checks[idx].status == VerificationCheckStatus::NotChecked;
+        mark_check_executed(report, check_name, first_execution);
+        let check = &mut report.checks[idx];
         check.status = VerificationCheckStatus::Fail;
         check.details = detail.to_string();
         check.failure_code = Some(code.to_string());
@@ -314,4 +326,20 @@ fn fail_check_and_stop(
         detail: detail.to_string(),
     });
     report.overall_status = VerificationReportStatus::Fail;
+}
+
+fn mark_check_executed(report: &mut VerificationReportV0, check_name: &str, first_execution: bool) {
+    if !first_execution {
+        return;
+    }
+    match check_name {
+        "event_hash_valid" => report.checked_events += 1,
+        "receipt_event_hash_matches_bundle"
+        | "chronos_ref_matches_bundle"
+        | "receipt_body_valid"
+        | "receipt_valid"
+        | "receipt_body_hash_matches_bundle" => report.checked_receipts += 1,
+        "merkle_proof_valid" => report.checked_merkle_proofs += 1,
+        _ => {}
+    }
 }

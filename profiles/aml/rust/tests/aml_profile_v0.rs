@@ -1,11 +1,11 @@
-use acta_core::hash::hash_event_v0;
-use acta_core::types::validate_commitment_v0;
 use acta_aml_profile::map_aml_event_to_core_v0;
 use acta_aml_profile::types::{
     validate_aml_lifecycle_v0, validate_aml_payload_v0, AccountFrozenPayloadV0,
     AccountReleasedPayloadV0, AmlDomainEventV0, AmlLifecycleError, ManualReviewCompletedPayloadV0,
     ManualReviewOutcomeV0, ProcessClosedPayloadV0, ProcessOpenedPayloadV0, RiskScoredPayloadV0,
 };
+use acta_core::hash::hash_event_v0;
+use acta_core::types::validate_commitment_v0;
 
 fn valid_flow() -> Vec<AmlDomainEventV0> {
     vec![

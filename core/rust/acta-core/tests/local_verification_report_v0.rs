@@ -107,6 +107,10 @@ fn report_passes_for_valid_bundle() {
         let c = report.checks.iter().find(|c| c.name == check_name).unwrap();
         assert_eq!(c.status, VerificationCheckStatus::Pass);
     }
+    assert_eq!(report.checked_events, 1);
+    assert_eq!(report.checked_receipts, 5);
+    assert_eq!(report.checked_merkle_proofs, 1);
+    assert_eq!(report.checked_epoch_root, Some(bundle.epoch_root.clone()));
     assert!(report.not_claimed.iter().any(|v| v == "material truth"));
     assert!(report.not_claimed.iter().any(|v| v == "legality"));
 }
@@ -153,6 +157,22 @@ fn report_fails_for_receipt_event_hash_mismatch() {
         .find(|c| c.name == "bundle_internal_consistency")
         .unwrap();
     assert_eq!(final_check.status, VerificationCheckStatus::NotChecked);
+    let event_hash = report
+        .checks
+        .iter()
+        .find(|c| c.name == "event_hash_valid")
+        .unwrap();
+    assert_eq!(event_hash.status, VerificationCheckStatus::NotChecked);
+    let receipt_body = report
+        .checks
+        .iter()
+        .find(|c| c.name == "receipt_body_valid")
+        .unwrap();
+    assert_eq!(receipt_body.status, VerificationCheckStatus::NotChecked);
+    assert_eq!(report.checked_events, 0);
+    assert_eq!(report.checked_receipts, 1);
+    assert_eq!(report.checked_merkle_proofs, 0);
+    assert_eq!(report.checked_epoch_root, None);
     assert!(!report.not_claimed.is_empty());
 }
 
