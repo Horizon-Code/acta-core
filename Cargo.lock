@@ -3,6 +3,15 @@
 version = 4
 
 [[package]]
+name = "acta-ai-agent-profile"
+version = "0.1.0"
+dependencies = [
+ "acta-core",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "acta-aml-profile"
 version = "0.1.0"
 dependencies = [

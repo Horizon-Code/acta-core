@@ -3,4 +3,5 @@ resolver = "2"
 members = [
   "core/rust/acta-core",
   "profiles/aml/rust",
+  "profiles/ai-agent/rust",
 ]
