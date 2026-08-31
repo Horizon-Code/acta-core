@@ -9,6 +9,10 @@ Este guion no presenta ACTA ni busca aprobación de una solución. Busca un caso
 procedimiento actual, su coste y quién responde. Tres opiniones favorables sin hechos no
 desbloquean A2.
 
+**Nota de gobernanza:** E-9 propone redefinir los interlocutores y la pregunta central, pero
+mientras siga `Proposed` este guion y su regla Cardano/A2 continúan vigentes sin cambios. No se
+ejecuta la variante E-9.8 hasta ratificación explícita del operador.
+
 ## Selección de interlocutores
 
 1. **Banca:** MLRO, responsable de compliance, DPO o auditor interno que firme informes.

@@ -53,6 +53,9 @@ Ratified by Rub on 2026-08-31:
 Operational freeze: do not start C2, the definitive lockfile implementation, Cardano work or
 any unratified change of direction without a new explicit order.
 
+E-9 remains **Proposed** and does not alter this order. Until explicit operator ratification,
+Cardano-first, the three-conversation gate and the Cardano/agents/EVM freeze remain in force.
+
 ### Amendments E-1..E-8: pending ratification
 
 The amendments live in `E0-protocolo-y-enmiendas.md` (Parte 2) and are **non-binding while
@@ -72,7 +75,7 @@ each one means rewriting it under `architecture/` or `decisions/`:
 
 ### Report code calendar
 
-General rule, valid for all thirteen codes: **a code is implemented together with the
+General rule, valid for every report condition code: **a code is implemented together with the
 functionality that makes its condition detectable, never before.** A code whose condition the
 verifier cannot evaluate is not a report line — it is a promise in the source.
 

@@ -13,6 +13,10 @@
 - ADR-006 was ratified on 2026-08-31: Chronos continuity does not reset at epoch boundaries.
   Its implementation and future `TR-CHRONOS-BOUNDARY-UNVERIFIED` report line remain
   unstarted pending an explicit execution order.
+- E-9, “Reposicionamiento: ACTA como capa de confianza de la economía entre agentes”, is
+  **Proposed** and pending operator ratification under ADR-001. It is not in force: Cardano-first,
+  the current §9 validation and the operational freeze remain binding; E-9 authorizes no work
+  on agents, EVM/Base/EAS or changes to AML while Proposed.
 - A1 and A3 are implemented outside Core in `adapters/attestation-single-signer/rust`:
   Ed25519 signatures verify offline against public keys carried inline at the bundle JSON root.
   A manipulated signature is rejected, and the external report emits `TR-KEY-SELF-ASSERTED`
