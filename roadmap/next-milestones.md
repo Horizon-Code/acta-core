@@ -39,7 +39,7 @@ each one means rewriting it under `architecture/` or `decisions/`:
 
 | Amendment | Subject | Target level | Blocked by |
 |---|---|---|---|
-| E-1 | Four new `TR-*` report codes | `architecture/` (report model) | — |
+| E-1 | Four new `TR-*` report codes | `architecture/` (report model) | Per-code, see below |
 | E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Capture 3 informs the framing, not the predicate |
 | E-3 | Report split into structural vs detected conditions | `architecture/` (report model) | — |
 | E-4 | Import-closure lockfile as (path, hash) manifest | `profiles/` + ADR | **Capture 2** |
@@ -47,3 +47,32 @@ each one means rewriting it under `architecture/` or `decisions/`:
 | E-6 | C2 Artefact 2 redesign; C2 rises in priority | `roadmap/` + demo docs | **Captures 3 and 4** |
 | E-7 | Canonicalization rule written as a pair | `profiles/` + ADR | — |
 | E-8 | Content provenance vs process provenance; EU dates | `research/` + compliance docs | — |
+
+### Report code calendar
+
+General rule, valid for all thirteen codes: **a code is implemented together with the
+functionality that makes its condition detectable, never before.** A code whose condition the
+verifier cannot evaluate is not a report line — it is a promise in the source.
+
+| Code | Blocked by | Lands with |
+|---|---|---|
+| `TR-ENGINE-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
+| `TR-IMPORT-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
+| `TR-CHAIN-MEDIATED` | Scope predicate (E0 capture 3) | Post-E0 |
+| `TR-KEY-SELF-ASSERTED` | Nothing in E0 — but its condition is only detectable once inline keys exist | **A3** |
+| The nine base codes of §3 | Same rule, one by one (e.g. `TR-ANCHOR-UNVERIFIED` not before the verifier has a checkable notion of anchor) | With their own verification |
+
+Until then: `grep -r "TR-" core/` returns nothing outside documentation.
+
+The report **mechanism** is not blocked by any of this and is already in place (see below).
+
+### Report structure: done, empty on purpose
+
+- `VerificationConditionRegisterV0` splits the report into its two registers (E-3): what the
+  version never guarantees, and what was detected in this dossier. The first register is a
+  scale, not a disclaimer list — closing a phase deletes a line from it.
+- Condition codes are **data, not enum variants**: adding one must never require touching
+  `acta-core`. Codes carrying domain semantics belong to the Profile; the Core defines the
+  mechanism and at most substrate codes. The invariant is protected by a test that does not
+  compile against a closed enum.
+- Core v0 records zero conditions. The hole has the right shape and is empty.

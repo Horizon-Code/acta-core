@@ -33,9 +33,44 @@ pub struct VerificationFailureV0 {
     pub detail: String,
 }
 
+/// Which of the two registers a trust condition belongs to.
+///
+/// The local verification report is read in two registers, and the distinction is
+/// load-bearing: a reader who learns to skip lines has stopped receiving signal.
+///
+/// This enum is closed on purpose. It classifies conditions; it does not enumerate them.
+/// The open set is the code (see [`VerificationWarningV0::code`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VerificationConditionRegisterV0 {
+    /// Structural condition of the protocol version: what this version never guarantees,
+    /// independently of the dossier being verified. Declared once, at the top of the report.
+    ///
+    /// This register is a scale, not a disclaimer list: closing a phase deletes a line from
+    /// it. It does not vary between dossiers of the same version.
+    VersionStructural,
+    /// Condition detected while verifying this specific dossier. Varies between dossiers,
+    /// which is precisely why it carries signal.
+    DossierDetected,
+}
+
+/// A trust condition recorded on a report.
+///
+/// # Codes are data, not variants
+///
+/// `code` is a [`String`] deliberately. Adding a condition code MUST NOT require touching
+/// `acta-core`: the Core defines the mechanism that transports codes and, at most, codes for
+/// its own substrate. Codes carrying domain semantics belong to the Profile that defines
+/// them, and a Profile cannot extend a closed enum living in the Core.
+///
+/// Turning `code` into a closed enum would move that authority into the Core and break every
+/// downstream code the Core does not know about. The invariant is protected by
+/// `report_transports_unknown_condition_codes_intact` in
+/// `tests/local_verification_report_v0.rs`, which does not compile against a closed enum.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerificationWarningV0 {
+    /// Opaque to the Core. Never matched on, never validated against a known set.
     pub code: String,
+    pub register: VerificationConditionRegisterV0,
     pub detail: String,
 }
 
@@ -51,6 +86,12 @@ pub struct VerificationReportV0 {
     pub checked_merkle_proofs: usize,
     pub checks: Vec<VerificationCheckV0>,
     pub failures: Vec<VerificationFailureV0>,
+    /// Trust conditions, in both registers. Read them through [`Self::structural_conditions`]
+    /// and [`Self::detected_conditions`] rather than by position: the split is the point.
+    ///
+    /// Empty in Core v0. The Core records no condition it cannot itself evaluate, and a code
+    /// whose condition the verifier cannot evaluate is not a report line — it is a promise in
+    /// the source.
     pub warnings: Vec<VerificationWarningV0>,
     pub not_claimed: Vec<String>,
 }
@@ -69,6 +110,39 @@ pub fn default_not_claimed_v0() -> Vec<String> {
         "regulatory action".to_string(),
         "correctness of external evidence content".to_string(),
     ]
+}
+
+impl VerificationReportV0 {
+    /// Record a trust condition on this report.
+    ///
+    /// Takes `code` as an arbitrary string on purpose: see [`VerificationWarningV0`]. The Core
+    /// neither validates the code against a known set nor derives behaviour from it.
+    pub fn record_condition(
+        &mut self,
+        register: VerificationConditionRegisterV0,
+        code: impl Into<String>,
+        detail: impl Into<String>,
+    ) {
+        self.warnings.push(VerificationWarningV0 {
+            code: code.into(),
+            register,
+            detail: detail.into(),
+        });
+    }
+
+    /// Conditions of the first register: what this protocol version never guarantees.
+    pub fn structural_conditions(&self) -> impl Iterator<Item = &VerificationWarningV0> {
+        self.warnings
+            .iter()
+            .filter(|w| w.register == VerificationConditionRegisterV0::VersionStructural)
+    }
+
+    /// Conditions of the second register: what was detected in this dossier.
+    pub fn detected_conditions(&self) -> impl Iterator<Item = &VerificationWarningV0> {
+        self.warnings
+            .iter()
+            .filter(|w| w.register == VerificationConditionRegisterV0::DossierDetected)
+    }
 }
 
 pub fn verify_bundle_report_v0(bundle: &BundleV0) -> VerificationReportV0 {

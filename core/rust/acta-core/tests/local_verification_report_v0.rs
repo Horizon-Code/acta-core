@@ -2,7 +2,8 @@ use acta_core::bundle::{AnchorRefV0, BundleV0};
 use acta_core::epoch::build_local_epoch_v0;
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0};
 use acta_core::report::{
-    verify_bundle_report_v0, VerificationCheckStatus, VerificationReportStatus,
+    verify_bundle_report_v0, VerificationCheckStatus, VerificationConditionRegisterV0,
+    VerificationReportStatus, VerificationWarningV0,
 };
 use acta_core::types::{
     ActaEventV0, ActorRefV0, ChronosRefV0, CommitmentsV0, EventKindRefV0, PolicySnapshotV0,
@@ -231,4 +232,98 @@ fn report_fails_for_receipt_body_hash_mismatch_and_anchor_root_mismatch() {
         .find(|c| c.name == "anchor_root_matches_bundle")
         .unwrap();
     assert_eq!(anchor_check2.status, VerificationCheckStatus::Fail);
+}
+
+/// Protects the "codes are data, not variants" invariant of `VerificationWarningV0`.
+///
+/// The Core must transport a condition code it has never heard of, unchanged. This test does
+/// not compile if `code` is turned into a closed enum: it hands over an arbitrary `&str` that
+/// no Core-side variant could name, and reads the same bytes back out.
+///
+/// Closing the enum would move the authority to define codes into the Core, where a Profile
+/// cannot reach it.
+#[test]
+fn report_transports_unknown_condition_codes_intact() {
+    let bundle = valid_bundle();
+    let mut report = verify_bundle_report_v0(&bundle);
+
+    let unknown_code = "XX-PROFILE-DEFINED-CONDITION-THE-CORE-DOES-NOT-KNOW";
+    let detail = "recorded by a downstream profile, opaque to the Core";
+    report.record_condition(
+        VerificationConditionRegisterV0::DossierDetected,
+        unknown_code,
+        detail,
+    );
+
+    let recorded = report.detected_conditions().next().unwrap();
+    assert_eq!(recorded.code, unknown_code);
+    assert_eq!(recorded.detail, detail);
+
+    // Direct construction stays open too: no Core-side vocabulary is consulted.
+    report.warnings.push(VerificationWarningV0 {
+        code: "YY-ANOTHER-UNKNOWN-CODE".to_string(),
+        register: VerificationConditionRegisterV0::VersionStructural,
+        detail: "constructed literally, not via a Core enum".to_string(),
+    });
+    assert!(report
+        .warnings
+        .iter()
+        .any(|w| w.code == "YY-ANOTHER-UNKNOWN-CODE"));
+}
+
+/// The report distinguishes the two registers at type level: what the version never
+/// guarantees, and what was detected in this dossier.
+#[test]
+fn report_separates_structural_and_detected_registers() {
+    let bundle = valid_bundle();
+    let mut report = verify_bundle_report_v0(&bundle);
+
+    report.record_condition(
+        VerificationConditionRegisterV0::VersionStructural,
+        "XX-STRUCTURAL-ONE",
+        "never guaranteed by this version",
+    );
+    report.record_condition(
+        VerificationConditionRegisterV0::DossierDetected,
+        "XX-DETECTED-ONE",
+        "detected while verifying this dossier",
+    );
+    report.record_condition(
+        VerificationConditionRegisterV0::DossierDetected,
+        "XX-DETECTED-TWO",
+        "also detected in this dossier",
+    );
+
+    let structural: Vec<&str> = report
+        .structural_conditions()
+        .map(|w| w.code.as_str())
+        .collect();
+    let detected: Vec<&str> = report
+        .detected_conditions()
+        .map(|w| w.code.as_str())
+        .collect();
+
+    assert_eq!(structural, vec!["XX-STRUCTURAL-ONE"]);
+    assert_eq!(detected, vec!["XX-DETECTED-ONE", "XX-DETECTED-TWO"]);
+    assert_eq!(report.warnings.len(), 3);
+}
+
+/// The hole has the right shape and is empty.
+///
+/// Core v0 records no trust condition, because it can evaluate none of them yet. A code whose
+/// condition the verifier cannot evaluate is not a report line, it is a promise in the source;
+/// each code lands with the functionality that makes its condition detectable, never before.
+#[test]
+fn core_v0_report_records_no_conditions() {
+    let bundle = valid_bundle();
+    let report = verify_bundle_report_v0(&bundle);
+    assert!(report.warnings.is_empty());
+    assert_eq!(report.structural_conditions().count(), 0);
+    assert_eq!(report.detected_conditions().count(), 0);
+
+    let mut broken = valid_bundle();
+    broken.merkle_proof.leaf_index += 1;
+    let failing = verify_bundle_report_v0(&broken);
+    assert_eq!(failing.overall_status, VerificationReportStatus::Fail);
+    assert!(failing.warnings.is_empty());
 }
