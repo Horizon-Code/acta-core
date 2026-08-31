@@ -94,7 +94,7 @@ Datos tomados **de dentro de la imagen publicada**, que es el artefacto que la g
 **El fichero `version` es un ancla de procedencia, no una cadena decorativa.** `v0.1.19` es un
 tag público de `asi-alliance/OmegaClaw-Core` y resuelve a
 `642c53676cf795cb7a0030823b36018c029b1416` — exactamente el commit del clon cuyos 34 ficheros
-dan 34/34 contra la imagen (§2.5). La imagen se construyó a las 17:15:29Z y ese commit es de
+dan 34/34 contra la imagen (§2.4). La imagen se construyó a las 17:15:29Z y ese commit es de
 las 18:09:48 **+0300**, o sea 15:09:48Z: la imagen es dos horas posterior al commit, como cabía
 esperar. (Corrección de una nota anterior de este documento que comparaba una hora local con
 una UTC y concluía lo contrario.)
@@ -312,7 +312,7 @@ El clon de `petta_lib_chromadb` lo hace el **Dockerfile en tiempo de build**, en
 `/PeTTa/repos/petta_lib_chromadb`. En ejecución, `git-import!` encuentra el directorio y no
 hace nada. Es decir: **la fijación efectiva es la del build, y fija a `master`.**
 
-### 2.5 Verificación del cierre contra el artefacto desplegado (CAPTURADO)
+### 2.4 Verificación del cierre contra el artefacto desplegado (CAPTURADO)
 
 La enumeración del §2.1 se hizo sobre clones en el host. Comprobación de que corresponde a lo
 que realmente se ejecuta: se hashearon los mismos 34 ficheros **dentro de la imagen
@@ -330,7 +330,7 @@ AUSENTES  : 0
 que la imagen resuelva de otro modo, ni ninguno que falte. La opción "instrumentar el cargador
 de PeTTa porque el cierre no es enumerable" queda descartada por evidencia, no por conjetura.
 
-### 2.6 Procedencia desde el artefacto en ejecución (CAPTURADO — paso 4)
+### 2.5 Procedencia desde el artefacto en ejecución (CAPTURADO — paso 4)
 
 El paso 4 pregunta si la procedencia de los ficheros cargados es recuperable desde el proceso.
 Comprobado dentro de la imagen publicada:
@@ -367,7 +367,7 @@ Quedan dos anclas dentro del artefacto:
    en GitHub y compararlos contra la imagen verifica la procedencia sin haberla transportado.
 
 Comprobado en esta sesión: `git rev-list -n1 v0.1.19` da `642c53676cf795cb…`, el mismo commit
-cuyo cierre coincide 34/34 con la imagen (§2.5). La cadena
+cuyo cierre coincide 34/34 con la imagen (§2.4). La cadena
 `version → tag → commit → hashes` cierra.
 
 Consecuencia para E-4: **el lockfile tiene dos raíces de procedencia según lo que haya en el
@@ -382,7 +382,7 @@ La segunda raíz es más débil en un punto concreto y hay que decirlo: depende 
 público siga existiendo y no se haya movido. Un tag es mutable; el digest no. Por eso el digest
 es la raíz y el tag la verificación.
 
-### 2.7 Los dos `git-import!` no clonan nunca en producción (CAPTURADO — paso 2, parcial)
+### 2.6 Los dos `git-import!` no clonan nunca en producción (CAPTURADO — paso 2, parcial)
 
 En la imagen publicada existen ya `/PeTTa/repos/OmegaClaw-Core/` y
 `/PeTTa/repos/petta_lib_chromadb/`. Como `git-import!` es
@@ -398,7 +398,7 @@ código nuevo.
 en E-1 detecta *"el cierre de importaciones contiene una carga sin revisión fijada (p. ej.
 `git-import!` sin commit)"*. Aplicado literalmente a este sistema, dispararía por los dos
 `git-import!` — que son precisamente las dos cargas que **nunca traen código**, y cuya
-procedencia además resulta recuperable (§2.6). Sería un falso positivo sobre lo único que sí se
+procedencia además resulta recuperable (§2.5). Sería un falso positivo sobre lo único que sí se
 puede reconstruir.
 
 La condición real es **"componente cuyo pin vive fuera del artefacto"**, y en este sistema son
@@ -411,7 +411,7 @@ La reformulación se anota aquí, en la decisión derivada. **No se ratifica E-1
 compuerta abra**: reescribir un código del informe con la compuerta cerrada es exactamente lo
 que la regla prohíbe.
 
-### 2.9 Paso 3 — re-hasheo tras una sesión de trabajo (CAPTURADO)
+### 2.7 Paso 3 — re-hasheo tras una sesión de trabajo (CAPTURADO)
 
 Tras la sesión de capturas 1 y 4 (cuatro turnos con inferencias reales), re-hasheados los 34
 ficheros **dentro del contenedor en marcha**:
@@ -426,15 +426,6 @@ Ningún fichero del cierre cambió durante la ejecución. Y la conjetura de §2.
 `static-import!` generaría `.pl`/`.qlf` y ensuciaría el re-hasheo— **no se materializa en esta
 ruta**: los 15 `.pl` presentes vienen de la imagen, ninguno es nuevo. Lo único que se escribe en
 ejecución es `memory/`, que es la traza episódica y no forma parte del cierre.
-
-### 2.8 Datos en crudo pendientes de una sesión de trabajo
-
-- Momento real de ejecución del `git-import!` (carga vs primer uso): *(pendiente)*
-- Re-hash de los 34 ficheros tras una sesión de trabajo; ¿cambió alguno? *(pendiente)*
-- Artefactos `.pl`/`.qlf` generados durante la sesión: *(pendiente)*
-- Procedencia recuperable **desde el proceso en ejecución**:
-
-Procedencia: resuelta en §2.6. Los cinco `lib_*` la tienen; los ficheros de OmegaClaw-Core no.
 
 ### Decisión derivada
 
