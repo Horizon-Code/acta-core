@@ -1,6 +1,7 @@
 # E0 — Resultados
 
-**Estado:** EN CURSO. Preparación estática hecha; las cuatro capturas siguen sin ejecutar.
+**Estado:** EN CURSO. Captura 2 con datos reales en tres de sus cuatro pasos; las otras tres
+capturas pendientes de la imagen de mock (1 y 4) y de una clave LLM (3).
 **Compuerta:** 4/4 ✗ — **cerrada**.
 **Protocolo:** `roadmap/E0-protocolo-y-enmiendas.md`, Parte 1.
 **Autoridad:** material exploratorio y empírico. No redefine `architecture/` ni `decisions/`.
@@ -25,7 +26,7 @@ se escribe solo con material estático: el estático acota la respuesta, no la c
 Estos datos no son metadatos del experimento: son **su primer resultado**. Son la primera
 muestra del problema de procedencia del cierre de importaciones (E-4).
 
-### 0.1 Bloqueo: no hay runtime de contenedores disponible
+### 0.1 Runtime de contenedores — RESUELTO 2026-08-31
 
 Comprobación del §0 de la orden de sesión, con el usuario `ubnasamarnchez` en
 `Ubuntu-24.04` (WSL2):
@@ -39,17 +40,31 @@ Comprobación del §0 de la orden de sesión, con el usuario `ubnasamarnchez` en
 | `docker.exe info` (lado Windows) | `open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified` → **el motor no está arrancado** |
 | `podman` | No instalado; instalarlo exige `apt` y por tanto contraseña de sudo |
 
-Pertenecer al grupo `docker` no sirve de nada aquí: no hay demonio en la distro al que
-conectarse. Hacen falta **dos acciones del operador en Docker Desktop**, ninguna con sudo:
+Pertenecer al grupo `docker` no servía: no había demonio en la distro al que conectarse.
 
-1. Arrancar Docker Desktop.
-2. Activar la integración WSL para `Ubuntu-24.04` en *Settings → Resources → WSL Integration*.
+**Resuelto** instalando Docker nativo en la distro (`docker.io`, con `systemd` ya activo en
+WSL). Estado actual: **Docker Engine 29.1.3**, demonio arriba, accesible con el usuario sin
+`sudo`, `overlayfs`, cgroups v2. La integración de Docker Desktop no se llegó a usar.
 
-### 0.2 Bloqueo: no hay clave de proveedor LLM
+### 0.2 Clave de proveedor LLM — solo bloquea la captura 3
 
 No se ha recibido ninguna clave por el canal fuera de banda del §0.3 de la orden de sesión.
-Sin ella, el bucle de turno no puede completar el paso 3 y las capturas 1, 3 y 4 no pueden
-ejecutarse aunque el contenedor arranque.
+
+**El alcance del bloqueo es menor de lo previsto.** OmegaClaw incluye un proveedor LLM
+simulado y un canal de comunicación de prueba, seleccionables con `-p Test -t test` en
+`scripts/omegaclaw`, con un arnés en `Autotests/mock/` que permite fijar la respuesta exacta
+del "LLM" (`llm.set_answer(prompt, respuesta)`).
+
+| Captura | ¿Necesita LLM real? | Motivo |
+|---|---|---|
+| 1 — Estabilidad del collapse | **No** | El mock permite emitir el mismo `(metta "(|- p1 p2)")` de forma exactamente reproducible. Es *mejor* que un LLM real: aísla el no determinismo del motor del no determinismo del mediador |
+| 2 — Cierre de importaciones | **No** | No depende del bucle de turno |
+| 3 — Proporción fiel/libre | **Sí** | Mide precisamente qué arrastra un mediador no determinista entre saltos. Con respuestas fijadas la medida no significa nada |
+| 4 — Truncamiento | **No** | El mock puede provocar una inferencia de resultado grande de forma determinista |
+
+Limitación: el README de `Autotests/mock/` advierte que *"the mock infrastructure is part of
+the source tree, so the image must be built locally rather than pulled from the registry"*. La
+imagen publicada no sirve para el mock; hay que construir `omegaclaw:mock` localmente.
 
 ### 0.3 Procedencia de los clones (estático)
 
@@ -66,11 +81,20 @@ Fecha de la sesión de preparación: **2026-08-31**.
 **El HEAD de `petta_lib_chromadb` es el dato que el lockfile tendría que haber fijado.** Queda
 anotado aquí precisamente porque el sistema no lo anota en ningún sitio.
 
+Datos tomados **de dentro de la imagen publicada**, que es el artefacto que la gente ejecuta:
+
 | Dato | Valor | Cómo se obtuvo |
 |---|---|---|
-| Versión de SWI-Prolog | *(pendiente de ejecución)* — el Dockerfile parte de `docker.io/library/swipl:10.0.2`, **tag, no digest** | Imagen base declarada |
-| Versión de Python | *(pendiente de ejecución)* — `python3` del paquete Debian de la imagen `swipl:10.0.2`, sin fijar | Dockerfile |
-| Proveedor y modelo LLM | *(pendiente)* — por defecto `Anthropic` (`src/loop.metta`, `initLoop`) | Configuración |
+| Imagen publicada | `singularitynet/omegaclaw@sha256:b819e71e293a7974d562b7b6f745367103296c9c7bc555ee23f115724d02a6e3` | `docker inspect` |
+| Fecha de construcción de la imagen | 2026-08-24T17:15:29Z | `docker inspect` |
+| Versión declarada de OmegaClaw | `v0.1.19` (fichero `/PeTTa/repos/OmegaClaw-Core/version`) | `cat` dentro del contenedor |
+| SWI-Prolog | **10.0.2** para x86_64-linux | `swipl --version` dentro del contenedor |
+| Python | **3.11.2** | `python3 --version` dentro del contenedor |
+| Proveedor y modelo LLM | Por defecto `Anthropic` / `claude-opus-4-8`; en esta sesión se usará `Test` (mock) | `config/config.yaml`, `src/loop.metta` |
+
+Nota de coherencia: la imagen se construyó a las 17:15 del 24-ago y el commit del clon
+(`642c536`) es de las 18:09 del mismo día, o sea **posterior**. Los hashes coinciden igual
+(§2.5), lo que significa que ese último commit no tocó ningún fichero del cierre.
 
 ### 0.4 Punto de intercepción del paso 5 (estático)
 
@@ -226,35 +250,93 @@ El clon de `petta_lib_chromadb` lo hace el **Dockerfile en tiempo de build**, en
 `/PeTTa/repos/petta_lib_chromadb`. En ejecución, `git-import!` encuentra el directorio y no
 hace nada. Es decir: **la fijación efectiva es la del build, y fija a `master`.**
 
-### 2.4 Datos en crudo pendientes de ejecución
+### 2.5 Verificación del cierre contra el artefacto desplegado (CAPTURADO)
+
+La enumeración del §2.1 se hizo sobre clones en el host. Comprobación de que corresponde a lo
+que realmente se ejecuta: se hashearon los mismos 34 ficheros **dentro de la imagen
+publicada**, mapeando el layout del host al del contenedor
+(`OmegaClaw-Core/…` → `/PeTTa/repos/OmegaClaw-Core/…`, `PeTTa/…` → `/PeTTa/…`,
+`petta_lib_chromadb/…` → `/PeTTa/repos/petta_lib_chromadb/…`).
+
+```
+IDÉNTICOS : 34/34
+DISTINTOS : 0
+AUSENTES  : 0
+```
+
+**El cierre enumerado estáticamente es exactamente el desplegado.** No hay ficheros del cierre
+que la imagen resuelva de otro modo, ni ninguno que falte. La opción "instrumentar el cargador
+de PeTTa porque el cierre no es enumerable" queda descartada por evidencia, no por conjetura.
+
+### 2.6 Procedencia desde el artefacto en ejecución (CAPTURADO — paso 4)
+
+El paso 4 pregunta si la procedencia de los ficheros cargados es recuperable desde el proceso.
+Comprobado dentro de la imagen publicada:
+
+| Directorio | `.git` | `HEAD` recuperado |
+|---|---|---|
+| `/PeTTa` | **Sobrevive** | `7037f4c2ad378c52fc328004fe216d5118b674f0` |
+| `/PeTTa/repos/petta_lib_chromadb` | **Sobrevive** | `218484875d5d1bfb217a9a03d3983dc1ed9d406c` |
+| `/PeTTa/repos/OmegaClaw-Core` | **SIN `.git`** | — |
+
+**El resultado es el contrario del que anticipaba el protocolo.** E0 §1.3 y E-4 preveían que
+los ficheros de la instalación de PeTTa tuvieran *integridad sin procedencia*. Ocurre lo
+opuesto:
+
+- **Los cinco `lib_*` de la captura 2 sí tienen procedencia recuperable.** Viven en `/PeTTa/lib`
+  y el `.git` de PeTTa sobrevive en la imagen con `HEAD = 7037f4c2…`, que coincide exactamente
+  con el commit al que resuelve el tag `v1.0.4` del Dockerfile. Lo mismo vale para
+  `petta_lib_chromadb`: aunque su `git-import!` no fija revisión ninguna, el `.git` sobrevive
+  y **el commit efectivamente usado es recuperable a posteriori**, `218484875d…`, el mismo que
+  el HEAD de `master` en la fecha de esta sesión.
+- **Quien pierde la procedencia es el sistema objetivo.** La etapa `versioned-source` del
+  Dockerfile hace `rm -rf ./.git` sobre OmegaClaw-Core deliberadamente. Lo único que queda es
+  el fichero `version` con `v0.1.19`: una cadena de versión, no un commit. De los 25 ficheros
+  del cierre que pertenecen a OmegaClaw-Core, **ninguno tiene procedencia recuperable desde el
+  proceso**; solo integridad.
+
+Consecuencia para E-4: el límite de "integridad sin procedencia" existe, pero hay que declararlo
+sobre el sistema objetivo, no sobre el sustrato. Es una línea distinta del informe.
+
+### 2.7 Los dos `git-import!` no clonan nunca en producción (CAPTURADO — paso 2, parcial)
+
+En la imagen publicada existen ya `/PeTTa/repos/OmegaClaw-Core/` y
+`/PeTTa/repos/petta_lib_chromadb/`. Como `git-import!` es
+`( exists_directory(LocalDir) -> true ; clone_repo(...) )`, ambas llamadas **encuentran el
+directorio y no hacen nada**: ni clonan ni actualizan.
+
+La fijación efectiva no está en el `git-import!` en absoluto: está en el `docker build`, y ahí
+`petta_lib_chromadb` se fija a `master`. Queda por observar en el arranque real si la llamada
+se evalúa en carga o perezosamente — pero para el lockfile da igual, porque en ningún caso trae
+código nuevo.
+
+### 2.8 Datos en crudo pendientes de una sesión de trabajo
 
 - Momento real de ejecución del `git-import!` (carga vs primer uso): *(pendiente)*
 - Re-hash de los 34 ficheros tras una sesión de trabajo; ¿cambió alguno? *(pendiente)*
 - Artefactos `.pl`/`.qlf` generados durante la sesión: *(pendiente)*
 - Procedencia recuperable **desde el proceso en ejecución**:
 
-  | Fichero | Hash SHA-256 (estático, ver §2.1) | Procedencia desde el proceso | ¿Recuperable? |
-  |---|---|---|---|
-  | `lib_patrick.metta` | `0a7824ad…` | *(pendiente)* | *(pendiente)* |
-  | `lib_llm.metta` | `1c9b3272…` | *(pendiente)* | *(pendiente)* |
-  | `lib_vector.metta` | `f049a0f6…` | *(pendiente)* | *(pendiente)* |
-  | `lib_combinatorics.metta` | `aca0a188…` | *(pendiente)* | *(pendiente)* |
-  | `lib_he.metta` | `af53f7c4…` | *(pendiente)* | *(pendiente)* |
-
-  Nota: el Dockerfile hace `git clone --depth 1 --branch v1.0.4` de PeTTa, lo que **deja un
-  `.git` con un único commit** en `/PeTTa`. Si sobrevive a la imagen final, la procedencia sí
-  sería recuperable desde el proceso. La etapa `versioned-source` borra el `.git` de
-  *OmegaClaw-Core*, no el de PeTTa. Es exactamente lo que el paso 4 tiene que comprobar.
+Procedencia: resuelta en §2.6. Los cinco `lib_*` la tienen; los ficheros de OmegaClaw-Core no.
 
 ### Decisión derivada
 
-*(pendiente — el paso 1 está completo, los pasos 2, 3 y 4 requieren ejecución)*
+*(pendiente del paso 3 — re-hasheo tras una sesión de trabajo real)*
 
-Lo que el material estático ya acota: el cierre **es** enumerable estáticamente, así que la
-opción "instrumentar el cargador de PeTTa" no es obligatoria por imposibilidad de enumerar.
-Queda por decidir con datos de ejecución si es obligatoria por *incompletitud* de la
-enumeración estática (importación `./src/context` sin fichero, artefactos derivados,
-resolución real de `library_path`).
+Pasos 1, 2 y 4 cerrados con datos. Lo que ya está determinado:
+
+- **El lockfile es un manifiesto estático de pares (ruta, hash), generado antes de la
+  ejecución.** El cierre es enumerable y la enumeración coincide 34/34 con el artefacto
+  desplegado. No hace falta instrumentar el cargador de PeTTa.
+- **El manifiesto cubre el cierre completo, no solo los `.metta`.** 13 de los 34 son Python.
+- **El manifiesto lleva procedencia para el sustrato y solo integridad para el sistema
+  objetivo.** PeTTa y `petta_lib_chromadb` conservan su `.git` y su commit es recuperable;
+  OmegaClaw-Core no, porque el Dockerfile lo borra a propósito.
+- **El `git-import!` no es el punto donde fijar nada**: en producción nunca clona. Lo que hay
+  que fijar es el `docker build`, donde `CHROMADB_REF=master` es la revisión no fijada real.
+
+Falta el paso 3 para cerrar: comprobar que ninguno de los 34 cambia durante una sesión, y
+separar *fuente modificada* de *artefacto `.pl`/`.qlf` derivado*.
 
 ---
 
@@ -390,10 +472,10 @@ mientras que el del sustrato sobre el que corre sí lo tiene. La divergencia no 
 
 | Captura | Datos | Decisión escrita |
 |---|---|---|
-| 1 — Estabilidad del collapse | ✗ | ✗ |
-| 2 — Cierre de importaciones | Parcial: paso 1 completo (§2.1); pasos 2–4 ✗ | ✗ |
-| 3 — Proporción fiel/libre | ✗ | ✗ |
-| 4 — Truncamiento | Parcial: mecanismo y límites localizados (§4); medición ✗ | ✗ |
+| 1 — Estabilidad del collapse | ✗ — pendiente de `omegaclaw:mock` | ✗ |
+| 2 — Cierre de importaciones | Pasos 1, 2 y 4 capturados (§2.1, §2.5–2.7); falta el paso 3 | ✗ |
+| 3 — Proporción fiel/libre | ✗ — **requiere clave LLM real** | ✗ |
+| 4 — Truncamiento | Mecanismo y límites localizados (§4); medición ✗ | ✗ |
 
 **Compuerta cerrada, 4/4.** Trabajo desbloqueado cuando las cuatro filas estén completas:
 
@@ -401,6 +483,9 @@ mientras que el del sustrato sobre el que corre sí lo tiene. La divergencia no 
 - Predicado de igualdad del verificador (según captura 1).
 - Rediseño final de C2 (según capturas 3 y 4).
 
-**Para desbloquear la sesión de captura hacen falta dos cosas del operador**, ambas del §0 de
-la orden de sesión: arrancar Docker Desktop con integración WSL para `Ubuntu-24.04`, y una
-clave de proveedor LLM por canal fuera de banda.
+### Qué falta, y de quién depende
+
+| Pendiente | Bloqueado por |
+|---|---|
+| Capturas 1 y 4, y el paso 3 de la 2 | Construcción local de `omegaclaw:mock` (en curso). No necesita nada del operador |
+| Captura 3 | **Clave de proveedor LLM**, por canal fuera de banda. Es lo único que sigue esperando al operador |
