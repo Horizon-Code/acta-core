@@ -85,10 +85,15 @@ verifier cannot evaluate is not a report line — it is a promise in the source.
 | `TR-SIGNER-SELF` | — | **Implemented with A1** |
 | `TR-NO-ANCHOR`, `TR-ANCHOR-UNVERIFIED` | — | **Implemented with B1** |
 | `TR-TIME-DECLARED` | — | **Implemented with the B2 report slice** |
+| `TR-CHRONOS-BOUNDARY-UNVERIFIED` | ADR-006 + declared chain scope and optional expected predecessor | Suffix/chain verification API + report composition (`DossierDetected`) |
 | Remaining base codes of §3 | Specified in `directiva-construccion-2026-08-31.md` §3; pending implementation code by code | With their own verification |
 
 `grep -r "TR-" core/rust/acta-core/src` returns nothing: the implemented codes live in the
 external verifier that can evaluate them.
+
+The future boundary condition is dossier-detected: the supplied evidence verifies continuity
+from its first available event, while the preceding boundary remains unverified until the
+verifier receives either the complete earlier chain or an expected predecessor.
 
 The report **mechanism** is not blocked by any of this and is already in place (see below).
 

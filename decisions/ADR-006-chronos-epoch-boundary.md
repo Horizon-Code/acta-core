@@ -1,6 +1,6 @@
 # ADR-006: Chronos continuity across epoch boundaries
 
-- Status: Proposed — pending operator ratification
+- Status: Accepted
 - Date: 2026-08-31
 - Decision authority: operator, under ADR-001
 
@@ -18,7 +18,7 @@ continuous link without adding a field or changing canonical encoding.
 This ADR resolves only the boundary rule. It does not define epoch duration, closure policy,
 publication substrate, or institutional completeness requirements.
 
-## Proposed decision
+## Decision
 
 Chronos continuity is per process and does not reset at an epoch boundary.
 
@@ -43,12 +43,14 @@ event and verify every later link, including links whose adjacent events have di
 from the first supplied item: it needs an explicitly supplied expected predecessor or must
 report that boundary continuity was not verified.
 
-Acceptance of this ADR requires corresponding normative wording in
+Implementation of this ADR requires corresponding normative wording in
 `protocol/ACTA_Protocol_v0.md` and test vectors covering a process that spans two epochs.
 It also requires a suffix-verification API that accepts an expected predecessor; the current
 `verify_event_chain_v0` API treats the first supplied event as genesis and is insufficient for
-that case. No implementation or Protocol change is authorized while this ADR remains
-`Proposed`.
+that case. Its start mode must distinguish `ProcessGenesis`, `ExpectedPredecessor(hash)` and
+`PredecessorNotSupplied`; an `Option<hash>` would ambiguously conflate genesis with missing
+evidence. Ratification fixes the decision but does not itself start implementation under the
+current operational freeze.
 
 ## Consequences
 
@@ -66,6 +68,16 @@ Minimum acceptance vectors cover: adjacent events across two epochs; intervening
 event for the process; an improper `None` after a boundary; a suffix with an expected
 predecessor; a suffix without one reported as unverified rather than genesis; and mixed
 `process_id` input rejected by the composed process-plus-Chronos verification.
+
+## Future report condition
+
+`TR-CHRONOS-BOUNDARY-UNVERIFIED` belongs to the dossier-detected register when the declared
+verification scope starts from a suffix or isolated epoch and neither the complete preceding
+chain nor an expected predecessor is supplied. Its affirmative text is: “El tramo suministrado
+es internamente consistente; verificar su continuidad con la historia anterior requiere la
+cadena completa o un predecesor esperado.” It must land with the suffix-verification API, not
+before. An expected predecessor that is supplied but does not match is a verification failure,
+not this residual condition.
 
 ## Alternatives considered
 
@@ -87,3 +99,7 @@ encoding rule.
 - `roadmap/directiva-construccion-2026-08-31.md` §6.
 - `research/imported-notes/analisis-filosofico-claude-codex.md` §2.4 and §7,
   recommendation 4.
+
+## Ratification
+
+Ratified explicitly by the operator on 2026-08-31 under ADR-001.

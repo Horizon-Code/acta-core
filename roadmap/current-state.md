@@ -10,6 +10,9 @@
   C2 is unblocked by E0 but remains unstarted pending E-1/E-2 ratification and its profile.
 - ADR-003, ADR-004 and ADR-005 were ratified by the operator on 2026-08-31. Their equality,
   lockfile-shape and raw-commitment-point decisions are binding; E-1/E-2 remain separate.
+- ADR-006 was ratified on 2026-08-31: Chronos continuity does not reset at epoch boundaries.
+  Its implementation and future `TR-CHRONOS-BOUNDARY-UNVERIFIED` report line remain
+  unstarted pending an explicit execution order.
 - A1 and A3 are implemented outside Core in `adapters/attestation-single-signer/rust`:
   Ed25519 signatures verify offline against public keys carried inline at the bundle JSON root.
   A manipulated signature is rejected, and the external report emits `TR-KEY-SELF-ASSERTED`
