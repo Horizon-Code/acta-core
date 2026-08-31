@@ -17,6 +17,12 @@ report, and whether committing results is viable at all.
 |---|---|
 | **E0** Experiment | All four captures are documented and each has its derived decision written down |
 
+**Status on 2026-08-31: gate closed, 4/4.** Pre-flight static preparation is done (substrate
+cloned and pinned by commit, import closure enumerated and hashed, truncation mechanism and
+limits located, E-5 corroborated) and is recorded in `research/E0-resultados.md`. No capture has
+been executed: the capture session is blocked on Docker Desktop WSL integration for
+`Ubuntu-24.04` and on an LLM provider key.
+
 **Gate rule: not a single line of C2 before E0 closes.**
 **Validation rule: not a single line of the real Cardano adapter before the three validation conversations.**
 

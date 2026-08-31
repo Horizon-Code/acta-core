@@ -45,3 +45,40 @@ Source: `E0-protocolo-y-enmiendas.md`. These are unresolved until the E0 capture
     continuity.
   - Mitigation: Read methodology only; never vendor or depend. Same rule already stated for the
     `oprow` vendored inside `singnet/watermarks_PoC` (§5.8).
+
+### Confirmed statically on 2026-08-31 (pre-flight, container not yet run)
+
+Source: `research/E0-resultados.md`. Recorded as risks because they change the shape of E-4 and
+of the capture-4 decision, and were found by reading code rather than by running it.
+
+- Risk: The import closure of the target system is **not only MeTTa**. 13 of its 34 files are
+  Python, imported through the same `(library ...)` form.
+  - Impact: A lockfile covering only `.metta` would leave 38% of the closure uncommitted while
+    looking complete.
+  - Mitigation: E-4's manifest must cover the whole closure. Enumeration script and hashes in
+    `research/E0-resultados.md` §2.1.
+
+- Risk: **Nothing in the substrate is pinned to an immutable revision.** The base image, PeTTa
+  and FAISS are pinned to tags, `petta_lib_chromadb` to `master`, and PeTTa's own `build.sh`
+  clones `mork_ffi` and `faiss_ffi` with no ref at all. `git-import!` runs
+  `git clone --depth 1` with no branch and no commit, and skips entirely if the directory
+  already exists.
+  - Impact: Two builds of the same declared system can differ with no record anywhere.
+  - Mitigation: `TR-IMPORT-UNPINNED`; the lockfile records what the system does not.
+
+- Risk: The string the LLM sees is **transformed and truncated** before it gets there.
+  `string-safe` substitutes newlines, doubled double-quotes and apostrophes; `normalize_string`
+  drops invalid UTF-8 with `errors="ignore"`; `last_chars` truncates to `maxFeedback` (50000)
+  **keeping the tail**, so the cut falls on the head of the string.
+  - Impact: Committing the LLM-visible string commits a mutilated conclusion. Worse for E-2: a
+    conclusion containing a newline can never match a fed-back premise byte for byte, for
+    reasons that have nothing to do with the mediator.
+  - Mitigation: Capture point upstream of `normalize_string`; discount the deterministic loop
+    transformation before measuring the faithful ratio in capture 3.
+
+- Risk: `lib_omegaclaw.metta` imports `./src/context`, for which no file exists in the tree at
+  commit `642c536`; and `static-import!` generates `.pl`/`.qlf` artifacts during execution.
+  - Impact: A statically generated manifest has an entry with no file, and a post-session
+    re-hash sees new files that were never in it.
+  - Mitigation: Capture 2 must distinguish *source file changed* from *derived artifact
+    created*.
