@@ -16,11 +16,37 @@ definición vinculante. Conforme a `decisions/ADR-001-repository-authority-level
   cuando se reescriban bajo `constitution/`, `architecture/` o `decisions/`.
 - Varias de ellas (E-4, E-6 y el predicado de igualdad) tienen su **forma pendiente de E0**,
   de modo que congelarlas ahora en un ADR violaría la propia regla de la compuerta.
-- El texto de la directiva que este documento enmienda (`ACTA — Directiva de construcción,
-  31-ago-2026`) **no está en el repositorio**. Las referencias a sus secciones (§1.2, §3,
-  §5.1, §5.2, §6, §8, §9) se conservan tal cual para que la correspondencia sea recuperable
-  cuando la directiva se incorpore.
+- El texto de la directiva que este documento enmienda está en
+  `roadmap/directiva-construccion-2026-08-31.md`, incorporado íntegro y literal (T1).
 - El entregable de E0 tiene su esqueleto en `research/E0-resultados.md`.
+
+### Resolución de las referencias cruzadas
+
+Contra `roadmap/directiva-construccion-2026-08-31.md` resuelven todas menos dos:
+
+| Referencia | Dónde aparece aquí | Resuelve contra |
+|---|---|---|
+| §1 | E-6 | Directiva §1, *La decisión que ordena todo lo demás* |
+| §3 | E-1, E-3 | Directiva §3, *Especificación del informe de confianza residual* (nueve códigos base) |
+| §5.1 | §1.1 paso 4 | Directiva §5.1, *El sistema objetivo: OmegaClaw-Core* |
+| §5.2 | E-5, Anexo A.2 | Directiva §5.2, *El testigo ya existe como tipo: ETV* |
+| §5.8 | Anexo A.3 | Directiva §5.8, *Riesgo legal del sustrato* |
+| §6 | Parte 3 | Directiva §6, *Deuda documental* |
+| §8 | §1.0 | Directiva §8, *Criterios de hecho* |
+| §9 | E-8, Parte 3 | Directiva §9, *La pregunta que decide el proyecto* |
+| §4.2 | E-6 (Artefacto 2, sin citar el §) | Directiva §4.2, *Hyperon — el techo* |
+
+**Las dos que no resuelven contra la Directiva**, porque apuntan a un tercer documento:
+
+| Referencia | Dónde aparece aquí | Apunta a |
+|---|---|---|
+| §1.2 | E-3, «la escala del §1.2 hecha operativa» | `acta-estado-consolidado.md` §1.2 — la escala de vocabulario. La Directiva la cita de segunda mano en su §1.1 («La escala de vocabulario del §1.2 se reinterpreta»); su propio §1.2 es *Forma comercial* |
+| §3.1 | E-7, «decisión 3 del §3.1» | `acta-estado-consolidado.md` §3.1 — las decisiones de canonicalización. La Directiva cita de ahí las decisiones 1 y 2 en su §5.7 |
+
+`acta-estado-consolidado.md` **no está en el repositorio**. La Directiva declara complementarlo
+(«describe *qué hay*; este documento describe *qué construir y en qué orden*») y depende de él
+en §3.1, §6.1, §6.7, §8.1 y §11. Es deuda documental abierta, anotada en
+`research/open-questions.md`.
 
 ---
 

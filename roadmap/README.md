@@ -18,6 +18,10 @@ Planning materials for current state, milestones, risks, and next execution step
 - `current-state.md` — implementation status.
 - `next-milestones.md` — milestones and the **E0 gate** with its execution order.
 - `risk-register.md` — risks, including the E0 / OmegaClaw substrate block.
+- `directiva-construccion-2026-08-31.md` — the construction directive: positioning decision,
+  build order, the two demonstrators, the residual-trust report spec (§3, nine base codes), the
+  verified ecosystem facts, and the closure criteria. Incorporated verbatim; where it and the
+  amendments differ, the amendments win.
 - `E0-protocolo-y-enmiendas.md` — E0 experiment protocol, amendments E-1..E-8, and the external
   source annex. Non-binding: amendments become binding only when rewritten under `architecture/`
   or `decisions/`.

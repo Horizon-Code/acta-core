@@ -310,6 +310,12 @@ fn report_separates_structural_and_detected_registers() {
 
 /// The hole has the right shape and is empty.
 ///
+/// # This test is a tripwire, not a regression guard
+///
+/// It will fail the day the first condition code lands — foreseeably `TR-KEY-SELF-ASSERTED`
+/// together with A3. That failure signals the transition, it is not a bug: delete or invert
+/// this test at that point. Until then it holds the "empty on purpose" property in place.
+///
 /// Core v0 records no trust condition, because it can evaluate none of them yet. A code whose
 /// condition the verifier cannot evaluate is not a report line, it is a promise in the source;
 /// each code lands with the functionality that makes its condition detectable, never before.

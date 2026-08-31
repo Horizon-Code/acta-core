@@ -38,7 +38,12 @@ pub struct VerificationFailureV0 {
 /// The local verification report is read in two registers, and the distinction is
 /// load-bearing: a reader who learns to skip lines has stopped receiving signal.
 ///
-/// This enum is closed on purpose. It classifies conditions; it does not enumerate them.
+/// This enum is closed on purpose, and the asymmetry with the open `code` string next door is
+/// deliberate rather than an inconsistency. It classifies conditions; it does not enumerate
+/// them. The extension rule applies to the **codes** — domain semantics, extensible from a
+/// Profile — not to the **classification axis**, which is Core mechanism. A third register
+/// would be a change of mechanism, and changing the mechanism must require touching the Core.
+///
 /// The open set is the code (see [`VerificationWarningV0::code`]).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerificationConditionRegisterV0 {

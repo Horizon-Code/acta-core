@@ -39,7 +39,7 @@ each one means rewriting it under `architecture/` or `decisions/`:
 
 | Amendment | Subject | Target level | Blocked by |
 |---|---|---|---|
-| E-1 | Four new `TR-*` report codes | `architecture/` (report model) | Per-code, see below |
+| E-1 | Four new `TR-*` report codes on top of the nine in Directiva §3 | `architecture/` (report model) | Per-code, see below |
 | E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Capture 3 informs the framing, not the predicate |
 | E-3 | Report split into structural vs detected conditions | `architecture/` (report model) | — |
 | E-4 | Import-closure lockfile as (path, hash) manifest | `profiles/` + ADR | **Capture 2** |
@@ -60,7 +60,7 @@ verifier cannot evaluate is not a report line — it is a promise in the source.
 | `TR-IMPORT-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
 | `TR-CHAIN-MEDIATED` | Scope predicate (E0 capture 3) | Post-E0 |
 | `TR-KEY-SELF-ASSERTED` | Nothing in E0 — but its condition is only detectable once inline keys exist | **A3** |
-| The nine base codes of §3 | Same rule, one by one (e.g. `TR-ANCHOR-UNVERIFIED` not before the verifier has a checkable notion of anchor) | With their own verification |
+| The nine base codes of §3 | Specified in `directiva-construccion-2026-08-31.md` §3; pending implementation code by code, same rule (e.g. `TR-ANCHOR-UNVERIFIED` not before the verifier has a checkable notion of anchor) | With their own verification |
 
 Until then: `grep -r "TR-" core/` returns nothing outside documentation.
 

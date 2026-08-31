@@ -16,3 +16,8 @@
    and a quick search does not resolve it. It is future differential-verification material, not
    E0, so it blocks nothing — look under `trueagi-io` or `patham9` rather than trusting a
    reconstructed link.
+7. Where is `acta-estado-consolidado.md`? The construction directive declares it complements
+   that document and depends on it for §1.2 (vocabulary scale), §3.1 (canonicalization
+   decisions), §6.1 and §6.7 (forensic levels, anchor backend), §8.1 (unresolved questions) and
+   §11 (communication risk). Two cross-references in `roadmap/E0-protocolo-y-enmiendas.md` (E-3
+   and E-7) land there rather than in the directive.
