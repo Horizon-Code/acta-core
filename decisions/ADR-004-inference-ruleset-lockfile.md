@@ -1,6 +1,6 @@
 # ADR-004: Inference Ruleset Lockfile Shape
 
-- Status: Proposed — pending operator ratification
+- Status: Accepted
 - Date: 2026-08-31
 - Evidence: `research/E0-resultados.md`, captures 2 and 3
 
@@ -16,7 +16,7 @@ different ways: some components retain `.git`; OmegaClaw deliberately removes it
 fixed by the immutable image digest, with a declared version/tag available as an optional
 public cross-check.
 
-## Proposed decision
+## Decision
 
 A `PolicySnapshotV0` whose `policy_type` is `inference_ruleset` commits to a **static manifest
 generated before execution**, not to one rule blob.
@@ -61,5 +61,5 @@ This mechanism belongs to Profile/verifier code. ACTA Core only carries and comm
 
 ## Ratification
 
-Accepting this ADR requires the operator's explicit approval under ADR-001. Until then it is a
-proposal and does not ratify E-1, E-2 or E-4 by itself.
+Ratified explicitly by the operator on 2026-08-31 under ADR-001. This accepts the E-4 lockfile
+shape captured here; it does not by itself ratify the separate E-1 or E-2 report decisions.

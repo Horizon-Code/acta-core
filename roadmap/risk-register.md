@@ -17,7 +17,7 @@ Source: `E0-protocolo-y-enmiendas.md`. These are unresolved until the E0 capture
   - Impact: Two executions of the same declared ruleset can differ with no record; recomputation
     fails for reasons unrelated to semantics.
   - Mitigation: `TR-IMPORT-UNPINNED` in the report (E-1); lockfile as a (path, hash) manifest
-    (E-4), shape pending capture 2.
+    (E-4), shape ratified in ADR-004.
 
 - Risk: Files loaded from the PeTTa installation may have integrity without provenance — the
   hash is on record, the commit or pip version it came from may not be.
@@ -103,9 +103,10 @@ Source: `research/E0-resultados.md`, captures 3 and 4.
   - Mitigation: Pin the harness source/version and transformation-affecting configuration in
     the Profile lockfile; use `bytes(premise) == bytes(T(C))` only for a declared `T`.
 
-- Risk: A high faithful-link ratio does not remove mediator discretion. Capture 3 measured 5/5
-  faithful links under an explicit copy instruction, but auxiliary attempts omitted the prior
-  conclusion temporarily or recomputed it several times.
+- Risk: A high faithful-link ratio does not remove mediator discretion. Capture 3 observed a
+  5/5 ceiling in five isomorphic two-hop tasks under an explicit byte-copy instruction. It is
+  not a generalizable mediator rate; auxiliary attempts omitted the prior conclusion
+  temporarily or recomputed it several times.
   - Impact: Readers may mistake literal continuity for completeness or constrained selection.
   - Mitigation: Treat `TR-CHAIN-MEDIATED` as the default landscape whenever an LLM joins hops;
     keep the faithful/free figure and the selection disclaimer inseparable.

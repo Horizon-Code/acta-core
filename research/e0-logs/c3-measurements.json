@@ -6,6 +6,8 @@
     "t5",
     "t7"
   ],
+  "design": "five isomorphic two-hop variants under explicit byte-for-byte copy instruction",
+  "interpretation": "setup-specific empirical ceiling; not a generalizable mediator rate",
   "faithful": 5,
   "free": 0,
   "rows": [

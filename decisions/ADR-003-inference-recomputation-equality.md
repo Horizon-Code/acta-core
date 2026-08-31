@@ -1,6 +1,6 @@
 # ADR-003: Inference Recomputation Equality
 
-- Status: Proposed — pending operator ratification
+- Status: Accepted
 - Date: 2026-08-31
 - Evidence: `research/E0-resultados.md`, capture 1
 
@@ -15,12 +15,14 @@ restart. Under SWI-Prolog 10.0.2 and the measured import closure, the serialized
 order were byte-identical. `unique-atom` compares the whole atom; the truth value is part of
 that atom.
 
-## Proposed decision
+## Decision
 
 For an inference profile, recomputation equality is equality of the **canonical serialization
-of `(conclusion, truth_value)` pairs**. Where the engine result is a nondeterministic set, the
-Profile first applies the E-7 normalization rule and then serializes the normalized sequence;
-the order compared here is that canonical order, never incidental engine iteration order.
+of `(conclusion, truth_value)` pairs**. Where the result semantics designate a nondeterministic
+set, the Profile MUST define and version a deterministic normalization before commitment and
+then serialize the normalized sequence. The order compared here is that canonical order, never
+incidental engine iteration order. Where order is semantically part of the result, it remains
+evidence and MUST NOT be normalized away.
 
 The predicate is valid only when the recomputation environment is fixed by the applicable
 inference-ruleset lockfile, including engine and version. It must not degrade silently to:
@@ -51,5 +53,4 @@ Hyperon, NAL, PLN or any particular inference engine.
 
 ## Ratification
 
-Accepting this ADR requires the operator's explicit approval under ADR-001. Until then it is a
-proposal distilled from research evidence, not a binding architecture rule.
+Ratified explicitly by the operator on 2026-08-31 under ADR-001.

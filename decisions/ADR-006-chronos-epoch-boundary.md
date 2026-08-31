@@ -27,32 +27,45 @@ For two consecutive events of the same process:
 - if both events belong to the same epoch, the later event's `prev_event_hash` MUST equal the
   earlier event's hash;
 - if the later event is the first event for that process in a new epoch, its
-  `prev_event_hash` MUST still equal the hash of the last event of that process in the
-  preceding epoch;
-- `prev_event_hash = None` denotes process genesis, not epoch genesis.
+  `prev_event_hash` MUST still equal the hash of the immediately preceding event of that
+  process, even when one or more intervening epochs contained no event for that process;
+- `prev_event_hash = None` declares process genesis, not epoch genesis. It does not by itself
+  prove that no earlier event exists.
 
 `epoch_id` identifies the Merkle inclusion and closure unit. It does not define the lifetime
 of the process and does not authorize a chain reset.
 
-A verifier that receives a complete process chain MUST require `None` only on its first
-process event and MUST verify every later link, including links whose adjacent events have
-different `epoch_id` values. A verifier that receives only a suffix or one isolated epoch
-cannot infer genesis from the first supplied item: it needs an explicitly supplied expected
-predecessor or must report that boundary continuity was not verified.
+A verifier MUST first establish that all supplied events belong to the same `process_id` and
+preserve its `process_type`; Chronos linkage alone does not establish that precondition. When it
+receives a complete process chain, it MUST require `None` only on the first supplied process
+event and verify every later link, including links whose adjacent events have different
+`epoch_id` values. When it receives only a suffix or one isolated epoch, it cannot infer genesis
+from the first supplied item: it needs an explicitly supplied expected predecessor or must
+report that boundary continuity was not verified.
 
 Acceptance of this ADR requires corresponding normative wording in
 `protocol/ACTA_Protocol_v0.md` and test vectors covering a process that spans two epochs.
-No implementation or Protocol change is authorized while this ADR remains `Proposed`.
+It also requires a suffix-verification API that accepts an expected predecessor; the current
+`verify_event_chain_v0` API treats the first supplied event as genesis and is insufficient for
+that case. No implementation or Protocol change is authorized while this ADR remains
+`Proposed`.
 
 ## Consequences
 
-- Epoch rotation cannot hide a process-chain reset behind a valid new Merkle root.
+- With a complete same-process chain or an expected predecessor, an epoch rotation cannot hide
+  a chain reset behind a valid new Merkle root. Without either, global completeness is not
+  claimed.
 - The existing `ChronosRefV0` representation and receipt signing payload remain unchanged.
 - Whole-process verification remains possible across any number of epochs.
 - Standalone epoch verification must distinguish Merkle inclusion from predecessor
   continuity; proving one does not imply the other.
-- Recorders and epoch builders must retain the last event hash per open process when placing
-  its next event into a later epoch.
+- Recorders and epoch builders must retain the last event hash for every process that may
+  receive a later event; lifecycle and retention policy remain Profile/institution concerns.
+
+Minimum acceptance vectors cover: adjacent events across two epochs; intervening epochs with no
+event for the process; an improper `None` after a boundary; a suffix with an expected
+predecessor; a suffix without one reported as unverified rather than genesis; and mixed
+`process_id` input rejected by the composed process-plus-Chronos verification.
 
 ## Alternatives considered
 

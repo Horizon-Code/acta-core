@@ -19,15 +19,16 @@ report, and whether committing results is viable at all.
 
 **Status on 2026-08-31: gate open, 4/4.** All four captures have measured data and a written
 derived decision. Capture 3 ran through a local WebSocket channel with a real Anthropic model:
-the selected sample measured 5/5 faithful links, while auxiliary attempts showed temporary
-omission and redundant recomputation by the mediator. Full record, exact strings, raw logs and
-drivers are in `research/E0-resultados.md` and `research/e0-logs/`.
+the selected sample measured a 5/5 ceiling in isomorphic tasks under explicit byte-copy
+instructions, not a general mediator rate. Auxiliary attempts showed temporary omission and
+redundant recomputation. Full record, exact strings, raw logs and drivers are in
+`research/E0-resultados.md` and `research/e0-logs/`.
 
 C2 is no longer blocked by E0, but has not started: its redesign and E-1/E-2 still require
 ratification at `architecture/` / `decisions/` level. The lockfile shape, verifier equality
-predicate and commitment point have proposed ADRs pending operator acceptance.
+predicate and commitment point are ratified in ADR-003, ADR-004 and ADR-005.
 
-Proposals awaiting Rub's ratification:
+Ratified by Rub on 2026-08-31:
 
 - `decisions/ADR-003-inference-recomputation-equality.md`
 - `decisions/ADR-004-inference-ruleset-lockfile.md`
@@ -41,14 +42,16 @@ Proposals awaiting Rub's ratification:
 - **Completed in this session:** E0 4/4 · A1 · A3 · B1 offline CLI ·
   `TR-KEY-SELF-ASSERTED` · `TR-SIGNER-SELF` · `TR-NO-ANCHOR` ·
   `TR-ANCHOR-UNVERIFIED` · `TR-TIME-DECLARED`.
-- **Now:** Rub ratifies the E0 ADR proposals · specify the lockfile and equality predicate ·
-  §9 validation conversations (with someone who signs off on compliance in banking or
-  healthcare).
-- **After E0 ratification:** final C2 redesign (per captures 3 and 4), preceded by the Cognitive
-  Forensics Profile.
+- **Now:** ADR-003/004/005 are ratified; only documentary work expressly authorized by the
+  operator proceeds, alongside the §9 validation conversations.
+- **After separate E-1/E-2/E-6 ratification and a new execution order:** final C2 redesign,
+  preceded by the Cognitive Forensics Profile.
 - **After the conversations:** A2 real Cardano adapter. Until then, mock +
   `TR-ANCHOR-UNVERIFIED` is the product working as designed.
 - **Always in parallel:** documentary debt + amendments E-1..E-8.
+
+Operational freeze: do not start C2, the definitive lockfile implementation, Cardano work or
+any unratified change of direction without a new explicit order.
 
 ### Amendments E-1..E-8: pending ratification
 
@@ -61,7 +64,7 @@ each one means rewriting it under `architecture/` or `decisions/`:
 | E-1 | Four new `TR-*` report codes on top of the nine in Directiva §3 | `architecture/` (report model) | Per-code, see below |
 | E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Unblocked; capture 3 adopts declared `T` |
 | E-3 | Report split into structural vs detected conditions | `architecture/` (report model) | — |
-| E-4 | Import-closure lockfile as (path, hash) manifest | `profiles/` + ADR | **Capture 2** |
+| E-4 | Import-closure lockfile as (path, hash) manifest | `profiles/` + ADR | **Ratified via ADR-004** |
 | E-5 | Level 2 witness by reproducibility, not by transport | `architecture/` | — |
 | E-6 | C2 Artefact 2 redesign; C2 rises in priority | `roadmap/` + demo docs | Unblocked; pending ratification |
 | E-7 | Canonicalization rule written as a pair | `profiles/` + ADR | — |
@@ -75,8 +78,8 @@ verifier cannot evaluate is not a report line — it is a promise in the source.
 
 | Code | Blocked by | Lands with |
 |---|---|---|
-| `TR-ENGINE-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
-| `TR-IMPORT-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
+| `TR-ENGINE-UNPINNED` | Lockfile implementation conforming to ADR-004 | Post-E0 |
+| `TR-IMPORT-UNPINNED` | Lockfile implementation conforming to ADR-004 | Post-E0 |
 | `TR-CHAIN-MEDIATED` | Ratification of capture 3's declared-`T` predicate | Post-E0 |
 | `TR-KEY-SELF-ASSERTED` | — | **Implemented with A3** |
 | `TR-SIGNER-SELF` | — | **Implemented with A1** |

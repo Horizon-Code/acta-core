@@ -1,6 +1,6 @@
 # ADR-005: Inference Commitment Point
 
-- Status: Proposed — pending operator ratification
+- Status: Accepted
 - Date: 2026-08-31
 - Evidence: `research/E0-resultados.md`, capture 4
 
@@ -14,7 +14,7 @@ passes through `normalize_string` and `string-safe`.
 Committing only the LLM-visible context would therefore commit a malformed, harness-dependent
 fragment that cannot close against recomputation of the engine output.
 
-## Proposed decision
+## Decision
 
 For inference-profile evidence, the commitment point is the **raw output value of `(eval $s)`
 before `normalize_string`**.
@@ -44,5 +44,4 @@ runtime. It does not add Hyperon concepts to ACTA Core.
 
 ## Ratification
 
-Accepting this ADR requires the operator's explicit approval under ADR-001. Until then it is a
-proposal distilled from capture 4.
+Ratified explicitly by the operator on 2026-08-31 under ADR-001.

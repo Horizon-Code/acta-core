@@ -161,6 +161,8 @@ def main() -> None:
     rows = [extract(tag, terms) for tag, terms in SELECTED.items()]
     output = {
         "sample": list(SELECTED),
+        "design": "five isomorphic two-hop variants under explicit byte-for-byte copy instruction",
+        "interpretation": "setup-specific empirical ceiling; not a generalizable mediator rate",
         "faithful": sum(row["classification"] == "faithful" for row in rows),
         "free": sum(row["classification"] == "free" for row in rows),
         "rows": rows,

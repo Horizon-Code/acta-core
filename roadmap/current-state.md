@@ -5,8 +5,11 @@
 - AML profile helpers are separated under `profiles/aml/rust`.
 - Architecture/profile/research/roadmap artifacts have been relocated by authority.
 - E0 gate is **open, 4/4 complete**: all captures have measured data and a written decision.
-  Capture 3 measured 5/5 faithful links in the selected sample and recorded auxiliary mediator
-  failures. C2 is unblocked by E0 but remains unstarted pending ratification and its profile.
+  Capture 3 measured a 5/5 ceiling in isomorphic tasks under explicit byte-copy instructions;
+  it is not a general mediator rate. Auxiliary attempts recorded omission and recomputation.
+  C2 is unblocked by E0 but remains unstarted pending E-1/E-2 ratification and its profile.
+- ADR-003, ADR-004 and ADR-005 were ratified by the operator on 2026-08-31. Their equality,
+  lockfile-shape and raw-commitment-point decisions are binding; E-1/E-2 remain separate.
 - A1 and A3 are implemented outside Core in `adapters/attestation-single-signer/rust`:
   Ed25519 signatures verify offline against public keys carried inline at the bundle JSON root.
   A manipulated signature is rejected, and the external report emits `TR-KEY-SELF-ASSERTED`

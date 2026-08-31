@@ -524,6 +524,11 @@ alteran el payload de la conclusión. Por eso esta muestra no distingue numéric
 predicados; la necesidad de declarar `T` viene de combinarla con la transformación no identidad
 ya medida en la captura 4.
 
+**Límite de interpretación:** el 5/5 es únicamente el techo observado en cinco variantes
+isomorfas de dos saltos bajo una instrucción explícita de copiar la conclusión byte a byte. No
+es una tasa general del mediador, una estimación de comportamiento espontáneo ni una afirmación
+transportable a otras tareas o prompts.
+
 El segundo string exigido —el bloque exacto que vio el LLM— se conserva entero, no resumido.
 Ejemplo t3:
 
@@ -556,8 +561,8 @@ omitir temporalmente una conclusión, recomputarla o decidir cuándo usarla.
 **`TR-CHAIN-MEDIATED` es paisaje por defecto para toda cadena que atraviese el LLM, no una
 excepción que solo aparezca cuando hay paráfrasis.** La condición estructural es la presencia
 del mediador; la anotación por eslabón dice después si ese enlace concreto fue fiel o libre.
-La muestra da 5/5 fieles bajo una orden explícita de copia, pero t1 y t6 demuestran por qué esa
-cifra no retira el descargo de selección.
+La muestra dirigida da 5/5 fieles bajo una orden explícita de copia. Ese techo empírico no es
+generalizable; t1 y t6 demuestran además por qué la cifra no retira el descargo de selección.
 
 Se adopta el predicado desplazado:
 
@@ -582,8 +587,9 @@ parte del artefacto fijado. Sin ese pin, dos verificadores podrían clasificar d
 el mismo enlace.
 
 **Consecuencia para C2:** el Artefacto 2 puede mostrar auditoría eslabón a eslabón y la cifra
-fiel/libre, pero la línea debe conservar el descargo de selección incluso con 100% de enlaces
-fieles. Los intentos t1 y t6 son material narrativo directo de esa diferencia.
+fiel/libre, pero la línea debe conservar el descargo de selección incluso cuando una muestra
+dirigida alcance el 100% de enlaces fieles. Los intentos t1 y t6 son material narrativo directo
+de esa diferencia.
 
 ## 4. Captura 4 — Truncamiento de la salida
 
@@ -711,6 +717,10 @@ en sus sesiones y niveles de autoridad propios.
 
 Las decisiones de las cuatro filas pueden proponerse ahora en `decisions/`/`architecture/`.
 Este documento sigue siendo evidencia de nivel `research/`, no una ratificación.
+
+**Ratificación posterior (2026-08-31):** el operador aceptó ADR-003, ADR-004 y ADR-005, que
+vinculan respectivamente el predicado de recomputación, la forma E-4 del lockfile y el punto
+de compromiso crudo. E-1/E-2 y la decisión completa de captura 3 siguen separadas y pendientes.
 
 ### Pendiente posterior a E0
 
