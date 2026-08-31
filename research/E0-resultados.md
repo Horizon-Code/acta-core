@@ -1,8 +1,7 @@
 # E0 — Resultados
 
-**Estado:** EN CURSO. Captura 2 con datos reales en tres de sus cuatro pasos; las otras tres
-capturas pendientes de la imagen de mock (1 y 4) y de una clave LLM (3).
-**Compuerta:** 4/4 ✗ — **cerrada**.
+**Estado:** 3 de 4 capturas cerradas con datos y decisión escrita. La 3 sigue abierta.
+**Compuerta:** 3/4 ✗ — **cerrada**.
 **Protocolo:** `roadmap/E0-protocolo-y-enmiendas.md`, Parte 1.
 **Autoridad:** material exploratorio y empírico. No redefine `architecture/` ni `decisions/`.
 
@@ -92,9 +91,13 @@ Datos tomados **de dentro de la imagen publicada**, que es el artefacto que la g
 | Python | **3.11.2** | `python3 --version` dentro del contenedor |
 | Proveedor y modelo LLM | Por defecto `Anthropic` / `claude-opus-4-8`; en esta sesión se usará `Test` (mock) | `config/config.yaml`, `src/loop.metta` |
 
-Nota de coherencia: la imagen se construyó a las 17:15 del 24-ago y el commit del clon
-(`642c536`) es de las 18:09 del mismo día, o sea **posterior**. Los hashes coinciden igual
-(§2.5), lo que significa que ese último commit no tocó ningún fichero del cierre.
+**El fichero `version` es un ancla de procedencia, no una cadena decorativa.** `v0.1.19` es un
+tag público de `asi-alliance/OmegaClaw-Core` y resuelve a
+`642c53676cf795cb7a0030823b36018c029b1416` — exactamente el commit del clon cuyos 34 ficheros
+dan 34/34 contra la imagen (§2.5). La imagen se construyó a las 17:15:29Z y ese commit es de
+las 18:09:48 **+0300**, o sea 15:09:48Z: la imagen es dos horas posterior al commit, como cabía
+esperar. (Corrección de una nota anterior de este documento que comparaba una hora local con
+una UTC y concluía lo contrario.)
 
 ### 0.4 Punto de intercepción del paso 5 (estático)
 
@@ -118,31 +121,90 @@ El string que entra en la skill es `$s` y el que devuelve es `$R`:
 
 ---
 
-## 1. Captura 1 — Estabilidad del collapse
+## 1. Captura 1 — Estabilidad del collapse — **CERRADA**
 
-### Hallazgos estáticos previos
+### Qué es el operador (estático)
 
-Ninguno relevante. La estabilidad del `collapse` y el comportamiento de `unique-atom` no son
-derivables por lectura: dependen del orden de resolución de SWI-Prolog en tiempo de ejecución.
+De `lib_nal.metta:201`:
+
+```metta
+(= (|- $a $b)
+   (unique-atom (collapse (superpose ((|-nal $a $b) (|-nal $b $a))))))
+```
+
+El orden del resultado es el orden en que SWI-Prolog enumera soluciones dentro del `collapse`.
+Cada llamada evalúa las premisas en los dos órdenes, así que una sola invocación produce ya
+varias conclusiones. `unique-atom` deduplica **átomos completos**, y el valor de verdad forma
+parte del átomo.
 
 ### Datos en crudo
 
-- Premisas usadas: *(pendiente)*
-- Ejecución 1 (misma sesión) — salida completa: *(pendiente)*
-- Ejecución 2 (misma sesión) — salida completa: *(pendiente)*
-- Ejecución 3 (tras reiniciar el contenedor) — salida completa: *(pendiente)*
-- Caso de conclusión duplicada con TV distinto — construcción y salida: *(pendiente)*
-- ¿`unique-atom` deja una o las dos? *(pendiente)*
+Ejecutado con el proveedor LLM simulado (`-p Test -t test`), que emite exactamente la misma
+llamada las tres veces. Eso aísla el no determinismo del motor del no determinismo del
+mediador, que es justo lo que la captura quiere medir. Logs completos en
+`e0-substrate/e0-logs/*.rawlog`.
+
+Premisas: `(|- ((--> golden_retriever friendly) (stv 1.0 0.9)) ((--> friendly family_friendly) (stv 0.9 0.85)))`
+
+| Ejecución | Cuándo | Longitud | SHA-256 del string de salida |
+|---|---|---|---|
+| `c1-run1` | 12:41:30Z, sesión A | 129 | `7c376bbcd941f1e236d4fe7b…` |
+| `c1-run2` | 12:42:15Z, sesión A | 129 | `7c376bbcd941f1e236d4fe7b…` |
+| `c1-run3-postrestart` | 12:46:32Z, **tras `docker restart`** | 129 | `7c376bbcd941f1e236d4fe7b…` |
+
+Salida completa, idéntica en las tres:
+
+```
+(((--> golden_retriever family_friendly) (stv 0.9 0.6885))
+ ((--> family_friendly golden_retriever) (stv 1.0 0.4077583654130886)))
+```
+
+```
+run1 == run2                 : True
+run1 == run3 (tras reinicio) : True
+```
+
+**El orden es estable**, dentro de la sesión y a través de un reinicio del contenedor. Nótese
+que las dos conclusiones vienen de reglas distintas sobre las mismas premisas: la 110
+(`Truth_Deduction`) y la 113 (`Truth_Exemplification`) de `lib_nal.metta`.
+
+### Duplicados y `unique-atom`
+
+Caso `c1-dup`: `(|- ((--> wolf animal) (stv 1.0 0.45)) ((--> wolf animal) (stv 1.0 0.45)))`
+
+```
+(((--> wolf animal)   (stv 1.0 0.6206896551724138))
+ ((--> animal animal) (stv 1.0 0.16839916839916838))
+ ((--> wolf wolf)     (stv 1.0 0.16839916839916838))
+ ((<-> wolf wolf)     (stv 1.0 0.16839916839916838))
+ ((<-> animal animal) (stv 1.0 0.16839916839916838)))
+```
+
+Cinco conclusiones, todas átomos distintos, ninguna deduplicada. **Limitación honesta de esta
+captura:** no se logró producir el caso exacto que el protocolo pide — *la misma conclusión con
+dos valores de verdad distintos*. Lo observado es consistente con que sobrevivirían las dos,
+porque `unique-atom` compara el átomo entero y el TV forma parte de él, pero eso es inferencia
+sobre la semántica del operador, no observación. Queda anotado como tal.
 
 ### Decisión derivada
 
-*(pendiente — bloqueada por §0.1 y §0.2)* — predicado de verificación de recomputación.
-Opciones del protocolo: igualdad de serialización canónica / igualdad de conjuntos o
-pertenencia / comparación de pares (conclusión, TV).
+**El predicado de verificación de recomputación es igualdad de serialización canónica**, sobre
+un motor fijado.
+
+El orden resultó estable en las tres ejecuciones, incluida la posterior al reinicio, de modo que
+no hace falta relajar a igualdad de conjuntos ni a pertenencia. Dos condiciones que la decisión
+lleva pegadas:
+
+1. **"Sobre un motor fijado" no es una fórmula retórica.** La estabilidad observada es la de
+   SWI-Prolog 10.0.2 con este cierre de importaciones. El predicado es válido solo dentro del
+   lockfile de la captura 2; cambiado el motor, la premisa de esta decisión decae.
+2. **El predicado compara pares (conclusión, TV), no conclusiones.** No porque se observara un
+   duplicado, sino porque el TV forma parte del átomo que `unique-atom` considera, y comparar
+   solo conclusiones haría que dos resultados distintos del motor pasaran por iguales.
 
 ---
 
-## 2. Captura 2 — Cierre de importaciones: ¿estático o dinámico?
+## 2. Captura 2 — Cierre de importaciones: ¿estático o dinámico? — **CERRADA**
 
 ### 2.1 Enumeración y hash del cierre (estático — paso 1 del procedimiento, COMPLETADO)
 
@@ -295,8 +357,30 @@ opuesto:
   del cierre que pertenecen a OmegaClaw-Core, **ninguno tiene procedencia recuperable desde el
   proceso**; solo integridad.
 
-Consecuencia para E-4: el límite de "integridad sin procedencia" existe, pero hay que declararlo
-sobre el sistema objetivo, no sobre el sustrato. Es una línea distinta del informe.
+**Pero "sin `.git`" no es "sin procedencia".** La procedencia de OmegaClaw-Core es recuperable
+**por recomputación**, que es exactamente la forma de E-5: no se transporta, se reproduce.
+Quedan dos anclas dentro del artefacto:
+
+1. **El digest de la imagen**, `sha256:b819e71e293a…`, que fija los 34 ficheros de forma
+   inmutable.
+2. **La versión declarada**, `v0.1.19`, que es un tag público. Hashear los ficheros de ese tag
+   en GitHub y compararlos contra la imagen verifica la procedencia sin haberla transportado.
+
+Comprobado en esta sesión: `git rev-list -n1 v0.1.19` da `642c53676cf795cb…`, el mismo commit
+cuyo cierre coincide 34/34 con la imagen (§2.5). La cadena
+`version → tag → commit → hashes` cierra.
+
+Consecuencia para E-4: **el lockfile tiene dos raíces de procedencia según lo que haya en el
+artefacto.**
+
+| Caso | Raíz de procedencia | Ejemplo en este sistema |
+|---|---|---|
+| Con `.git` | Commit, leído del artefacto | `/PeTTa` → `7037f4c2…`; `petta_lib_chromadb` → `218484875d…` |
+| Sin `.git` | Digest de imagen + versión declarada, con verificación opcional contra el tag público | OmegaClaw-Core → `sha256:b819e71e…` + `v0.1.19` |
+
+La segunda raíz es más débil en un punto concreto y hay que decirlo: depende de que el tag
+público siga existiendo y no se haya movido. Un tag es mutable; el digest no. Por eso el digest
+es la raíz y el tag la verificación.
 
 ### 2.7 Los dos `git-import!` no clonan nunca en producción (CAPTURADO — paso 2, parcial)
 
@@ -310,6 +394,39 @@ La fijación efectiva no está en el `git-import!` en absoluto: está en el `doc
 se evalúa en carga o perezosamente — pero para el lockfile da igual, porque en ningún caso trae
 código nuevo.
 
+**Esto reubica `TR-IMPORT-UNPINNED`, y la propia evidencia lo prueba.** El código tal como está
+en E-1 detecta *"el cierre de importaciones contiene una carga sin revisión fijada (p. ej.
+`git-import!` sin commit)"*. Aplicado literalmente a este sistema, dispararía por los dos
+`git-import!` — que son precisamente las dos cargas que **nunca traen código**, y cuya
+procedencia además resulta recuperable (§2.6). Sería un falso positivo sobre lo único que sí se
+puede reconstruir.
+
+La condición real es **"componente cuyo pin vive fuera del artefacto"**, y en este sistema son
+otras dos cosas: el `CHROMADB_REF=master` del `docker build`, que decide qué código entra sin
+dejar constancia dentro del resultado, y el `rm -rf ./.git` deliberado de la etapa
+`versioned-source`, que saca la procedencia del artefacto y la deja dependiendo de un tag
+público remoto.
+
+La reformulación se anota aquí, en la decisión derivada. **No se ratifica E-1 hasta que la
+compuerta abra**: reescribir un código del informe con la compuerta cerrada es exactamente lo
+que la regla prohíbe.
+
+### 2.9 Paso 3 — re-hasheo tras una sesión de trabajo (CAPTURADO)
+
+Tras la sesión de capturas 1 y 4 (cuatro turnos con inferencias reales), re-hasheados los 34
+ficheros **dentro del contenedor en marcha**:
+
+```
+Tras la sesión de trabajo: 34/34 sin cambios
+Artefactos .pl/.qlf generados durante la sesión: 0
+Ficheros modificados bajo /PeTTa durante la sesión (excluyendo memory/): ninguno
+```
+
+Ningún fichero del cierre cambió durante la ejecución. Y la conjetura de §2.1 punto 3 —que
+`static-import!` generaría `.pl`/`.qlf` y ensuciaría el re-hasheo— **no se materializa en esta
+ruta**: los 15 `.pl` presentes vienen de la imagen, ninguno es nuevo. Lo único que se escribe en
+ejecución es `memory/`, que es la traza episódica y no forma parte del cierre.
+
 ### 2.8 Datos en crudo pendientes de una sesión de trabajo
 
 - Momento real de ejecución del `git-import!` (carga vs primer uso): *(pendiente)*
@@ -321,9 +438,7 @@ Procedencia: resuelta en §2.6. Los cinco `lib_*` la tienen; los ficheros de Ome
 
 ### Decisión derivada
 
-*(pendiente del paso 3 — re-hasheo tras una sesión de trabajo real)*
-
-Pasos 1, 2 y 4 cerrados con datos. Lo que ya está determinado:
+**Cerrada.** Los cuatro pasos tienen datos. La decisión:
 
 - **El lockfile es un manifiesto estático de pares (ruta, hash), generado antes de la
   ejecución.** El cierre es enumerable y la enumeración coincide 34/34 con el artefacto
@@ -335,12 +450,12 @@ Pasos 1, 2 y 4 cerrados con datos. Lo que ya está determinado:
 - **El `git-import!` no es el punto donde fijar nada**: en producción nunca clona. Lo que hay
   que fijar es el `docker build`, donde `CHROMADB_REF=master` es la revisión no fijada real.
 
-Falta el paso 3 para cerrar: comprobar que ninguno de los 34 cambia durante una sesión, y
-separar *fuente modificada* de *artefacto `.pl`/`.qlf` derivado*.
+- **El manifiesto se genera antes de la ejecución y sigue siendo válido después.** Paso 3
+  medido: 34/34 sin cambios tras una sesión de trabajo, y cero artefactos derivados.
 
 ---
 
-## 3. Captura 3 — Proporción fiel/libre en cadena real
+## 3. Captura 3 — Proporción fiel/libre en cadena real — **BLOQUEADA**
 
 ### Hallazgos estáticos previos
 
@@ -366,25 +481,47 @@ baja por una razón que no tiene que ver con el mediador.
 Además, `helper.normalize_string` codifica y decodifica con `errors="ignore"`, lo que
 **descarta silenciosamente** cualquier byte que no sea UTF-8 válido.
 
+### Estado: bloqueada por el arnés, no por la credencial
+
+La clave de proveedor llegó y **es válida** (verificada con una llamada mínima a la API). El
+contenedor arrancó con `-p Anthropic -t test -m claude-haiku-4-5-20251001` y el LLM real
+respondió: el log muestra turnos con `(query …)`, `(pin …)`, `(send …)` generados por el modelo,
+no por el mock.
+
+Lo que falló es la **entrega de mensajes por el canal de prueba**. Con `-p Test` el agente hacía
+el saludo de versión al `CommMockServer` en cuanto arrancaba
+(`[CommMockServer] Message received: "OmegaClaw version=v0.1.19"`) y `send_message` funcionaba.
+Con `-p Anthropic -t test` ese saludo **nunca llega**, y `send_message` agota su espera:
+
+```
+[CommMockServer] Cannot set answer to the mock, error: None
+t1: delivery failed
+```
+
+Probado con el servidor levantado antes del contenedor y esperando el saludo hasta 300 s. No es
+un problema de orden de arranque.
+
+Hipótesis no verificada, anotada para la próxima sesión: el canal `test` puede estar acoplado al
+proveedor `Test` en `initChannels`, de forma que la combinación *canal simulado + proveedor
+real* no sea una configuración soportada. Vías a probar, en este orden:
+
+1. Un canal real y barato en lugar de `test` — `websocket` contra un servidor local es el más
+   directo, e `irc` es el que el propio proyecto usa en sus tests en vivo.
+2. Leer `src/channels.metta` e `initChannels` para confirmar o descartar el acoplamiento.
+
 ### Datos en crudo
 
-Una fila por eslabón, comparación **byte a byte**. Cuando no hay coincidencia literal, guardar
-el par de strings completo para clasificar el tipo de reescritura. Añadida columna para separar
-la transformación del bucle de la reescritura del mediador.
-
-| # | Tarea | Salida salto 1 (conclusión comprometible) | Entrada salto 2 (premisa arrastrada) | ¿Literal? | ¿Coincide tras normalizar `string-safe`? | Tipo de reescritura |
-|---|---|---|---|---|---|---|
-| 1 | *(pendiente)* | | | | | paráfrasis / resumen / traducción de formato / invención |
-
-- Tareas usadas (3–5, cada una con dos saltos como mínimo): *(pendiente)*
-- Proporción fiel/libre resultante: *(pendiente)*
+*(vacío — ningún eslabón capturado)*
 
 ### Decisión derivada
 
-*(pendiente — bloqueada por §0.1 y §0.2)* — naturaleza de `TR-CHAIN-MEDIATED` en el informe
-(E-1, E-2).
+*(pendiente)* — naturaleza de `TR-CHAIN-MEDIATED` en el informe (E-1, E-2).
 
----
+**Lo que sí queda establecido para cuando se ejecute**, de la captura 4: el eslabón fiel se mide
+sobre la salida cruda del eval, y hay que descontar `string-safe`, `normalize_string` y el
+truncamiento por la cabeza antes de contar nada. Y de la captura 1: la línea base del motor está
+limpia — el mismo `(|- …)` da el mismo string byte a byte, así que **toda diferencia que aparezca
+en la captura 3 es atribuible al mediador y solo a él.**
 
 ## 4. Captura 4 — Truncamiento de la salida
 
@@ -425,33 +562,52 @@ Las tres etapas del procedimiento quedan localizadas:
 | 2. `&lastresults` | `(change-state! &lastresults (string-safe (repr $results)))` | `string-safe`: sustituye `\n`, `""`, `'` |
 | 3. Contexto LLM | `(last_chars ... (maxFeedback))` dentro de `(string-safe (py-str (...)))` | Truncamiento por la cabeza a 50 000 caracteres |
 
-### Datos en crudo
+### Datos en crudo — **MEDIDO**
 
-| Etapa | Longitud del string | ¿Hay corte? |
+Ejecutado con el mock: `(metta "(collapse (range 1 20000))")`. Log completo en
+`e0-substrate/e0-logs/c4-big.rawlog`.
+
+| Etapa | Longitud | ¿Corte? |
 |---|---|---|
-| Salida de `(repr (swrite (eval $code)))` | *(pendiente)* | *(pendiente)* |
-| Ensamblado en `LAST_SKILL_USE_RESULTS` | *(pendiente)* | *(pendiente)* |
-| Contexto final enviado al LLM | *(pendiente)* | *(pendiente)* |
+| 1–2. Salida del eval, tal como aparece en `COMMAND_RETURN` | **108 889** caracteres | No |
+| 3. `LAST_SKILL_USE_RESULTS` en el contexto enviado al LLM | **50 000** caracteres exactos | **Sí** |
 
-La medición sigue haciendo falta: el código dice que el corte **existe y dónde está**, no a
-partir de qué tamaño de conjunto de conclusiones se alcanza en la práctica. El bucle registra
-`CHARS_SENT` en el log, lo que da la longitud de la etapa 3 sin instrumentar nada.
+`CHARS_SENT` en el turno afectado: **55 644**, frente a **5 657** en los turnos vecinos.
+
+La salida del eval empieza y termina así:
+
+```
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 …
+… 19990 19991 19992 19993 19994 19995 19996 19997 19998 19999)
+```
+
+Y lo que llega al LLM empieza así:
+
+```
+68 11669 11670 11671 11672 11673 11674 11675 11676 …
+```
+
+**El corte cae en la cabeza, y cae a mitad de token.** `11668` quedó partido: el `116` se
+perdió y el `68` abre el string. Se descartaron los primeros 58 889 caracteres, incluido el
+paréntesis de apertura, así que lo que el LLM ve **ni siquiera es una s-expresión bien
+formada**.
 
 ### Decisión derivada
 
-*(pendiente de medición — pero el material estático ya la orienta con fuerza)*
+**El punto de captura para el compromiso es la salida cruda de `(eval $s)`, antes de
+`normalize_string`. El string del contexto LLM se registra como artefacto separado.**
 
-El punto de captura para el compromiso **no puede ser el string del contexto LLM**: sufre dos
-transformaciones deterministas (`normalize_string`, `string-safe`) y un truncamiento por la
-cabeza a 50 000 caracteres. Comprometer eso es comprometer una conclusión mutilada, y la
-recomputación no cerraría nunca por un motivo ajeno a la semántica. La captura tiene que ser la
-salida cruda de `(eval $s)`, antes de `normalize_string`, y el string del contexto LLM se
-registra como artefacto separado.
+Medido, no supuesto: entre la conclusión que el motor produce y la que el modelo lee hay
+108 889 → 50 000 caracteres, un corte por la cabeza, a mitad de token, que destruye la buena
+formación sintáctica. Comprometer lo que ve el LLM sería comprometer una conclusión mutilada, y
+la recomputación no cerraría nunca por un motivo ajeno a la semántica.
 
-Falta el dato de ejecución que convierte esta orientación en decisión: a partir de qué tamaño
-real de resultado se alcanzan los 50 000 caracteres.
-
----
+Corolario para E-2, que es comparación de bytes: **el eslabón fiel se mide sobre la salida
+cruda, no sobre el texto del contexto.** Además de este truncamiento, entre ambos hay dos
+transformaciones deterministas más — `string-safe` (sustituye `\n`, `""`, `'`) y
+`normalize_string` (descarta bytes no UTF-8 con `errors="ignore"`) — que hay que descontar antes
+de medir proporción alguna. Sin descontarlas, la proporción fiel sale artificialmente baja por
+razones que no tienen nada que ver con el mediador.
 
 ## 5. Corroboración de E-5 (estático, no es una de las cuatro capturas)
 
@@ -472,20 +628,48 @@ mientras que el del sustrato sobre el que corre sí lo tiene. La divergencia no 
 
 | Captura | Datos | Decisión escrita |
 |---|---|---|
-| 1 — Estabilidad del collapse | ✗ — pendiente de `omegaclaw:mock` | ✗ |
-| 2 — Cierre de importaciones | Pasos 1, 2 y 4 capturados (§2.1, §2.5–2.7); falta el paso 3 | ✗ |
-| 3 — Proporción fiel/libre | ✗ — **requiere clave LLM real** | ✗ |
-| 4 — Truncamiento | Mecanismo y límites localizados (§4); medición ✗ | ✗ |
+| 1 — Estabilidad del collapse | ✓ | ✓ |
+| 2 — Cierre de importaciones | ✓ (pasos 1–4) | ✓ |
+| 3 — Proporción fiel/libre | ✗ | ✗ |
+| 4 — Truncamiento | ✓ | ✓ |
 
-**Compuerta cerrada, 4/4.** Trabajo desbloqueado cuando las cuatro filas estén completas:
+**Compuerta cerrada, 3/4.** Falta la captura 3.
 
-- Especificación del lockfile (E-4, forma según captura 2).
-- Predicado de igualdad del verificador (según captura 1).
-- Rediseño final de C2 (según capturas 3 y 4).
+### Qué se desbloquea y qué no
 
-### Qué falta, y de quién depende
-
-| Pendiente | Bloqueado por |
+| Trabajo | Estado |
 |---|---|
-| Capturas 1 y 4, y el paso 3 de la 2 | Construcción local de `omegaclaw:mock` (en curso). No necesita nada del operador |
-| Captura 3 | **Clave de proveedor LLM**, por canal fuera de banda. Es lo único que sigue esperando al operador |
+| Especificación del lockfile (E-4, según captura 2) | **Desbloqueado** |
+| Predicado de igualdad del verificador (según captura 1) | **Desbloqueado** |
+| Rediseño final de C2 (según capturas 3 **y** 4) | **Bloqueado** — depende de la 3 |
+
+La regla de la compuerta sigue en pie: **ni una línea de C2.** Su criterio exige las capturas 3
+y 4, y solo hay una de las dos.
+
+Las dos primeras filas tienen su decisión escrita, así que su trabajo derivado podría empezar en
+cuanto se ratifique. Pero esa ratificación es del nivel `architecture/`/`decisions/` y no la
+toma este documento.
+
+### Pendiente para la siguiente sesión
+
+1. Captura 3, por un canal distinto de `test` (ver §3).
+2. Producir el caso de *misma conclusión con dos TV distintos* que la captura 1 no logró
+   construir (§1).
+
+## 7. Reproducibilidad de esta sesión
+
+| Elemento | Valor |
+|---|---|
+| Imagen usada para las capturas | `omegaclaw:mock`, `728f51b16d82`, construida localmente desde `642c536` |
+| Imagen publicada de referencia | `singularitynet/omegaclaw@sha256:b819e71e293a…` |
+| Motor | SWI-Prolog 10.0.2 · Python 3.11.2 |
+| Cierre de importaciones | 34 ficheros, hashes en §2.1 |
+| Proveedor en capturas 1, 2 y 4 | `Test` (mock determinista) |
+| Proveedor en el intento de captura 3 | `Anthropic`, `claude-haiku-4-5-20251001` |
+| Logs en crudo | `e0-substrate/e0-logs/*.rawlog` (1,49 MB, sin credenciales) |
+| Guiones | `e0-substrate/e0_capture.py`, `e0_run3.py`, `e0_capture3.py`, `closure.py` |
+
+El entorno de compilación de esta máquina está documentado en `docs/local-build-environment.md`.
+Añadido en esta sesión: Docker Engine 29.1.3 nativo y el plugin `buildx` v0.36.1 en
+`~/.docker/cli-plugins/` — sin él, `COPY --chmod` del Dockerfile falla y el build muere en el
+paso 40 de 47.
