@@ -27,4 +27,5 @@ Planning materials for current state, milestones, risks, and next execution step
 - `E0-protocolo-y-enmiendas.md` — E0 experiment protocol, amendments E-1..E-8, and the external
   source annex. Non-binding: amendments become binding only when rewritten under `architecture/`
   or `decisions/`.
-- `acta-mvp-fases-tecnicas.txt`, `acta-roadmap-mejoras-futuras.md` — earlier planning material.
+- `acta-mvp-fases-tecnicas.md` — the ten MVP phases with a current status column.
+- `acta-roadmap-mejoras-futuras.md` — earlier post-MVP planning material.

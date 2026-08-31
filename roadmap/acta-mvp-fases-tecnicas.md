@@ -1,6 +1,26 @@
 ACTA — MVP técnico (protocolo-first, sidechain-ready)
 =================================================
 
+Estado consolidado a 31-ago-2026
+--------------------------------
+
+| Fase | Estado actual |
+|---|---|
+| 0 — Protocolo | Cerrada; draft v0 y vectores fijados |
+| 1 — Core | Cerrada; freeze candidato y verificación local completa |
+| 2 — Attestation | A1/A3 cerrados: Ed25519 y claves inline fuera del Core |
+| 3 — Recorder | No iniciada; fuera del alcance de construcción actual |
+| 4 — Epoch builder | Cerrada en local |
+| 5 — Anchor | Bloqueada por las conversaciones de validación; no iniciar |
+| 6 — Verificador | B1 cerrado: CLI offline; verificación externa del anchor depende de Fase 5 |
+| 7 — Policy reference | Parcial y transitoria |
+| 8 — Demo | Perfiles base existentes; demostradores finales no iniciados |
+| 9 — Hardening | No iniciada; fuera del alcance de construcción actual |
+
+Este estado se subordina a `directiva-construccion-2026-08-31.md`,
+`E0-protocolo-y-enmiendas.md` y `next-milestones.md`. Las descripciones históricas de fase que
+siguen se conservan; la tabla anterior es la columna de estado solicitada.
+
 Este documento define las fases técnicas del MVP de ACTA con el objetivo de:
 - probar la tesis con máximo rigor técnico
 - congelar un core de protocolo verificable

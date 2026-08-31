@@ -1,6 +1,8 @@
 # ACTA Profile Architecture v1.0
 
-Status: internal architectural draft for repository adoption
+Status: adopted internal architecture — profile compatibility contract
+
+Adoption date: 2026-08-31
 
 Authority: subordinate to `ACTA Foundations v1.2`
 
@@ -14,6 +16,11 @@ An ACTA profile is a domain-specific semantic layer that constrains how ACTA eve
 ACTA requires profile discipline because semantic freedom destroys interoperability faster than schema divergence. If profiles are allowed to define names, event meanings, closure semantics, policy linkage, and lifecycle behavior without common constraints, ACTA degrades into unrelated JSON dialects with shared branding but no shared accountability model.
 
 This document defines the architectural rules that every ACTA profile MUST satisfy to remain compatible with the ACTA ecosystem. These rules translate `ACTA Foundations v1.2` into repository governance for profile design, registration, review, evolution, and retirement.
+
+Conformance language:
+- `MUST` and `MUST NOT` are mandatory compatibility requirements.
+- `SHOULD` and `SHOULD NOT` require a documented justification when a profile departs from them.
+- A profile is ACTA-compatible only when its specification and validation artifacts satisfy this contract. Sharing Core types or a namespace is not sufficient.
 
 ## 2. Central Thesis
 
@@ -48,6 +55,8 @@ An ACTA profile MUST extend domain semantics without weakening attribution, reco
 
 A profile MUST define closure semantics so that an event labeled as closed, completed, resolved, revoked, rejected, expired, or equivalent has one stable meaning. Closed states MUST NOT be reinterpreted as provisional inactivity or soft pause.
 
+If a profile defines `process_closed` or an equivalent terminal event, no later event for the same `process_id` is valid unless the profile also defines an explicit reopening event and its allowed successor relation. Reopening MUST NOT mutate or erase the earlier closure.
+
 ### 4.2 Reopen requires explicit event
 
 A closed lifecycle state MUST NOT be reversed by mutation, replacement, or inferred system behavior. Reopening MUST occur only through an explicit event kind defined by the profile.
@@ -56,9 +65,13 @@ A closed lifecycle state MUST NOT be reversed by mutation, replacement, or infer
 
 If a profile uses commitments, the profile MUST specify what data is committed, when the commitment is formed, and how the committed object can later be disclosed or verified. Placeholder commitments with no disclosure or verification path MUST be rejected.
 
+The committed object MUST exist no later than commitment formation. A digest of fabricated, empty, placeholder, or subsequently substituted content does not satisfy this contract merely because it has valid lexical form.
+
 ### 4.4 Policy references must be resolvable
 
 A profile MUST define a policy reference model that allows reviewers and consumers to determine which policy object governed an event at creation time. A policy reference MAY resolve by immutable identifier, versioned URI, content hash, or registry entry, but it MUST NOT depend on an unversioned label alone.
+
+When a profile uses `PolicySnapshotV0`, its `policy_id` MUST identify a rule that existed at event creation and its `policy_hash` MUST bind the exact referenced artifact under the profile's declared canonicalization. Resolution availability and policy validity remain separate claims: resolving the bytes does not make the policy lawful or applicable.
 
 ### 4.5 Event chains must be coherent
 

@@ -40,6 +40,11 @@ The manifest covers executable closure regardless of language. A `git-import!` c
 an already populated directory is not itself the pin; the manifest records what actually
 entered the artifact.
 
+Static import expressions that cannot be resolved at generation time are recorded explicitly
+as unresolved entries, including their source location and literal expression. A generator
+must not silently omit them or claim a complete closure. The measured OmegaClaw case includes
+the dynamic `src/context` expression as the initial negative reference vector for this rule.
+
 This mechanism belongs to Profile/verifier code. ACTA Core only carries and commits the neutral
 `PolicySnapshotV0` fields.
 

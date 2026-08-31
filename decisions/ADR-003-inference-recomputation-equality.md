@@ -17,15 +17,17 @@ that atom.
 
 ## Proposed decision
 
-For an inference profile, recomputation equality is equality of the **ordered canonical
-serialization of `(conclusion, truth_value)` pairs**.
+For an inference profile, recomputation equality is equality of the **canonical serialization
+of `(conclusion, truth_value)` pairs**. Where the engine result is a nondeterministic set, the
+Profile first applies the E-7 normalization rule and then serializes the normalized sequence;
+the order compared here is that canonical order, never incidental engine iteration order.
 
 The predicate is valid only when the recomputation environment is fixed by the applicable
 inference-ruleset lockfile, including engine and version. It must not degrade silently to:
 
 - conclusion-only equality;
 - set membership;
-- unordered set equality;
+- unordered-set comparison without the declared E-7 canonical normalization;
 - approximate numeric equality; or
 - semantic equivalence decided by a model or operator.
 
@@ -39,8 +41,8 @@ Hyperon, NAL, PLN or any particular inference engine.
 ## Consequences
 
 - Truth-value changes remain visible even when the conclusion term is unchanged.
-- Order differences are evidence under the measured engine rather than silently normalized
-  away.
+- Differences after the declared E-7 normalization remain evidence; incidental iteration order
+  of a nondeterministic result set is not evidence.
 - Changing engine, version, closure or canonical serialization invalidates the predicate's
   premise and requires a new lockfile/profile version.
 - Capture 1's three identical runs become the initial reference vector. A second vector with

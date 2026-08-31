@@ -19,6 +19,10 @@ fragment that cannot close against recomputation of the engine output.
 For inference-profile evidence, the commitment point is the **raw output value of `(eval $s)`
 before `normalize_string`**.
 
+“Raw output” means the canonical byte serialization of that returned value, defined and
+versioned by the Profile. Logger quoting, escaping and line framing are transport encodings and
+are not themselves the committed bytes.
+
 The exact `LAST_SKILL_USE_RESULTS` block/context delivered to the LLM is recorded as a separate
 artifact. It is not substituted for the committed engine output.
 
