@@ -7,6 +7,12 @@
 `decisions/ADR-001-repository-authority-levels.md`. This document organises a session; it
 does not modify the protocol.
 
+> **Completion note (2026-08-31):** this handoff has been executed. Capture 3 closed through a
+> local WebSocket channel with five measured chains; the E0 gate is now 4/4. This document is
+> retained as the incoming record and its blocker analysis is historical. The authoritative
+> empirical outcome is `research/E0-resultados.md` §3 and the exact evidence is under
+> `research/e0-logs/`.
+
 ---
 
 ## 1. The one rule that governs everything
@@ -174,7 +180,7 @@ the provider supports; the experiment measures the loop, not the model's quality
 
 - **Never in a file inside the repository, never in a commit, never echoed to a log.**
 - Env var, or a file outside the repo with mode `600`.
-- Before every commit: `git ls-files | xargs grep -l "sk-ant"` must return nothing. The
+- Before every commit: `git ls-files -z | xargs -0 grep -l 'sk''-ant'` must return nothing. The
   `.rawlog` files are committed, so check them too.
 - The launcher passes the key as `-e ANTHROPIC_API_KEY=…`, which makes it visible in
   `docker inspect`. Captures come from `docker logs`, which is clean — but verify, don't assume.

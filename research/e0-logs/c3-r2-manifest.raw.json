@@ -1,0 +1,44 @@
+[
+  {
+    "task": "t1",
+    "captured_at": "2026-08-31T15:03:01.781023+00:00",
+    "rawlog": "c3-t1.rawlog",
+    "raw_eval_count": 3,
+    "agent_replies": []
+  },
+  {
+    "task": "t2",
+    "captured_at": "2026-08-31T15:03:10.320757+00:00",
+    "rawlog": "c3-t2.rawlog",
+    "raw_eval_count": 3,
+    "agent_replies": []
+  },
+  {
+    "task": "t3",
+    "captured_at": "2026-08-31T15:03:20.971027+00:00",
+    "rawlog": "c3-t3.rawlog",
+    "raw_eval_count": 2,
+    "agent_replies": [
+      "[E0-t2-DONE]",
+      "[E0-t3-DONE]"
+    ]
+  },
+  {
+    "task": "t4",
+    "captured_at": "2026-08-31T15:03:28.502246+00:00",
+    "rawlog": "c3-t4.rawlog",
+    "raw_eval_count": 2,
+    "agent_replies": [
+      "[E0-t4-DONE]"
+    ]
+  },
+  {
+    "task": "t5",
+    "captured_at": "2026-08-31T15:03:37.064339+00:00",
+    "rawlog": "c3-t5.rawlog",
+    "raw_eval_count": 2,
+    "agent_replies": [
+      "[E0-t5-DONE]"
+    ]
+  }
+]

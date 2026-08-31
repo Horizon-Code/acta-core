@@ -1,0 +1,19 @@
+[package]
+name = "acta-attestation-single-signer"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+name = "acta_attestation_single_signer"
+path = "src/lib.rs"
+
+[dependencies]
+acta-core = { path = "../../../core/rust/acta-core" }
+base64 = "0.22"
+ed25519-dalek = "2.2"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+
+[dev-dependencies]
+serde_json = "1.0"

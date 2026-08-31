@@ -36,17 +36,16 @@ Contra `roadmap/directiva-construccion-2026-08-31.md` resuelven todas menos dos:
 | §9 | E-8, Parte 3 | Directiva §9, *La pregunta que decide el proyecto* |
 | §4.2 | E-6 (Artefacto 2, sin citar el §) | Directiva §4.2, *Hyperon — el techo* |
 
-**Las dos que no resuelven contra la Directiva**, porque apuntan a un tercer documento:
+**Las dos que apuntan al Estado consolidado**, porque no resuelven contra la Directiva:
 
 | Referencia | Dónde aparece aquí | Apunta a |
 |---|---|---|
 | §1.2 | E-3, «la escala del §1.2 hecha operativa» | `acta-estado-consolidado.md` §1.2 — la escala de vocabulario. La Directiva la cita de segunda mano en su §1.1 («La escala de vocabulario del §1.2 se reinterpreta»); su propio §1.2 es *Forma comercial* |
 | §3.1 | E-7, «decisión 3 del §3.1» | `acta-estado-consolidado.md` §3.1 — las decisiones de canonicalización. La Directiva cita de ahí las decisiones 1 y 2 en su §5.7 |
 
-`acta-estado-consolidado.md` **no está en el repositorio**. La Directiva declara complementarlo
-(«describe *qué hay*; este documento describe *qué construir y en qué orden*») y depende de él
-en §3.1, §6.1, §6.7, §8.1 y §11. Es deuda documental abierta, anotada en
-`research/open-questions.md`.
+`acta-estado-consolidado.md` está incorporado en `roadmap/`. La Directiva declara
+complementarlo («describe *qué hay*; este documento describe *qué construir y en qué orden*»)
+y sus referencias a §1.2, §3.1, §6.1, §6.7, §8.1 y §11 quedan resueltas.
 
 ---
 

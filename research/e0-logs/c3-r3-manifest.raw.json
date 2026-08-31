@@ -1,0 +1,21 @@
+[
+  {
+    "task": "t6",
+    "captured_at": "2026-08-31T15:06:29.344917+00:00",
+    "rawlog": "c3-t6.rawlog",
+    "raw_eval_count": 4,
+    "valid_linked_pair": true,
+    "agent_replies": []
+  },
+  {
+    "task": "t7",
+    "captured_at": "2026-08-31T15:06:44.160724+00:00",
+    "rawlog": "c3-t7.rawlog",
+    "raw_eval_count": 2,
+    "valid_linked_pair": true,
+    "agent_replies": [
+      "[E0-t6-DONE]",
+      "[E0-t7-DONE]"
+    ]
+  }
+]

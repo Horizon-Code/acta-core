@@ -1,0 +1,55 @@
+[
+  {
+    "task": "t1",
+    "captured_at": "2026-08-31T15:00:41.167934+00:00",
+    "rawlog": "c3-t1.rawlog",
+    "raw_eval_count": 8,
+    "agent_replies": [
+      "[E0-t1-START] Beginning two inference hops task",
+      "[E0-t1-ITERATION-2] Processing second inference hop with observed result"
+    ]
+  },
+  {
+    "task": "t2",
+    "captured_at": "2026-08-31T15:00:46.575787+00:00",
+    "rawlog": "c3-t2.rawlog",
+    "raw_eval_count": 4,
+    "agent_replies": [
+      "[E0-t2-START] Beginning two inference hops task"
+    ]
+  },
+  {
+    "task": "t3",
+    "captured_at": "2026-08-31T15:00:56.127012+00:00",
+    "rawlog": "c3-t3.rawlog",
+    "raw_eval_count": 10,
+    "agent_replies": [
+      "[E0-t2-ITERATION-2] Processing second inference hop with observed result",
+      "[E0-t2-DONE]",
+      "[E0-t3-START] Beginning two inference hops task",
+      "[E0-t3-ITERATION-2] Processing second inference hop with observed result",
+      "[E0-t3-DONE]"
+    ]
+  },
+  {
+    "task": "t4",
+    "captured_at": "2026-08-31T15:01:01.530463+00:00",
+    "rawlog": "c3-t4.rawlog",
+    "raw_eval_count": 8,
+    "agent_replies": [
+      "[STATUS] Ready for next user message. Previous tasks E0-t1, E0-t2, E0-t3 completed successfully.",
+      "[E0-t4-START] Beginning two inference hops task"
+    ]
+  },
+  {
+    "task": "t5",
+    "captured_at": "2026-08-31T15:01:07.982243+00:00",
+    "rawlog": "c3-t5.rawlog",
+    "raw_eval_count": 10,
+    "agent_replies": [
+      "[E0-t5-START] Beginning two inference hops task",
+      "[E0-t5-ITERATION-2] Processing second inference hop with observed result",
+      "[E0-t5-DONE]"
+    ]
+  }
+]

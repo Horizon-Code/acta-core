@@ -68,6 +68,30 @@ verifier cannot evaluate is not a report line, it is a promise in the source. Ea
 with the functionality that makes its condition detectable. Calendar in
 `roadmap/next-milestones.md`.
 
+## Conditions Recorded By The Offline Attestation Adapter
+
+`adapters/attestation-single-signer/rust` composes its checks over the Core report:
+
+- `TR-KEY-SELF-ASSERTED` in `VersionStructural` whenever the v0 verifiable bundle carries its
+  verification keys inline. The cryptographic signature is independently checkable, but the
+  claimed real-world identity remains self-asserted.
+- `TR-SIGNER-SELF` in `DossierDetected` when a cryptographically verified `attestor_id` equals
+  the event's `actor_ref.actor_id`.
+
+It also adds `cryptographic_signatures_valid` as an executed check. Failure changes the
+combined report to `Fail`; the Core-only report remains unchanged and contains no key logic.
+
+## Conditions Recorded By The Offline CLI
+
+`tools/acta-verifier/rust` adds the conditions it can determine without external access:
+
+- `TR-TIME-DECLARED` as a v0 structural condition;
+- `TR-NO-ANCHOR` when the dossier has no anchor reference; or
+- `TR-ANCHOR-UNVERIFIED` when an anchor is declared but has not been queried on its substrate.
+
+The CLI emits deterministic structured JSON and a plain-text rendering. It performs no network
+request; external ledger verification remains a separate adapter concern.
+
 ## How It Relates To Core
 
 - Built on existing Core local verification primitives.
@@ -89,5 +113,5 @@ with the functionality that makes its condition detectable. Calendar in
 - human/regulator/auditor report variants.
 - localization.
 - UI presentation.
-- external adapter verification layers.
+- external anchor and identity-registry verification layers.
 - expanded machine-readable error taxonomy when needed.

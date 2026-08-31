@@ -82,3 +82,30 @@ of the capture-4 decision, and were found by reading code rather than by running
     re-hash sees new files that were never in it.
   - Mitigation: Capture 2 must distinguish *source file changed* from *derived artifact
     created*.
+
+### Confirmed dynamically on 2026-08-31
+
+Source: `research/E0-resultados.md`, captures 3 and 4.
+
+- Risk: `last_chars(maxFeedback)` truncates the **head** of a large result and can cut in the
+  middle of a token. The measured case transformed 108,889 characters into 50,000 and began
+  with the orphaned suffix `68` of `11668`, without the opening parenthesis.
+  - Impact: The LLM receives a malformed s-expression. Committing that visible string would
+    make recomputation fail for a harness artifact rather than a semantic difference.
+  - Mitigation: Commit raw `(eval $s)` output before `normalize_string`; record the LLM context
+    separately and classify links through the declared harness transformation.
+
+- Risk: Harness configuration changes the evidence boundary. `maxFeedback`, `maxHistory`,
+  `string-safe` and `normalize_string` determine what conclusion text reaches the mediator and
+  therefore whether a byte predicate classifies a link as faithful.
+  - Impact: Two verifiers with the same ruleset but different harness configuration can report
+    different faithful/free ratios.
+  - Mitigation: Pin the harness source/version and transformation-affecting configuration in
+    the Profile lockfile; use `bytes(premise) == bytes(T(C))` only for a declared `T`.
+
+- Risk: A high faithful-link ratio does not remove mediator discretion. Capture 3 measured 5/5
+  faithful links under an explicit copy instruction, but auxiliary attempts omitted the prior
+  conclusion temporarily or recomputed it several times.
+  - Impact: Readers may mistake literal continuity for completeness or constrained selection.
+  - Mitigation: Treat `TR-CHAIN-MEDIATED` as the default landscape whenever an LLM joins hops;
+    keep the faithful/free figure and the selection disclaimer inseparable.

@@ -308,19 +308,11 @@ fn report_separates_structural_and_detected_registers() {
     assert_eq!(report.warnings.len(), 3);
 }
 
-/// The hole has the right shape and is empty.
-///
-/// # This test is a tripwire, not a regression guard
-///
-/// It will fail the day the first condition code lands — foreseeably `TR-KEY-SELF-ASSERTED`
-/// together with A3. That failure signals the transition, it is not a bug: delete or invert
-/// this test at that point. Until then it holds the "empty on purpose" property in place.
-///
-/// Core v0 records no trust condition, because it can evaluate none of them yet. A code whose
-/// condition the verifier cannot evaluate is not a report line, it is a promise in the source;
-/// each code lands with the functionality that makes its condition detectable, never before.
+/// Core v0 records no Profile/adapter trust condition itself. The first codes now land in the
+/// external attestation verifier; preserving an empty Core report proves that the extension
+/// mechanism did not pull key resolution or identity semantics into `acta-core`.
 #[test]
-fn core_v0_report_records_no_conditions() {
+fn core_report_leaves_adapter_conditions_to_external_verifiers() {
     let bundle = valid_bundle();
     let report = verify_bundle_report_v0(&bundle);
     assert!(report.warnings.is_empty());

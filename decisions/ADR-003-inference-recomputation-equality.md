@@ -1,0 +1,53 @@
+# ADR-003: Inference Recomputation Equality
+
+- Status: Proposed — pending operator ratification
+- Date: 2026-08-31
+- Evidence: `research/E0-resultados.md`, capture 1
+
+## Context
+
+Recomputing an inference can produce several conclusions, and each conclusion carries a truth
+value. A verifier needs a mechanical equality predicate that does not adjudicate semantic
+equivalence and does not hide engine-dependent differences.
+
+E0 capture 1 ran the same OmegaClaw NAL inference three times, including once after a container
+restart. Under SWI-Prolog 10.0.2 and the measured import closure, the serialized output and its
+order were byte-identical. `unique-atom` compares the whole atom; the truth value is part of
+that atom.
+
+## Proposed decision
+
+For an inference profile, recomputation equality is equality of the **ordered canonical
+serialization of `(conclusion, truth_value)` pairs**.
+
+The predicate is valid only when the recomputation environment is fixed by the applicable
+inference-ruleset lockfile, including engine and version. It must not degrade silently to:
+
+- conclusion-only equality;
+- set membership;
+- unordered set equality;
+- approximate numeric equality; or
+- semantic equivalence decided by a model or operator.
+
+If the required lockfile is absent or does not match, the verifier cannot assert recomputation
+equality under this ADR. It reports the corresponding residual trust condition when that code
+becomes implementable under the report-code calendar.
+
+This predicate belongs to the inference Profile/verifier. ACTA Core remains unaware of
+Hyperon, NAL, PLN or any particular inference engine.
+
+## Consequences
+
+- Truth-value changes remain visible even when the conclusion term is unchanged.
+- Order differences are evidence under the measured engine rather than silently normalized
+  away.
+- Changing engine, version, closure or canonical serialization invalidates the predicate's
+  premise and requires a new lockfile/profile version.
+- Capture 1's three identical runs become the initial reference vector. A second vector with
+  one conclusion and two different truth values remains desirable empirical reinforcement,
+  but is not represented as already observed.
+
+## Ratification
+
+Accepting this ADR requires the operator's explicit approval under ADR-001. Until then it is a
+proposal distilled from research evidence, not a binding architecture rule.

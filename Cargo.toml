@@ -2,6 +2,8 @@
 resolver = "2"
 members = [
   "core/rust/acta-core",
+  "adapters/attestation-single-signer/rust",
+  "tools/acta-verifier/rust",
   "profiles/aml/rust",
   "profiles/ai-agent/rust",
 ]

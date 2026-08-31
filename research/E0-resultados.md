@@ -1,7 +1,7 @@
 # E0 — Resultados
 
-**Estado:** 3 de 4 capturas cerradas con datos y decisión escrita. La 3 sigue abierta.
-**Compuerta:** 3/4 ✗ — **cerrada**.
+**Estado:** 4 de 4 capturas cerradas con datos y decisión escrita.
+**Compuerta:** 4/4 ✓ — **abierta**.
 **Protocolo:** `roadmap/E0-protocolo-y-enmiendas.md`, Parte 1.
 **Autoridad:** material exploratorio y empírico. No redefine `architecture/` ni `decisions/`.
 
@@ -45,9 +45,11 @@ Pertenecer al grupo `docker` no servía: no había demonio en la distro al que c
 WSL). Estado actual: **Docker Engine 29.1.3**, demonio arriba, accesible con el usuario sin
 `sudo`, `overlayfs`, cgroups v2. La integración de Docker Desktop no se llegó a usar.
 
-### 0.2 Clave de proveedor LLM — solo bloquea la captura 3
+### 0.2 Clave de proveedor LLM — RESUELTO 2026-08-31
 
-No se ha recibido ninguna clave por el canal fuera de banda del §0.3 de la orden de sesión.
+Se recibió una clave de Anthropic, se verificó y se usó para la captura 3. No se escribió en
+ningún fichero ni aparece en los logs (`rg -l 'sk''-ant' research/e0-logs/c3-*`: cero
+coincidencias). Al haber pasado por el chat de operación, debe revocarse tras la sesión.
 
 **El alcance del bloqueo es menor de lo previsto.** OmegaClaw incluye un proveedor LLM
 simulado y un canal de comunicación de prueba, seleccionables con `-p Test -t test` en
@@ -446,7 +448,7 @@ ejecución es `memory/`, que es la traza episódica y no forma parte del cierre.
 
 ---
 
-## 3. Captura 3 — Proporción fiel/libre en cadena real — **BLOQUEADA**
+## 3. Captura 3 — Proporción fiel/libre en cadena real — **CERRADA**
 
 ### Hallazgos estáticos previos
 
@@ -472,47 +474,116 @@ baja por una razón que no tiene que ver con el mediador.
 Además, `helper.normalize_string` codifica y decodifica con `errors="ignore"`, lo que
 **descarta silenciosamente** cualquier byte que no sea UTF-8 válido.
 
-### Estado: bloqueada por el arnés, no por la credencial
+### Desbloqueo del canal — **CAPTURADO**
 
-La clave de proveedor llegó y **es válida** (verificada con una llamada mínima a la API). El
-contenedor arrancó con `-p Anthropic -t test -m claude-haiku-4-5-20251001` y el LLM real
-respondió: el log muestra turnos con `(query …)`, `(pin …)`, `(send …)` generados por el modelo,
-no por el mock.
+La lectura previa descartó la hipótesis heredada: `initChannels` configura `commchannel` sin
+consultar `provider`, y los plugins se registran por separado. No hay acoplamiento estático
+entre el canal `test` y el proveedor `Test`.
 
-Lo que falló es la **entrega de mensajes por el canal de prueba**. Con `-p Test` el agente hacía
-el saludo de versión al `CommMockServer` en cuanto arrancaba
-(`[CommMockServer] Message received: "OmegaClaw version=v0.1.19"`) y `send_message` funcionaba.
-Con `-p Anthropic -t test` ese saludo **nunca llega**, y `send_message` agota su espera:
+El fallo de ejecución, sin embargo, se reprodujo: con el servidor TCP levantado antes del
+contenedor, el saludo de versión no llegó en 90 segundos. Por tanto, `test` seguía sin ser un
+transporte utilizable con esta combinación, aunque la causa no sea `initChannels`.
 
+Se cambió al canal `websocket` contra `WsMockDriver` local. El agente conectó, envió
+`OmegaClaw version=v0.1.19-dirty`, recibió las tareas y devolvió respuestas. Configuración:
+
+| Elemento | Valor |
+|---|---|
+| Proveedor / modelo | `Anthropic` / `claude-haiku-4-5-20251001` |
+| Canal | `websocket`, servidor local en el host Docker |
+| Imagen | `omegaclaw:e0-c3`, reconstruida desde `642c536` con una única sonda `RAW_EVAL` en `src/loop.metta` |
+| Memoria | volúmenes nuevos por intento; no se reutilizó la historia de las capturas 1 y 4 |
+| Configuración relevante del arnés | `maxFeedback=50000`, `maxHistory=30000`, `string-safe` y `normalize_string` del cierre medido |
+
+La imagen se identifica como `v0.1.19-dirty` precisamente por esa sonda. No cambia la
+evaluación ni el valor realimentado: registra `$s` y `$R` antes de llamar a
+`normalize_string`.
+
+### Datos en crudo — **CAPTURADO**
+
+Se plantearon siete tareas. La muestra de medición son cinco cadenas completas sin repetición
+del salto 1: t2, t3, t4, t5 y t7. Los logs completos son
+`research/e0-logs/c3-t{2,3,4,5,7}.rawlog`; los tres strings exactos por eslabón, sus líneas y
+los dos predicados están en `research/e0-logs/c3-measurements.json`, generado por
+`e0_analyze_capture3.py`.
+
+Cada salto se envolvió en `car-atom` para que la salida comprometible fuese una sola
+conclusión `(conclusión, TV)`, no la lista bidireccional completa que devuelve `|-`.
+
+| Tarea | Salida cruda de `(eval $s)` en salto 1 | Premisa realimentada en salto 2 | `premisa == C` | `premisa == T(C)` |
+|---|---|---|---|---|
+| t2 | `((--> sparrow animal) (stv 0.9 0.6885))` | `((--> sparrow animal) (stv 0.9 0.6885))` | sí | sí |
+| t3 | `((--> copper conductor) (stv 0.9 0.6885))` | `((--> copper conductor) (stv 0.9 0.6885))` | sí | sí |
+| t4 | `((--> oak plant) (stv 0.9 0.6885))` | `((--> oak plant) (stv 0.9 0.6885))` | sí | sí |
+| t5 | `((--> salmon aquatic_animal) (stv 0.9 0.6885))` | `((--> salmon aquatic_animal) (stv 0.9 0.6885))` | sí | sí |
+| t7 | `((--> rose plant) (stv 0.9 0.6885))` | `((--> rose plant) (stv 0.9 0.6885))` | sí | sí |
+
+**Resultado de la muestra: 5/5 eslabones fieles, 0/5 libres.** En estos cinco valores, cortos
+y ASCII, `T(C) = C`: ni el descarte UTF-8, ni las sustituciones internas, ni el truncamiento
+alteran el payload de la conclusión. Por eso esta muestra no distingue numéricamente los dos
+predicados; la necesidad de declarar `T` viene de combinarla con la transformación no identidad
+ya medida en la captura 4.
+
+El segundo string exigido —el bloque exacto que vio el LLM— se conserva entero, no resumido.
+Ejemplo t3:
+
+```text
+ (RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((query _quote_E0-t3 task status_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t3 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> copper metal) (stv 1.0 0.9)) ((--> metal conductor) (stv 0.9 0.85))))_quote_) _quote_((--> copper conductor) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t3 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))
 ```
-[CommMockServer] Cannot set answer to the mock, error: None
-t1: delivery failed
-```
 
-Probado con el servidor levantado antes del contenedor y esperando el saludo hasta 300 s. No es
-un problema de orden de arranque.
+Los cinco bloques exactos están en `c3-measurements.json`; cada uno contiene la conclusión
+codificada por el arnés como `_quote_<C>_quote_`. El análisis comprueba también esta inclusión,
+para no confundir lo que devolvió el motor con lo que recibió el modelo.
 
-Hipótesis no verificada, anotada para la próxima sesión: el canal `test` puede estar acoplado al
-proveedor `Test` en `initChannels`, de forma que la combinación *canal simulado + proveedor
-real* no sea una configuración soportada. Vías a probar, en este orden:
+### Observaciones fuera de la muestra
 
-1. Un canal real y barato en lugar de `test` — `websocket` contra un servidor local es el más
-   directo, e `irc` es el que el propio proyecto usa en sus tests en vivo.
-2. Leer `src/channels.metta` e `initChannels` para confirmar o descartar el acoplamiento.
+Los intentos no se borraron porque describen al mediador:
 
-### Datos en crudo
+- **t1:** tras obtener una conclusión correcta, el modelo intentó primero el salto 2 solo con
+  la premisa nueva y obtuvo `()`. Recalculó el salto 1 y finalmente construyó el salto 2 con
+  la conclusión fiel. Logs: `c3-t1.rawlog` y el comienzo de `c3-t2.rawlog`.
+- **t6:** el modelo recalculó tres veces el mismo salto 1 antes de arrastrar literalmente la
+  conclusión al salto 2. Log: `c3-t6.rawlog`.
+- El primer corte defectuoso del driver, que contaba todo `eval` y no solo `metta`, se conserva
+  como `c3-attempt1-*.rawlog`; no forma parte de la medición.
 
-*(vacío — ningún eslabón capturado)*
+No son enlaces libres adicionales dentro de las cinco cadenas seleccionadas, pero sí prueban
+que una proporción fiel alta no describe por sí sola el comportamiento del mediador: puede
+omitir temporalmente una conclusión, recomputarla o decidir cuándo usarla.
 
 ### Decisión derivada
 
-*(pendiente)* — naturaleza de `TR-CHAIN-MEDIATED` en el informe (E-1, E-2).
+**`TR-CHAIN-MEDIATED` es paisaje por defecto para toda cadena que atraviese el LLM, no una
+excepción que solo aparezca cuando hay paráfrasis.** La condición estructural es la presencia
+del mediador; la anotación por eslabón dice después si ese enlace concreto fue fiel o libre.
+La muestra da 5/5 fieles bajo una orden explícita de copia, pero t1 y t6 demuestran por qué esa
+cifra no retira el descargo de selección.
 
-**Lo que sí queda establecido para cuando se ejecute**, de la captura 4: el eslabón fiel se mide
-sobre la salida cruda del eval, y hay que descontar `string-safe`, `normalize_string` y el
-truncamiento por la cabeza antes de contar nada. Y de la captura 1: la línea base del motor está
-limpia — el mismo `(|- …)` da el mismo string byte a byte, así que **toda diferencia que aparezca
-en la captura 3 es atribuible al mediador y solo a él.**
+Se adopta el predicado desplazado:
+
+```text
+bytes(premisa) == bytes(T(C))
+```
+
+donde `C` es la serialización canónica de la conclusión comprometida y `T` es la transformación
+determinista y declarada del arnés, en orden de código: `normalize_string`, `string-safe` y
+`last_chars(maxFeedback)`, incluyendo el encuadre de transporte que se registra como artefacto
+separado. Se mantienen además las dos condiciones de E-2: mismo `process_ref` y precedencia
+Chronos. Una transformación no declarada sigue siendo afirmación del productor y el enlace es
+libre.
+
+En los cinco casos medidos `T` fue identidad sobre el payload, así que también satisfacen el
+predicado original. La captura 4 es la evidencia que impide simplificar el predicado general a
+`premisa == C`: ya midió una `T` no identidad (108 889 → 50 000 y corte a mitad de token).
+
+**Consecuencia vinculada al lockfile:** la versión/fuente del arnés y su configuración que
+afecta a `T` —al menos `maxFeedback`, `maxHistory`, `string-safe` y `normalize_string`— forman
+parte del artefacto fijado. Sin ese pin, dos verificadores podrían clasificar de forma distinta
+el mismo enlace.
+
+**Consecuencia para C2:** el Artefacto 2 puede mostrar auditoría eslabón a eslabón y la cifra
+fiel/libre, pero la línea debe conservar el descargo de selección incluso con 100% de enlaces
+fieles. Los intentos t1 y t6 son material narrativo directo de esa diferencia.
 
 ## 4. Captura 4 — Truncamiento de la salida
 
@@ -621,10 +692,10 @@ mientras que el del sustrato sobre el que corre sí lo tiene. La divergencia no 
 |---|---|---|
 | 1 — Estabilidad del collapse | ✓ | ✓ |
 | 2 — Cierre de importaciones | ✓ (pasos 1–4) | ✓ |
-| 3 — Proporción fiel/libre | ✗ | ✗ |
+| 3 — Proporción fiel/libre | ✓ (5 cadenas + 2 observaciones auxiliares) | ✓ |
 | 4 — Truncamiento | ✓ | ✓ |
 
-**Compuerta cerrada, 3/4.** Falta la captura 3.
+**Compuerta abierta, 4/4.** Las cuatro capturas tienen datos medidos y decisión escrita.
 
 ### Qué se desbloquea y qué no
 
@@ -632,33 +703,35 @@ mientras que el del sustrato sobre el que corre sí lo tiene. La divergencia no 
 |---|---|
 | Especificación del lockfile (E-4, según captura 2) | **Desbloqueado** |
 | Predicado de igualdad del verificador (según captura 1) | **Desbloqueado** |
-| Rediseño final de C2 (según capturas 3 **y** 4) | **Bloqueado** — depende de la 3 |
+| Ratificación de E-1 y del predicado `T` | **Desbloqueada** |
+| Rediseño final de C2 (según capturas 3 **y** 4) | **Desbloqueado documentalmente** |
 
-La regla de la compuerta sigue en pie: **ni una línea de C2.** Su criterio exige las capturas 3
-y 4, y solo hay una de las dos.
+Abrir la compuerta no implementa C2 ni ratifica por sí solo las enmiendas. Esas acciones viven
+en sus sesiones y niveles de autoridad propios.
 
-Las dos primeras filas tienen su decisión escrita, así que su trabajo derivado podría empezar en
-cuanto se ratifique. Pero esa ratificación es del nivel `architecture/`/`decisions/` y no la
-toma este documento.
+Las decisiones de las cuatro filas pueden proponerse ahora en `decisions/`/`architecture/`.
+Este documento sigue siendo evidencia de nivel `research/`, no una ratificación.
 
-### Pendiente para la siguiente sesión
+### Pendiente posterior a E0
 
-1. Captura 3, por un canal distinto de `test` (ver §3).
-2. Producir el caso de *misma conclusión con dos TV distintos* que la captura 1 no logró
+1. Producir el caso de *misma conclusión con dos TV distintos* que la captura 1 no logró
    construir (§1).
+2. Ratificar E-1, el predicado `T` y el rediseño de C2 en el nivel de autoridad que corresponda.
 
 ## 7. Reproducibilidad de esta sesión
 
 | Elemento | Valor |
 |---|---|
-| Imagen usada para las capturas | `omegaclaw:mock`, `728f51b16d82`, construida localmente desde `642c536` |
+| Imagen usada para las capturas 1 y 4 | `omegaclaw:mock`, `728f51b16d82`, construida localmente desde `642c536` |
+| Imagen usada para la captura 3 | `omegaclaw:e0-c3`, `685378d1fd4f`, reconstruida desde `642c536` con la sonda `RAW_EVAL` de tres líneas |
 | Imagen publicada de referencia | `singularitynet/omegaclaw@sha256:b819e71e293a…` |
 | Motor | SWI-Prolog 10.0.2 · Python 3.11.2 |
 | Cierre de importaciones | 34 ficheros, hashes en §2.1 |
 | Proveedor en capturas 1, 2 y 4 | `Test` (mock determinista) |
-| Proveedor en el intento de captura 3 | `Anthropic`, `claude-haiku-4-5-20251001` |
-| Logs en crudo | `e0-substrate/e0-logs/*.rawlog` (1,49 MB, sin credenciales) |
-| Guiones | `e0-substrate/e0_capture.py`, `e0_run3.py`, `e0_capture3.py`, `closure.py` |
+| Proveedor en la captura 3 | `Anthropic`, `claude-haiku-4-5-20251001` |
+| Canal de la captura 3 | `websocket` contra servidor local; el canal `test` volvió a fallar |
+| Logs en crudo | `research/e0-logs/*.rawlog` (sin credenciales) |
+| Guiones | `research/e0-logs/e0_capture.py`, `e0_run3.py`, `e0_capture3_ws.py`, `e0_analyze_capture3.py`, `closure.py` |
 
 El entorno de compilación de esta máquina está documentado en `docs/local-build-environment.md`.
 Añadido en esta sesión: Docker Engine 29.1.3 nativo y el plugin `buildx` v0.36.1 en

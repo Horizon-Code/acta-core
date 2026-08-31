@@ -17,25 +17,35 @@ report, and whether committing results is viable at all.
 |---|---|
 | **E0** Experiment | All four captures are documented and each has its derived decision written down |
 
-**Status on 2026-08-31: gate closed, 3/4.** Captures 1, 2 and 4 are closed with measured data
-and a written derived decision; capture 3 is blocked on the test comm channel not binding under
-a real LLM provider (the key itself is valid). Full record, raw logs and drivers in
-`research/E0-resultados.md` and `research/e0-logs/`.
+**Status on 2026-08-31: gate open, 4/4.** All four captures have measured data and a written
+derived decision. Capture 3 ran through a local WebSocket channel with a real Anthropic model:
+the selected sample measured 5/5 faithful links, while auxiliary attempts showed temporary
+omission and redundant recomputation by the mediator. Full record, exact strings, raw logs and
+drivers are in `research/E0-resultados.md` and `research/e0-logs/`.
 
-C2 stays blocked: its criterion needs captures 3 **and** 4. The lockfile spec (E-4) and the
-verifier equality predicate now have their decisions written and await ratification at
-`architecture/` / `decisions/` level.
+C2 is no longer blocked by E0, but has not started: its redesign and E-1/E-2 still require
+ratification at `architecture/` / `decisions/` level. The lockfile shape, verifier equality
+predicate and commitment point have proposed ADRs pending operator acceptance.
+
+Proposals awaiting Rub's ratification:
+
+- `decisions/ADR-003-inference-recomputation-equality.md`
+- `decisions/ADR-004-inference-ruleset-lockfile.md`
+- `decisions/ADR-005-inference-commitment-point.md`
 
 **Gate rule: not a single line of C2 before E0 closes.**
 **Validation rule: not a single line of the real Cardano adapter before the three validation conversations.**
 
 ### Resulting execution order
 
-- **Now, in parallel:** E0 (four captures) · A1 (signature verification) · A3 (inline keys in
-  bundle) · §9 validation conversations (with someone who signs off on compliance in banking or
+- **Completed in this session:** E0 4/4 · A1 · A3 · B1 offline CLI ·
+  `TR-KEY-SELF-ASSERTED` · `TR-SIGNER-SELF` · `TR-NO-ANCHOR` ·
+  `TR-ANCHOR-UNVERIFIED` · `TR-TIME-DECLARED`.
+- **Now:** Rub ratifies the E0 ADR proposals · specify the lockfile and equality predicate ·
+  §9 validation conversations (with someone who signs off on compliance in banking or
   healthcare).
-- **After E0, with the four decisions written:** lockfile specification (E-4, shape per capture
-  2) · verifier equality predicate (per capture 1) · final C2 redesign (per captures 3 and 4).
+- **After E0 ratification:** final C2 redesign (per captures 3 and 4), preceded by the Cognitive
+  Forensics Profile.
 - **After the conversations:** A2 real Cardano adapter. Until then, mock +
   `TR-ANCHOR-UNVERIFIED` is the product working as designed.
 - **Always in parallel:** documentary debt + amendments E-1..E-8.
@@ -49,11 +59,11 @@ each one means rewriting it under `architecture/` or `decisions/`:
 | Amendment | Subject | Target level | Blocked by |
 |---|---|---|---|
 | E-1 | Four new `TR-*` report codes on top of the nine in Directiva §3 | `architecture/` (report model) | Per-code, see below |
-| E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Capture 3 informs the framing, not the predicate |
+| E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Unblocked; capture 3 adopts declared `T` |
 | E-3 | Report split into structural vs detected conditions | `architecture/` (report model) | — |
 | E-4 | Import-closure lockfile as (path, hash) manifest | `profiles/` + ADR | **Capture 2** |
 | E-5 | Level 2 witness by reproducibility, not by transport | `architecture/` | — |
-| E-6 | C2 Artefact 2 redesign; C2 rises in priority | `roadmap/` + demo docs | **Captures 3 and 4** |
+| E-6 | C2 Artefact 2 redesign; C2 rises in priority | `roadmap/` + demo docs | Unblocked; pending ratification |
 | E-7 | Canonicalization rule written as a pair | `profiles/` + ADR | — |
 | E-8 | Content provenance vs process provenance; EU dates | `research/` + compliance docs | — |
 
@@ -67,15 +77,19 @@ verifier cannot evaluate is not a report line — it is a promise in the source.
 |---|---|---|
 | `TR-ENGINE-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
 | `TR-IMPORT-UNPINNED` | Lockfile shape (E0 capture 2) | Post-E0 |
-| `TR-CHAIN-MEDIATED` | Scope predicate (E0 capture 3) | Post-E0 |
-| `TR-KEY-SELF-ASSERTED` | Nothing in E0 — but its condition is only detectable once inline keys exist | **A3** |
-| The nine base codes of §3 | Specified in `directiva-construccion-2026-08-31.md` §3; pending implementation code by code, same rule (e.g. `TR-ANCHOR-UNVERIFIED` not before the verifier has a checkable notion of anchor) | With their own verification |
+| `TR-CHAIN-MEDIATED` | Ratification of capture 3's declared-`T` predicate | Post-E0 |
+| `TR-KEY-SELF-ASSERTED` | — | **Implemented with A3** |
+| `TR-SIGNER-SELF` | — | **Implemented with A1** |
+| `TR-NO-ANCHOR`, `TR-ANCHOR-UNVERIFIED` | — | **Implemented with B1** |
+| `TR-TIME-DECLARED` | — | **Implemented with the B2 report slice** |
+| Remaining base codes of §3 | Specified in `directiva-construccion-2026-08-31.md` §3; pending implementation code by code | With their own verification |
 
-Until then: `grep -r "TR-" core/` returns nothing outside documentation.
+`grep -r "TR-" core/rust/acta-core/src` returns nothing: the implemented codes live in the
+external verifier that can evaluate them.
 
 The report **mechanism** is not blocked by any of this and is already in place (see below).
 
-### Report structure: done, empty on purpose
+### Report structure: done; Core remains empty by design
 
 - `VerificationConditionRegisterV0` splits the report into its two registers (E-3): what the
   version never guarantees, and what was detected in this dossier. The first register is a
@@ -84,4 +98,5 @@ The report **mechanism** is not blocked by any of this and is already in place (
   `acta-core`. Codes carrying domain semantics belong to the Profile; the Core defines the
   mechanism and at most substrate codes. The invariant is protected by a test that does not
   compile against a closed enum.
-- Core v0 records zero conditions. The hole has the right shape and is empty.
+- Core v0 records zero conditions. The attestation adapter composes the first two evaluable
+  codes over that neutral mechanism without adding cryptography or identity semantics to Core.

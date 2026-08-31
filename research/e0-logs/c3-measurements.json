@@ -1,0 +1,153 @@
+{
+  "sample": [
+    "t2",
+    "t3",
+    "t4",
+    "t5",
+    "t7"
+  ],
+  "faithful": 5,
+  "free": 0,
+  "rows": [
+    {
+      "task": "t2",
+      "rawlog": "c3-t2.rawlog",
+      "hop1_raw_eval_line": 25,
+      "context_line": 30,
+      "hop2_raw_eval_line": 39,
+      "hop1_raw_eval_output": "((--> sparrow animal) (stv 0.9 0.6885))",
+      "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_E0-t2 task status_quote_) [])) (COMMAND_RETURN: ((query _quote_LAST_SKILL_USE_RESULTS_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t2 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> sparrow bird) (stv 1.0 0.9)) ((--> bird animal) (stv 0.9 0.85))))_quote_) _quote_((--> sparrow animal) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t2 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))",
+      "hop2_carried_premise": "((--> sparrow animal) (stv 0.9 0.6885))",
+      "hop2_all_premises": [
+        "((--> animal living_thing) (stv 0.9 0.8))",
+        "((--> sparrow animal) (stv 0.9 0.6885))"
+      ],
+      "T_declared": {
+        "normalize_string": "utf-8 encode/decode, errors=ignore",
+        "string_safe": [
+          "double-double-quote -> _quote_",
+          "newline -> _newline_",
+          "apostrophe -> _apostrophe_"
+        ],
+        "maxFeedback_last_chars": 50000,
+        "result_for_raw_output": "((--> sparrow animal) (stv 0.9 0.6885))"
+      },
+      "bytes_premise_eq_raw": true,
+      "bytes_premise_eq_T_raw": true,
+      "context_contains_encoded_raw": true,
+      "classification": "faithful"
+    },
+    {
+      "task": "t3",
+      "rawlog": "c3-t3.rawlog",
+      "hop1_raw_eval_line": 27,
+      "context_line": 32,
+      "hop2_raw_eval_line": 41,
+      "hop1_raw_eval_output": "((--> copper conductor) (stv 0.9 0.6885))",
+      "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((query _quote_E0-t3 task status_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t3 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> copper metal) (stv 1.0 0.9)) ((--> metal conductor) (stv 0.9 0.85))))_quote_) _quote_((--> copper conductor) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t3 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))",
+      "hop2_carried_premise": "((--> copper conductor) (stv 0.9 0.6885))",
+      "hop2_all_premises": [
+        "((--> copper conductor) (stv 0.9 0.6885))",
+        "((--> conductor useful_material) (stv 0.9 0.8))"
+      ],
+      "T_declared": {
+        "normalize_string": "utf-8 encode/decode, errors=ignore",
+        "string_safe": [
+          "double-double-quote -> _quote_",
+          "newline -> _newline_",
+          "apostrophe -> _apostrophe_"
+        ],
+        "maxFeedback_last_chars": 50000,
+        "result_for_raw_output": "((--> copper conductor) (stv 0.9 0.6885))"
+      },
+      "bytes_premise_eq_raw": true,
+      "bytes_premise_eq_T_raw": true,
+      "context_contains_encoded_raw": true,
+      "classification": "faithful"
+    },
+    {
+      "task": "t4",
+      "rawlog": "c3-t4.rawlog",
+      "hop1_raw_eval_line": 13,
+      "context_line": 18,
+      "hop2_raw_eval_line": 29,
+      "hop1_raw_eval_output": "((--> oak plant) (stv 0.9 0.6885))",
+      "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t4 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> oak tree) (stv 1.0 0.9)) ((--> tree plant) (stv 0.9 0.85))))_quote_) _quote_((--> oak plant) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t4 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))",
+      "hop2_carried_premise": "((--> oak plant) (stv 0.9 0.6885))",
+      "hop2_all_premises": [
+        "((--> oak plant) (stv 0.9 0.6885))",
+        "((--> plant organism) (stv 0.9 0.8))"
+      ],
+      "T_declared": {
+        "normalize_string": "utf-8 encode/decode, errors=ignore",
+        "string_safe": [
+          "double-double-quote -> _quote_",
+          "newline -> _newline_",
+          "apostrophe -> _apostrophe_"
+        ],
+        "maxFeedback_last_chars": 50000,
+        "result_for_raw_output": "((--> oak plant) (stv 0.9 0.6885))"
+      },
+      "bytes_premise_eq_raw": true,
+      "bytes_premise_eq_T_raw": true,
+      "context_contains_encoded_raw": true,
+      "classification": "faithful"
+    },
+    {
+      "task": "t5",
+      "rawlog": "c3-t5.rawlog",
+      "hop1_raw_eval_line": 13,
+      "context_line": 18,
+      "hop2_raw_eval_line": 29,
+      "hop1_raw_eval_output": "((--> salmon aquatic_animal) (stv 0.9 0.6885))",
+      "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t5 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> salmon fish) (stv 1.0 0.9)) ((--> fish aquatic_animal) (stv 0.9 0.85))))_quote_) _quote_((--> salmon aquatic_animal) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t5 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))",
+      "hop2_carried_premise": "((--> salmon aquatic_animal) (stv 0.9 0.6885))",
+      "hop2_all_premises": [
+        "((--> salmon aquatic_animal) (stv 0.9 0.6885))",
+        "((--> aquatic_animal living_thing) (stv 0.9 0.8))"
+      ],
+      "T_declared": {
+        "normalize_string": "utf-8 encode/decode, errors=ignore",
+        "string_safe": [
+          "double-double-quote -> _quote_",
+          "newline -> _newline_",
+          "apostrophe -> _apostrophe_"
+        ],
+        "maxFeedback_last_chars": 50000,
+        "result_for_raw_output": "((--> salmon aquatic_animal) (stv 0.9 0.6885))"
+      },
+      "bytes_premise_eq_raw": true,
+      "bytes_premise_eq_T_raw": true,
+      "context_contains_encoded_raw": true,
+      "classification": "faithful"
+    },
+    {
+      "task": "t7",
+      "rawlog": "c3-t7.rawlog",
+      "hop1_raw_eval_line": 27,
+      "context_line": 32,
+      "hop2_raw_eval_line": 72,
+      "hop1_raw_eval_output": "((--> rose plant) (stv 0.9 0.6885))",
+      "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_pending-tasks_quote_) [])) (COMMAND_RETURN: ((query _quote_agent-state_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t7: First inference hop - executing metta call_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> rose flower) (stv 1.0 0.9)) ((--> flower plant) (stv 0.9 0.85))))_quote_) _quote_((--> rose plant) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((version) OmegaClaw version=v0.1.19-dirty))))",
+      "hop2_carried_premise": "((--> rose plant) (stv 0.9 0.6885))",
+      "hop2_all_premises": [
+        "((--> rose plant) (stv 0.9 0.6885))",
+        "((--> plant organism) (stv 0.9 0.8))"
+      ],
+      "T_declared": {
+        "normalize_string": "utf-8 encode/decode, errors=ignore",
+        "string_safe": [
+          "double-double-quote -> _quote_",
+          "newline -> _newline_",
+          "apostrophe -> _apostrophe_"
+        ],
+        "maxFeedback_last_chars": 50000,
+        "result_for_raw_output": "((--> rose plant) (stv 0.9 0.6885))"
+      },
+      "bytes_premise_eq_raw": true,
+      "bytes_premise_eq_T_raw": true,
+      "context_contains_encoded_raw": true,
+      "classification": "faithful"
+    }
+  ]
+}

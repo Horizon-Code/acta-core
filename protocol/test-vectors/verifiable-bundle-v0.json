@@ -1,0 +1,75 @@
+{
+  "protocol": "acta.v0",
+  "event": {
+    "protocol": "acta.v0",
+    "event_id": "evt-vector-0001",
+    "issued_at": "2026-02-01T12:00:00Z",
+    "process_ref": {
+      "process_id": "proc-vector-0001",
+      "process_type": "aml.transfer.v1"
+    },
+    "event_kind": {
+      "namespace": "aml",
+      "kind": "risk_scored",
+      "version": "1.0"
+    },
+    "commitments": {
+      "inputs_commitment": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "outputs_commitment": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "artifact_commitment": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "policy_snapshot": {
+      "policy_id": "aml-policy-v0",
+      "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "policy_type": "regulatory",
+      "jurisdiction": "US",
+      "effective_from": "2026-01-01T00:00:00Z",
+      "effective_to": null
+    },
+    "actor_ref": {
+      "actor_id": "tap:aml-svc",
+      "actor_type": "service"
+    }
+  },
+  "chronos_ref": {
+    "epoch_id": "epoch-vector-0001",
+    "prev_event_hash": null
+  },
+  "event_hash": "6438be0747ef7a43f2283bd452b3fe7dfc4abe37d1d9571a18bec26ff325c8d3",
+  "receipt": {
+    "protocol": "acta.v0",
+    "event_hash": "6438be0747ef7a43f2283bd452b3fe7dfc4abe37d1d9571a18bec26ff325c8d3",
+    "chronos_ref": {
+      "epoch_id": "epoch-vector-0001",
+      "prev_event_hash": null
+    },
+    "issued_at": "2026-02-01T12:00:01Z",
+    "signatures": [
+      {
+        "attestor_id": "independent-attestor-a",
+        "scheme": "ed25519",
+        "signature": "QaItir4E7bYLa1+/EsUHgWUr7vEXlL4VndTgvoOHjSndPb4uWRi6tEZsn9IvkOKbo/v+QV6itolXG/EUhLUyCw=="
+      }
+    ]
+  },
+  "receipt_body_hash": "2ebbd9df3a6c71cf987eefe13fb1210c48f9ffc897bd38c623af6f3c71899cf0",
+  "epoch_root": "6438be0747ef7a43f2283bd452b3fe7dfc4abe37d1d9571a18bec26ff325c8d3",
+  "merkle_proof": {
+    "leaf_index": 0,
+    "siblings": []
+  },
+  "anchor": {
+    "substrate": "local",
+    "network": null,
+    "tx_id": null,
+    "slot": null,
+    "epoch_root": "6438be0747ef7a43f2283bd452b3fe7dfc4abe37d1d9571a18bec26ff325c8d3"
+  },
+  "attestor_keys": [
+    {
+      "attestor_id": "independent-attestor-a",
+      "scheme": "ed25519",
+      "public_key": "6kpsY+KcUgq+9VB7Ey7F+ZVHdq6+vnuSQh7qaRRG0iw="
+    }
+  ]
+}
