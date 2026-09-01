@@ -3,6 +3,7 @@
 **Fecha:** 31 de agosto de 2026
 **Tipo:** enmienda estratégica a la Directiva de construcción
 **Estado:** *Proposed — pendiente de ratificación del operador (ADR-001)*
+**Revisión:** corregida tras la revisión paralela del 31 de agosto de 2026
 **Autoridad:** enmienda a `roadmap/directiva-construccion-2026-08-31.md` (§1.3, §2, §4, §9 y
 la postura de sustrato del Estado consolidado §6.7). Subordinada a las Foundations y al
 Protocol. **No toca el Core, el Protocol v0, ni ninguna ADR aceptada (003–006).**
@@ -74,34 +75,57 @@ la norma comprometida:
   — totalmente automatizable), de proceso (contra el mandate comprometido — parcialmente
   automatizable), sustantiva (dossier para adjudicador).
 - La constancia multinormativa (§6.6 del Estado consolidado) se relee como **multi-mandato**:
-  una transacción reflejada contra los mandatos de ambas partes simultáneamente.
+  una transacción reflejada contra los mandatos de ambas partes simultáneamente. Mecanismo:
+  `ActaEventV0` porta un solo `policy_snapshot`, así que el multi-mandato compromete un
+  **manifiesto canónico de N mandatos** cuyo hash es el `policy_hash` — el mismo patrón
+  manifiesto-como-política que ADR-004 estableció para el lockfile. La alternativa (eventos
+  separados por mandato) queda disponible para el perfil; el formato exacto se decide en la
+  ADR del perfil cuando se construya.
 
 Capa Profile pura. El Core no aprende qué es un mandate, igual que no sabe qué es AML ni
 Hyperon.
 
 ## E-9.2 — Atestación cruzada (Protocol, forma nombrada sobre lo existente)
 
-En una transacción entre dos agentes, **la contraparte co-firma el receipt**: A emite, B
-atestigua lo que recibió, y viceversa. Consecuencias:
+En una transacción entre dos agentes, la contraparte puede atestiguar. Dos formas, con
+significados distintos que el perfil debe definir — no confundirlas:
 
-- La asimetría del single-signer — la debilidad estructural del caso de cumplimiento —
-  desaparece gratis: atestación independiente sin red de attestors, sin registro central,
-  sin coste marginal. Cada transacción produce evidencia bilateral.
-- El split body/full del receipt ya soporta multi-firma sin cambiar el payload (decisión 2
-  del §3.1); esto es darle **forma nombrada** (receipt de atestación cruzada), no cambiar el
-  protocolo.
-- Línea del informe: `TR-SIGNER-SELF` es la primera condición que la economía de agentes
-  **borra por estructura** — desaparece cuando existe contrafirma de contraparte con
-  identidad distinta. El registro estructural del informe mengua exactamente como la escala
-  del §1.2 prometía.
+- **Co-firma del mismo receipt**: A y B firman el mismo cuerpo. Prueba **acuerdo sobre la
+  misma afirmación comprometida** — no prueba por sí sola "recibido" ni "entregado". El
+  split body/full ya soporta multi-firma sin cambiar el payload (decisión 2 del §3.1); esto
+  es darle forma nombrada, no cambiar el protocolo.
+- **Eventos recíprocos**: cada parte emite su propio evento sobre lo que observó ("entrega
+  recibida", "pago constatado"), con su propio receipt, referenciándose mutuamente. Las
+  afirmaciones de entrega y recepción viven aquí, como event kinds propios de
+  `agent_commerce` (E-9.1), no como interpretación implícita de una firma.
 
-## E-9.3 — Informe máquina-primero y perfil de confianza negociable (B2, inversión de orden)
+Sobre la línea del informe — con precisión, porque el predicado vigente es un artefacto
+ratificado:
+
+- **Hoy**, `TR-SIGNER-SELF` avisa ante cualquier autofirma, aunque exista un firmante
+  adicional. La contrafirma **no la borra** bajo el predicado vigente.
+- **La retirada requiere un predicado nuevo** ("existe atestador con identidad
+  independiente verificada"), que entra como ADR *Proposed* cuando se construya el perfil.
+  Esta enmienda fija el rumbo; no reescribe predicados de pasada.
+- **Y la independencia es tan fuerte como la vinculación de identidad**: con claves inline
+  autoafirmadas (A3 v0), "firmante independiente" es a su vez afirmación del productor
+  (interacción con `TR-KEY-SELF-ASSERTED`). Sin vinculación externa (el DID de E-9.5), la
+  contrafirma **rebaja** la condición, no la borra. El borrado pleno llega con
+  contrafirma + identidad vinculada externamente. E-9.2 y E-9.5 son, por tanto, un par.
+
+La promesa estructural se mantiene, correctamente formulada: la economía de agentes hace la
+atestación independiente **barata y natural** (cada transacción la produce), y el registro
+estructural del informe mengua conforme predicado e identidad maduran — la escala del §1.2
+funcionando, sin atajos.
+
+## E-9.3 — Informe máquina-primero y perfil de confianza negociable (B2, cambio de prioridad)
 
 Entre agentes, el consumidor del informe no es un auditor humano: es el agente contraparte
 decidiendo si transacciona. Por tanto:
 
-- **JSON estructurado y versionado primero; texto humano segundo** (inversión del orden de
-  B2 en la Directiva).
+- **JSON estructurado y versionado como salida primaria; texto humano como segunda
+  representación.** La Directiva ya enumera JSON antes que texto; el cambio real es el
+  consumidor principal y el criterio de cierre, que pasan de humano a máquina.
 - Las líneas `TR-*` dejan de ser solo diagnóstico post-hoc y pasan a ser **términos de la
   transacción**: un agente declara en el handshake su perfil de evidencia ("emito bajo
   `agent_commerce` v1, con anclaje, con atestación cruzada") y la política de la contraparte
@@ -120,9 +144,14 @@ decidiendo si transacciona. Por tanto:
   `epoch_root` como atestación EAS o evento de contrato mínimo. Coste estimado: inferior al
   adaptador Blockfrost que planeaba A2.
 - **Multi-anclaje como argumento de neutralidad**: el mismo `epoch_root` anclable en N
-  sustratos independientes. Es el argumento que ninguna plataforma puede copiar (Google
-  anclará en lo suyo; la evidencia de ACTA no muere con ninguna cadena). "Anclado en N
-  cadenas" es mejor línea de informe que "anclado en una".
+  sustratos independientes. Mecánica en v0, sin cambio de protocolo: el multi-anclaje es
+  propiedad del **epoch**, no del bundle — `BundleV0` porta un solo `AnchorRefV0`, así que
+  N anclas se presentan como N bundles idénticos salvo el anchor, o como lista de
+  `AnchorRefV0` externa al bundle referida al mismo `epoch_root`. El formato de cable
+  definitivo (¿envoltorio? ¿versión nueva?) se decide en la ADR del adaptador cuando se
+  construya. Es el argumento que ninguna plataforma puede copiar (Google anclará en lo
+  suyo; la evidencia de ACTA no muere con ninguna cadena). "Anclado en N cadenas" es mejor
+  línea de informe que "anclado en una".
 - **Cardano: de first a catálogo**, como segunda ancla natural del multi-anclaje (estable,
   barato para metadata, ajeno al stack de pagos — independencia real) y por el valor de
   ecosistema (ASI/Deep Funding, demo Hyperon). Sin urgencia, sin borrarlo.
@@ -151,6 +180,11 @@ necesite.
   silencioso: editar el registro, nada lo detecta; misma traza bajo ACTA, la edición rompe
   Chronos+Merkle) se replica ahí, sobre un sistema mainstream — esquivando el riesgo del
   §4.3 de la Directiva (quedar etiquetados como "capa forense de Hyperon").
+  **Condición de diseño obligatoria de la demo**: la rotura solo es probatoria ante un
+  tercero si el compromiso se conserva **fuera del control del operador** — raíz anclada,
+  o receipt/epoch_root retenido por una parte independiente. El guion de la demo incluye
+  esa referencia externa explícitamente; sin ella, la demo afirmaría más de lo que prueba,
+  que es exactamente lo que el Estado consolidado §11 prohíbe.
 - **Adaptador de emisión OpenWorker**: conector vía MCP (soportado nativamente por ellos),
   sin PR upstream (su política de contribuciones lo desaconseja). Su procedencia de
   aprobación (auto-aprobado / aprobado-por-humano / denegado, con razonamiento del revisor)
@@ -230,15 +264,15 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 | Estado consolidado §6.6 (multinormativa) | Relectura multi-mandato (E-9.1), sin borrar la original |
 | B2 (informe) | Máquina-primero; perfil de confianza negociable (E-9.3) |
 | A3 (claves) | Evolución nombrada a DID/VC (E-9.5), sin implementación inmediata |
-| Calendario de códigos | `TR-SIGNER-SELF` retirable por contrafirma (E-9.2); resto igual |
+| Calendario de códigos | `TR-SIGNER-SELF` retirable solo con predicado nuevo + identidad vinculada externamente (E-9.2); resto igual |
 
 ## Secuencia de sesiones (sustituye a la del plan director desde S6)
 
 | Sesión | Contenido |
 |---|---|
-| S6 | C2 (los dos artefactos, sobre OmegaClaw) — ya desbloqueado por ratificaciones |
+| S6 | Cognitive Forensics Profile formalizado y ratificado; después C2 (los dos artefactos, sobre OmegaClaw) — **requiere ratificado el paquete E-1/E-2/E-6** (ver Ratificación) |
 | S7 | Especificación del perfil `agent_commerce` (E-9.1) + forma nombrada de atestación cruzada (E-9.2) como ADR *Proposed* |
-| S8 | Adaptador `AnchorBackend` EVM/EAS con mock→Base testnet (E-9.4) + informe JSON-primero (E-9.3) |
+| S8 | Solo tras validar una contraparte real y aceptar las ADR aplicables: adaptador `AnchorBackend` EVM/EAS con mock→Base testnet (E-9.4) + informe JSON-primero (E-9.3) |
 | S9 | Conector de emisión OpenWorker + Artefacto 1 sobre OpenWorker (E-9.6) |
 | S10 | Propuesta de extensión a x402/AP2 (E-9.7) — **solo con demo funcionando** |
 | Paralelo [RUB] | Conversaciones E-9.8; ratificaciones; contactos de comunidad |
@@ -246,9 +280,36 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 
 ## Ratificación
 
-Aceptar esta enmienda requiere aprobación explícita del operador bajo ADR-001. Al
-ratificarse: (1) se levanta la congelación de Cardano/agentes/EVM; (2) el ejecutor refleja
-los cambios en `next-milestones.md`, `current-state.md` y las marcas de enmienda de la
-Directiva y el Estado consolidado; (3) las piezas con forma de decisión de protocolo o
-perfil (E-9.1, E-9.2, E-9.4) entran como ADRs *Proposed* individuales cuando les toque
-construcción — esta enmienda fija el rumbo, no los detalles normativos de cada pieza.
+Aceptar esta enmienda requiere aprobación explícita del operador bajo ADR-001. La
+ratificación es un **paquete consolidado** — un solo acto del operador que ratifica:
+
+1. **Esta E-9** (versión corregida tras la revisión paralela del 31-ago: multi-mandato por
+   manifiesto, mecánica v0 del multi-anclaje, semántica de la atestación cruzada con
+   retirada de `TR-SIGNER-SELF` condicionada a predicado nuevo + identidad vinculada, y
+   requisito de referencia externa en la demo OpenWorker).
+2. **E-1** tal como quedó enmendada por E0: los cuatro códigos, con `TR-IMPORT-UNPINNED`
+   reformulado desde el atajo "componente cuyo pin vive fuera del artefacto" a la condición
+   evaluable **"componente sin raíz de procedencia inmutable registrada en el manifiesto
+   conforme a ADR-004"**. Incluye una referencia mutable de build no resuelta o un pin
+   externo no absorbido por commit/digest; no dispara solo porque `.git` no sobreviva si el
+   digest inmutable de imagen sí consta como raíz (evidencia: captura 2, §2.6 de
+   E0-resultados).
+3. **E-2** tal como quedó enmendada por la captura 3: predicado desplazado
+   `bytes(premisa) == bytes(T(C))` con `T` declarada del arnés, más las condiciones de
+   `process_ref` y precedencia Chronos, y el descargo de selección inseparable de la cifra.
+4. **E-6**: el rediseño de C2 (auditoría eslabón a eslabón; 5/5 solo como techo bajo
+   instrucción de copia; t1/t6 como material narrativo).
+
+Sin los puntos 2–4, C2 (S6) no arranca: ADR-003–006 no los cubren.
+
+Al ratificarse el paquete: (1) se levanta la congelación de Cardano/agentes/EVM; (2) el
+ejecutor refleja los cambios en `next-milestones.md`, `current-state.md` y las marcas de
+enmienda de la Directiva y el Estado consolidado; (3) el **informe de investigación de
+mercado del 31-ago se incorpora a `research/`** y el §0 de esta enmienda se anota con
+referencias fechadas contra él, separando hecho medido de inferencia estratégica — este
+informe debe estar disponible antes o atómicamente con el acto de ratificación; (4) E-1 y E-2
+se materializan y aceptan en `architecture/` o `decisions/` dentro del mismo acto, como exige
+ADR-001 — E-6 queda ratificada como decisión de roadmap; (5) las piezas con forma de decisión
+de protocolo o perfil (E-9.1, E-9.2, E-9.4) entran como ADRs *Proposed* individuales y deben
+alcanzar `Accepted` antes de que su implementación fije detalles normativos — esta enmienda
+fija el rumbo, no los detalles normativos de cada pieza.

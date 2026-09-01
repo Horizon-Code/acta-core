@@ -24,9 +24,10 @@ instructions, not a general mediator rate. Auxiliary attempts showed temporary o
 redundant recomputation. Full record, exact strings, raw logs and drivers are in
 `research/E0-resultados.md` and `research/e0-logs/`.
 
-C2 is no longer blocked by E0, but has not started: its redesign and E-1/E-2 still require
-ratification at `architecture/` / `decisions/` level. The lockfile shape, verifier equality
-predicate and commitment point are ratified in ADR-003, ADR-004 and ADR-005.
+C2 is no longer blocked by E0, but has not started: its redesign and E-1/E-2/E-6 still require
+ratification, with E-1/E-2 materialized at `architecture/` / `decisions/` level. The lockfile
+shape, verifier equality predicate and commitment point are ratified in ADR-003, ADR-004 and
+ADR-005; ADR-003–006 do not ratify the proposed consolidated package.
 
 Ratified by Rub on 2026-08-31:
 
@@ -44,8 +45,8 @@ Ratified by Rub on 2026-08-31:
   `TR-ANCHOR-UNVERIFIED` · `TR-TIME-DECLARED`.
 - **Now:** ADR-003/004/005 are ratified; only documentary work expressly authorized by the
   operator proceeds, alongside the §9 validation conversations.
-- **After separate E-1/E-2/E-6 ratification and a new execution order:** final C2 redesign,
-  preceded by the Cognitive Forensics Profile.
+- **After ratification of the proposed consolidated E-9 + E-1 + E-2 + E-6 package and a new
+  execution order:** final C2 redesign, preceded by the Cognitive Forensics Profile.
 - **After the conversations:** A2 real Cardano adapter. Until then, mock +
   `TR-ANCHOR-UNVERIFIED` is the product working as designed.
 - **Always in parallel:** documentary debt + amendments E-1..E-8.
@@ -53,8 +54,9 @@ Ratified by Rub on 2026-08-31:
 Operational freeze: do not start C2, the definitive lockfile implementation, Cardano work or
 any unratified change of direction without a new explicit order.
 
-E-9 remains **Proposed** and does not alter this order. Until explicit operator ratification,
-Cardano-first, the three-conversation gate and the Cardano/agents/EVM freeze remain in force.
+The corrected E-9 and its consolidated E-1/E-2/E-6 ratification package remain **Proposed**
+and do not alter this order. Until explicit operator ratification, Cardano-first, the
+three-conversation gate and the Cardano/agents/EVM freeze remain in force.
 
 ### Amendments E-1..E-8: pending ratification
 
@@ -64,12 +66,12 @@ each one means rewriting it under `architecture/` or `decisions/`:
 
 | Amendment | Subject | Target level | Blocked by |
 |---|---|---|---|
-| E-1 | Four new `TR-*` report codes on top of the nine in Directiva §3 | `architecture/` (report model) | Per-code, see below |
-| E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Unblocked; capture 3 adopts declared `T` |
+| E-1 | Four new `TR-*` report codes on top of the nine in Directiva §3 | `architecture/` (report model) | Part of proposed consolidated E-9 package; per-code, see below |
+| E-2 | `TR-CHAIN-MEDIATED` per-link annotation; faithful-link predicate | `architecture/` + verifier | Part of proposed consolidated E-9 package; capture 3 adopts declared `T` |
 | E-3 | Report split into structural vs detected conditions | `architecture/` (report model) | — |
 | E-4 | Import-closure lockfile as (path, hash) manifest | `profiles/` + ADR | **Ratified via ADR-004** |
 | E-5 | Level 2 witness by reproducibility, not by transport | `architecture/` | — |
-| E-6 | C2 Artefact 2 redesign; C2 rises in priority | `roadmap/` + demo docs | Unblocked; pending ratification |
+| E-6 | C2 Artefact 2 redesign; C2 rises in priority | `roadmap/` + demo docs | Part of proposed consolidated E-9 package; pending ratification |
 | E-7 | Canonicalization rule written as a pair | `profiles/` + ADR | — |
 | E-8 | Content provenance vs process provenance; EU dates | `research/` + compliance docs | — |
 

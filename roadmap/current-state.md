@@ -7,16 +7,17 @@
 - E0 gate is **open, 4/4 complete**: all captures have measured data and a written decision.
   Capture 3 measured a 5/5 ceiling in isomorphic tasks under explicit byte-copy instructions;
   it is not a general mediator rate. Auxiliary attempts recorded omission and recomputation.
-  C2 is unblocked by E0 but remains unstarted pending E-1/E-2 ratification and its profile.
+  C2 is unblocked by E0 but remains unstarted pending E-1/E-2/E-6 ratification and its profile.
 - ADR-003, ADR-004 and ADR-005 were ratified by the operator on 2026-08-31. Their equality,
   lockfile-shape and raw-commitment-point decisions are binding; E-1/E-2 remain separate.
 - ADR-006 was ratified on 2026-08-31: Chronos continuity does not reset at epoch boundaries.
   Its implementation and future `TR-CHRONOS-BOUNDARY-UNVERIFIED` report line remain
   unstarted pending an explicit execution order.
 - E-9, “Reposicionamiento: ACTA como capa de confianza de la economía entre agentes”, is
-  **Proposed** and pending operator ratification under ADR-001. It is not in force: Cardano-first,
-  the current §9 validation and the operational freeze remain binding; E-9 authorizes no work
-  on agents, EVM/Base/EAS or changes to AML while Proposed.
+  **Proposed** in its corrected form as a consolidated E-9 + E-1 + E-2 + E-6 ratification
+  package. ADR-003–006 do not ratify that package. It is not in force: Cardano-first, the
+  current §9 validation and the operational freeze remain binding; E-9 authorizes no work on
+  agents, EVM/Base/EAS or changes to AML while Proposed.
 - A1 and A3 are implemented outside Core in `adapters/attestation-single-signer/rust`:
   Ed25519 signatures verify offline against public keys carried inline at the bundle JSON root.
   A manipulated signature is rejected, and the external report emits `TR-KEY-SELF-ASSERTED`
