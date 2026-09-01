@@ -1,0 +1,20 @@
+[package]
+name = "acta-c2-omegaclaw-artifact1"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+# Keep the demonstrator isolated from the repository workspace. It consumes the
+# public crates without becoming part of Core or changing the workspace graph.
+[workspace]
+
+[dependencies]
+acta-attestation-single-signer = { path = "../../../adapters/attestation-single-signer/rust" }
+acta-ai-agent-profile = { path = "../../../profiles/ai-agent/rust" }
+acta-core = { path = "../../../core/rust/acta-core" }
+base64 = "0.22"
+ed25519-dalek = "2.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"

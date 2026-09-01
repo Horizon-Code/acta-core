@@ -17,17 +17,20 @@ use acta_core::types::{
 pub enum AiAgentProfileError {
     #[error("core event validation failed: {0}")]
     CoreEventValidation(#[from] EventValidationError),
+    #[error(
+        "event policy hash {event_hash} does not match supplied policy snapshot {snapshot_hash}"
+    )]
+    PolicyHashMismatch {
+        event_hash: String,
+        snapshot_hash: String,
+    },
 }
 
-fn default_policy_hash() -> String {
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string()
-}
-
-fn policy_snapshot_from_hash(policy_hash: &str) -> PolicySnapshotV0 {
+fn demo_policy_snapshot(policy_hash: &str) -> PolicySnapshotV0 {
     PolicySnapshotV0 {
         policy_id: "ai-agent-policy-v0".to_string(),
         policy_hash: policy_hash.to_string(),
-        policy_type: "internal".to_string(),
+        policy_type: "ai_agent_policy".to_string(),
         jurisdiction: "NA".to_string(),
         effective_from: "2026-01-01T00:00:00Z".to_string(),
         effective_to: None,
@@ -75,11 +78,16 @@ fn commitments_from_ai_agent_event(event: &AiAgentDomainEventV0) -> CommitmentsV
 pub fn map_ai_agent_event_to_core_v0(
     domain_event: &AiAgentDomainEventV0,
     event_id: String,
+    policy_snapshot: &PolicySnapshotV0,
 ) -> Result<ActaEventV0, AiAgentProfileError> {
-    let policy_hash = domain_event
-        .policy_hash()
-        .map(ToString::to_string)
-        .unwrap_or_else(default_policy_hash);
+    if let Some(event_hash) = domain_event.policy_hash() {
+        if event_hash != policy_snapshot.policy_hash {
+            return Err(AiAgentProfileError::PolicyHashMismatch {
+                event_hash: event_hash.to_string(),
+                snapshot_hash: policy_snapshot.policy_hash.clone(),
+            });
+        }
+    }
 
     let event = ActaEventV0 {
         protocol: PROTOCOL_VERSION.to_string(),
@@ -91,7 +99,7 @@ pub fn map_ai_agent_event_to_core_v0(
         },
         event_kind: domain_event.to_event_kind_ref(),
         commitments: commitments_from_ai_agent_event(domain_event),
-        policy_snapshot: policy_snapshot_from_hash(&policy_hash),
+        policy_snapshot: policy_snapshot.clone(),
         actor_ref: ActorRefV0 {
             actor_id: domain_event.actor_ref().to_string(),
             actor_type: "service".to_string(),
@@ -191,7 +199,7 @@ pub fn build_ai_agent_demo_process() -> AiAgentDemoProcessV0 {
         process_id: run_id.to_string(),
         process_type: "ai_agent_run".to_string(),
     };
-    let policy_snapshot = policy_snapshot_from_hash(policy_hash);
+    let policy_snapshot = demo_policy_snapshot(policy_hash);
 
     let mut core_events = Vec::with_capacity(domain_events.len());
     let mut chronos_events = Vec::with_capacity(domain_events.len());
@@ -202,6 +210,7 @@ pub fn build_ai_agent_demo_process() -> AiAgentDemoProcessV0 {
         let core_event = map_ai_agent_event_to_core_v0(
             domain_event,
             format!("ai-agent-run-2026-0001-ev{:04}", idx + 1),
+            &policy_snapshot,
         )
         .expect("AI-Agent-to-core mapping must produce valid core events");
 

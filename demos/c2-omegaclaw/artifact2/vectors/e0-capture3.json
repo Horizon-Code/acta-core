@@ -1,0 +1,238 @@
+{
+  "schema": "acta.c2.inference-link-input.v0",
+  "harness": {
+    "source_ref": "OmegaClaw-Core@642c536 + RAW_EVAL observation patch; E0 capture 3",
+    "source_hashes": {
+      "helper_py": "sha256:de0682520b6d17b2080a19b3ea3849f061c17f052d9baa07bd1fd92c3e554f20",
+      "loop_metta_base": "sha256:f5b0028fa7b24666d3192e857228fb782d4638469b773eb7352a30a841eab45a",
+      "utils_metta": "sha256:9cfa04d6e87228cf533fc677d69099671ba7cf2e2c62b6b4185449b05380f31f",
+      "loop_metta_probe": "sha256:8735e68001dcbd20acea554420d415685443a5c6d94433c4094a693a759ca8b2"
+    },
+    "transform_order": [
+      "normalize_string",
+      "string-safe",
+      "last_chars(maxFeedback)"
+    ],
+    "normalize_string": {
+      "encoding": "utf-8",
+      "errors": "ignore"
+    },
+    "string-safe": {
+      "double_double_quote": "_quote_",
+      "newline": "_newline_",
+      "apostrophe": "_apostrophe_"
+    },
+    "last_chars": {
+      "side_retained": "tail",
+      "unit": "characters"
+    },
+    "maxFeedback": 50000,
+    "maxHistory": 30000
+  },
+  "verification_context": {
+    "kind": "verification-envelope",
+    "historical_lockfile_present": false,
+    "basis": "envoltura de verificación construida para C2 sobre evidencia E0; no afirma que captura 3 tuviera un lockfile ACTA histórico",
+    "lockfile_binding": {
+      "source_hashes": {
+        "helper_py": "sha256:de0682520b6d17b2080a19b3ea3849f061c17f052d9baa07bd1fd92c3e554f20",
+        "loop_metta_base": "sha256:f5b0028fa7b24666d3192e857228fb782d4638469b773eb7352a30a841eab45a",
+        "utils_metta": "sha256:9cfa04d6e87228cf533fc677d69099671ba7cf2e2c62b6b4185449b05380f31f",
+        "loop_metta_probe": "sha256:8735e68001dcbd20acea554420d415685443a5c6d94433c4094a693a759ca8b2"
+      },
+      "harness_config_sha256": "sha256:f1ff06091c98843de316d44e70139594aa42df1051d92e0a2896bd839f977ae5",
+      "transform_sha256": "sha256:6832c058c38a5b4011261931f4d7bc380229df58598649d93c536433359e4ad7"
+    }
+  },
+  "mediator": {
+    "present": true,
+    "nondeterministic": true,
+    "kind": "llm"
+  },
+  "measurement_scope": {
+    "description": "cinco variantes isomorfas de dos saltos de E0, seleccionadas sin repetición del salto 1",
+    "explicit_byte_copy_instruction": true,
+    "interpretation": "techo empírico específico del montaje; no es una tasa generalizable del mediador"
+  },
+  "links": [
+    {
+      "link_id": "e0-c3-t2-hop1-to-hop2",
+      "conclusion": {
+        "serialized": "((--> sparrow animal) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t2",
+          "process_type": "ai_agent.inference_chain"
+        }
+      },
+      "premise": {
+        "serialized": "((--> sparrow animal) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t2",
+          "process_type": "ai_agent.inference_chain"
+        },
+        "nondeterministic_origin": "selected"
+      },
+      "chronos": {
+        "order_verified": true,
+        "conclusion_index": 1,
+        "premise_index": 2
+      },
+      "context_evidence": {
+        "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_E0-t2 task status_quote_) [])) (COMMAND_RETURN: ((query _quote_LAST_SKILL_USE_RESULTS_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t2 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> sparrow bird) (stv 1.0 0.9)) ((--> bird animal) (stv 0.9 0.85))))_quote_) _quote_((--> sparrow animal) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t2 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))"
+      },
+      "source": {
+        "measurement": "research/e0-logs/c3-measurements.json#rows[t2]",
+        "rawlog": "research/e0-logs/c3-t2.rawlog",
+        "conclusion_line": 25,
+        "context_line": 30,
+        "premise_call_line": 39
+      }
+    },
+    {
+      "link_id": "e0-c3-t3-hop1-to-hop2",
+      "conclusion": {
+        "serialized": "((--> copper conductor) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t3",
+          "process_type": "ai_agent.inference_chain"
+        }
+      },
+      "premise": {
+        "serialized": "((--> copper conductor) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t3",
+          "process_type": "ai_agent.inference_chain"
+        },
+        "nondeterministic_origin": "selected"
+      },
+      "chronos": {
+        "order_verified": true,
+        "conclusion_index": 1,
+        "premise_index": 2
+      },
+      "context_evidence": {
+        "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((query _quote_E0-t3 task status_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t3 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> copper metal) (stv 1.0 0.9)) ((--> metal conductor) (stv 0.9 0.85))))_quote_) _quote_((--> copper conductor) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t3 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))"
+      },
+      "source": {
+        "measurement": "research/e0-logs/c3-measurements.json#rows[t3]",
+        "rawlog": "research/e0-logs/c3-t3.rawlog",
+        "conclusion_line": 27,
+        "context_line": 32,
+        "premise_call_line": 41
+      }
+    },
+    {
+      "link_id": "e0-c3-t4-hop1-to-hop2",
+      "conclusion": {
+        "serialized": "((--> oak plant) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t4",
+          "process_type": "ai_agent.inference_chain"
+        }
+      },
+      "premise": {
+        "serialized": "((--> oak plant) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t4",
+          "process_type": "ai_agent.inference_chain"
+        },
+        "nondeterministic_origin": "selected"
+      },
+      "chronos": {
+        "order_verified": true,
+        "conclusion_index": 1,
+        "premise_index": 2
+      },
+      "context_evidence": {
+        "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t4 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> oak tree) (stv 1.0 0.9)) ((--> tree plant) (stv 0.9 0.85))))_quote_) _quote_((--> oak plant) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t4 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))"
+      },
+      "source": {
+        "measurement": "research/e0-logs/c3-measurements.json#rows[t4]",
+        "rawlog": "research/e0-logs/c3-t4.rawlog",
+        "conclusion_line": 13,
+        "context_line": 18,
+        "premise_call_line": 29
+      }
+    },
+    {
+      "link_id": "e0-c3-t5-hop1-to-hop2",
+      "conclusion": {
+        "serialized": "((--> salmon aquatic_animal) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t5",
+          "process_type": "ai_agent.inference_chain"
+        }
+      },
+      "premise": {
+        "serialized": "((--> salmon aquatic_animal) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t5",
+          "process_type": "ai_agent.inference_chain"
+        },
+        "nondeterministic_origin": "selected"
+      },
+      "chronos": {
+        "order_verified": true,
+        "conclusion_index": 1,
+        "premise_index": 2
+      },
+      "context_evidence": {
+        "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_user goals_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t5 iteration 1 - first inference hop_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> salmon fish) (stv 1.0 0.9)) ((--> fish aquatic_animal) (stv 0.9 0.85))))_quote_) _quote_((--> salmon aquatic_animal) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((pin _quote_E0-t5 awaiting first metta result before second hop_quote_) PIN-SUCCESS))))"
+      },
+      "source": {
+        "measurement": "research/e0-logs/c3-measurements.json#rows[t5]",
+        "rawlog": "research/e0-logs/c3-t5.rawlog",
+        "conclusion_line": 13,
+        "context_line": 18,
+        "premise_call_line": 29
+      }
+    },
+    {
+      "link_id": "e0-c3-t7-hop1-to-hop2",
+      "conclusion": {
+        "serialized": "((--> rose plant) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t7",
+          "process_type": "ai_agent.inference_chain"
+        }
+      },
+      "premise": {
+        "serialized": "((--> rose plant) (stv 0.9 0.6885))",
+        "process_ref": {
+          "process_id": "e0-capture3-t7",
+          "process_type": "ai_agent.inference_chain"
+        },
+        "nondeterministic_origin": "selected"
+      },
+      "chronos": {
+        "order_verified": true,
+        "conclusion_index": 1,
+        "premise_index": 2
+      },
+      "context_evidence": {
+        "last_skill_use_results_exact": "(RESULTS: ((COMMAND_RETURN: ((query _quote_pending-tasks_quote_) [])) (COMMAND_RETURN: ((query _quote_agent-state_quote_) [])) (COMMAND_RETURN: ((pin _quote_E0-t7: First inference hop - executing metta call_quote_) PIN-SUCCESS)) (COMMAND_RETURN: ((metta _quote_(car-atom (|- ((--> rose flower) (stv 1.0 0.9)) ((--> flower plant) (stv 0.9 0.85))))_quote_) _quote_((--> rose plant) (stv 0.9 0.6885))_quote_)) (COMMAND_RETURN: ((version) OmegaClaw version=v0.1.19-dirty))))"
+      },
+      "source": {
+        "measurement": "research/e0-logs/c3-measurements.json#rows[t7]",
+        "rawlog": "research/e0-logs/c3-t7.rawlog",
+        "conclusion_line": 27,
+        "context_line": 32,
+        "premise_call_line": 72
+      }
+    }
+  ],
+  "narrative_evidence": [
+    {
+      "task": "t1",
+      "source": "research/e0-logs/c3-t1.rawlog",
+      "observation": "el mediador intentó primero el salto 2 sin la conclusión necesaria, obtuvo (), recalculó el salto 1 y después la arrastró literalmente",
+      "measurement_role": "material narrativo; fuera del denominador 5/5"
+    },
+    {
+      "task": "t6",
+      "source": "research/e0-logs/c3-t6.rawlog",
+      "observation": "el mediador recalculó tres veces el salto 1 antes de arrastrar literalmente la conclusión al salto 2",
+      "measurement_role": "material narrativo; fuera del denominador 5/5"
+    }
+  ]
+}

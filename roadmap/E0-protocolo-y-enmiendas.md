@@ -13,7 +13,9 @@ Este documento vive en `roadmap/` porque es material de secuenciación y ejecuci
 definición vinculante. Conforme a `decisions/ADR-001-repository-authority-levels.md`:
 
 - Las enmiendas E-1..E-8 **no son vinculantes por estar aquí**. Se vuelven vinculantes solo
-  cuando se reescriban bajo `constitution/`, `architecture/` o `decisions/`.
+  cuando se reescriban bajo `constitution/`, `architecture/` o `decisions/`. **Estado
+  posterior:** E-1 y E-2 fueron ratificadas y materializadas en ADR-007 y ADR-008; E-6 fue
+  ratificada como decisión de roadmap dentro del paquete E-9.
 - Varias de ellas (E-4, E-6 y el predicado de igualdad) tienen su **forma pendiente de E0**,
   de modo que congelarlas ahora en un ADR violaría la propia regla de la compuerta.
 - El texto de la directiva que este documento enmienda está en
@@ -177,6 +179,12 @@ Cambios acordados en los tres intercambios. Cada uno indica dónde toca.
 | `TR-KEY-SELF-ASSERTED` | Claves de verificación transportadas inline en el bundle, sin vinculación externa de identidad | Las firmas son verificables con la clave incluida; la correspondencia entre `attestor_id` y una entidad real requiere un registro externo |
 | `TR-CHAIN-MEDIATED` | Cadena de inferencia cuyos eslabones pasan por un mediador no determinista (p. ej. LLM) | Ver E-2: anotación por eslabón, no descargo global |
 
+> **[Ratificada y materializada]** E-1 es vinculante en
+> `decisions/ADR-007-residual-trust-codes-e1.md`. Para `TR-IMPORT-UNPINNED`, manda la
+> condición evaluable de ADR-007: componente cuyo pin efectivo queda fuera del artefacto
+> comprometido porque el manifiesto ADR-004 carece de una raíz de procedencia inmutable; la
+> mera ausencia de `.git` no basta cuando consta un digest inmutable.
+
 ### E-2. `TR-CHAIN-MEDIATED`: anotación por eslabón
 
 **Predicado de eslabón fiel** (vive en el verificador; comparación de bytes, sin semántica):
@@ -205,6 +213,12 @@ afirmativo existe para no provocar.
 **Nota de documentación:** la métrica es manipulable en la dirección buena — subir la
 proporción fiel exige arrastrar conclusiones intactas, que es el comportamiento deseado.
 Decirlo explícitamente, porque el primer reflejo de un auditor será preguntar cómo se falsea.
+
+> **[Ratificada y materializada]** La captura 3 desplazó el punto 1 a
+> `bytes(premisa) == bytes(T(C))`, con `T` declarada y fijada por el lockfile. Se conservan
+> mismo `process_ref`, precedencia Chronos y el descargo de selección inseparable de la cifra.
+> La decisión vinculante completa está en
+> `decisions/ADR-008-mediated-chain-link-fidelity.md`.
 
 ### E-3. Partición del informe en dos registros (§3)
 
@@ -255,6 +269,12 @@ que enseña **el producto funcionando**. Sube en prioridad dentro del bloque C. 
 (borrado silencioso de `memory/history.metta`) no cambia.
 
 Forma final del artefacto: pendiente de E0 (capturas 3 y 4).
+
+> **[Ratificada]** La forma final es auditoría eslabón a eslabón conforme a ADR-008. El 5/5
+> de E0 solo puede viajar como techo observado bajo instrucción explícita de copia; t1/t6 son
+> material narrativo y el descargo de selección acompaña siempre a la cifra. E-6 quedó
+> ratificada dentro del paquete E-9 + E-1 + E-2 + E-6 sobre el commit
+> `503aefbd0636ba3ef52b782c675b1a901e27466a`.
 
 ### E-7. Regla de canonicalización, escrita como par (Profile)
 

@@ -2,16 +2,20 @@
 
 **Fecha:** 31 de agosto de 2026
 **Tipo:** enmienda estratégica a la Directiva de construcción
-**Estado:** *Proposed — pendiente de ratificación del operador (ADR-001)*
+**Estado:** **Accepted — ratificada por el operador bajo ADR-001**
 **Revisión:** corregida tras la revisión paralela del 31 de agosto de 2026
+**Ratificación:** paquete E-9 + E-1 + E-2 + E-6, 31 de agosto de 2026, sobre el commit
+`503aefbd0636ba3ef52b782c675b1a901e27466a`
 **Autoridad:** enmienda a `roadmap/directiva-construccion-2026-08-31.md` (§1.3, §2, §4, §9 y
 la postura de sustrato del Estado consolidado §6.7). Subordinada a las Foundations y al
-Protocol. **No toca el Core, el Protocol v0, ni ninguna ADR aceptada (003–006).**
+Protocol. **No toca el Core ni el Protocol v0; no contradice las ADR aceptadas 003–006, y
+E-1/E-2 se materializan sin alterarlas en ADR-007/008.**
 
-> Regla de entrada en vigor: mientras esta enmienda esté *Proposed*, la postura vigente en el
-> repo sigue siendo la escrita (Cardano-first, AML como suelo comercial, §9 con comprador de
-> cumplimiento). La congelación de Cardano/agentes/EVM comunicada al ejecutor se levanta
-> **solo** con la ratificación de este documento.
+> **Entrada en vigor.** La ratificación del paquete levantó la congelación de
+> Cardano/agentes/EVM y sustituyó el rumbo anterior en los puntos enumerados por esta
+> enmienda. No ratifica por anticipado los detalles normativos de E-9.1, E-9.2 o E-9.4: sus
+> ADRs deben entrar como *Proposed* y alcanzar *Accepted* antes de que la implementación fije
+> esos detalles.
 
 ---
 
@@ -21,6 +25,12 @@ La validación del §9 de la Directiva se ejecutó en dos vías: investigación 
 observables (desk research multi-fuente, 31-ago-2026) y el guion de conversaciones (en
 `research/guion-validacion-tres-conversaciones.md`, pendiente de ejecutarse con interlocutores
 redefinidos por esta enmienda). Los hallazgos que motivan el giro:
+
+> **Estado de fuentes.** El operador anunció que entregará aparte el informe de investigación
+> de mercado del 31-ago-2026. Hasta incorporarlo bajo `research/` y enlazar sus fuentes
+> fechadas, las cifras y afirmaciones externas de este §0 son la base declarada de la decisión
+> estratégica, no hechos independientemente reproducibles desde este repositorio. La
+> ratificación fija el rumbo; no convierte la evidencia pendiente en evidencia presente.
 
 1. **El comprador de cumplimiento compra atestación, no verificabilidad.** El mercado de AI
    governance/assurance es real y creciente (~$3,1bn TRiSM 2025; £1,01bn UK), pero el gasto
@@ -270,7 +280,7 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 
 | Sesión | Contenido |
 |---|---|
-| S6 | Cognitive Forensics Profile formalizado y ratificado; después C2 (los dos artefactos, sobre OmegaClaw) — **requiere ratificado el paquete E-1/E-2/E-6** (ver Ratificación) |
+| S6 — **implementación completada; cierre pendiente** | Profile propuesto y ambos artefactos C2 ejecutados localmente; requiere aprobación específica de ADR-009/Profile y custodia externa real del compromiso del Artefacto 1 |
 | S7 | Especificación del perfil `agent_commerce` (E-9.1) + forma nombrada de atestación cruzada (E-9.2) como ADR *Proposed* |
 | S8 | Solo tras validar una contraparte real y aceptar las ADR aplicables: adaptador `AnchorBackend` EVM/EAS con mock→Base testnet (E-9.4) + informe JSON-primero (E-9.3) |
 | S9 | Conector de emisión OpenWorker + Artefacto 1 sobre OpenWorker (E-9.6) |
@@ -280,8 +290,8 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 
 ## Ratificación
 
-Aceptar esta enmienda requiere aprobación explícita del operador bajo ADR-001. La
-ratificación es un **paquete consolidado** — un solo acto del operador que ratifica:
+El operador ratificó explícitamente bajo ADR-001, el 31 de agosto de 2026 y contra el commit
+`503aefbd0636ba3ef52b782c675b1a901e27466a`, el **paquete consolidado** formado por:
 
 1. **Esta E-9** (versión corregida tras la revisión paralela del 31-ago: multi-mandato por
    manifiesto, mecánica v0 del multi-anclaje, semántica de la atestación cruzada con
@@ -300,16 +310,22 @@ ratificación es un **paquete consolidado** — un solo acto del operador que ra
 4. **E-6**: el rediseño de C2 (auditoría eslabón a eslabón; 5/5 solo como techo bajo
    instrucción de copia; t1/t6 como material narrativo).
 
-Sin los puntos 2–4, C2 (S6) no arranca: ADR-003–006 no los cubren.
+Los puntos 2 y 3 se materializan como decisiones vinculantes en ADR-007 y ADR-008. E-6 queda
+ratificada como decisión de roadmap, con el alcance medido y los límites descritos arriba.
+C2 queda desbloqueado por el paquete, sujeto a formalizar y ratificar primero el Cognitive
+Forensics Profile y a cualquier nueva decisión normativa que aparezca durante S6.
 
-Al ratificarse el paquete: (1) se levanta la congelación de Cardano/agentes/EVM; (2) el
-ejecutor refleja los cambios en `next-milestones.md`, `current-state.md` y las marcas de
-enmienda de la Directiva y el Estado consolidado; (3) el **informe de investigación de
-mercado del 31-ago se incorpora a `research/`** y el §0 de esta enmienda se anota con
-referencias fechadas contra él, separando hecho medido de inferencia estratégica — este
-informe debe estar disponible antes o atómicamente con el acto de ratificación; (4) E-1 y E-2
-se materializan y aceptan en `architecture/` o `decisions/` dentro del mismo acto, como exige
-ADR-001 — E-6 queda ratificada como decisión de roadmap; (5) las piezas con forma de decisión
-de protocolo o perfil (E-9.1, E-9.2, E-9.4) entran como ADRs *Proposed* individuales y deben
-alcanzar `Accepted` antes de que su implementación fije detalles normativos — esta enmienda
-fija el rumbo, no los detalles normativos de cada pieza.
+La ratificación: (1) levanta la congelación de Cardano/agentes/EVM; (2) pone en vigor la
+secuencia S6–S10 de esta enmienda; y (3) mantiene como tarea documental pendiente la
+incorporación del **informe de investigación de mercado del 31-ago** bajo `research/`, seguida
+de la anotación de este §0 con referencias fechadas que separen hechos medidos de inferencias
+estratégicas. No se inventa ni se reconstruye ese informe antes de que el operador lo entregue.
+
+El mensaje de ratificación hizo explícita la entrega posterior del informe (“lo enviaré
+aparte”). Esa instrucción posterior dispensa la condición de incorporación previa o atómica
+que figuraba en el baseline ratificado, sin convertir las afirmaciones del §0 en evidencia ya
+presente. El estado de fuentes de este documento sigue siendo vinculante hasta la entrega.
+
+Las piezas con forma de decisión de protocolo o perfil (E-9.1, E-9.2 y E-9.4) entrarán como
+ADRs *Proposed* individuales y deberán alcanzar `Accepted` antes de que su implementación fije
+detalles normativos. Esta enmienda fija el rumbo, no esos detalles.

@@ -9,6 +9,14 @@
 > amplían la tabla del §3**, y **E-8 precisa la nota regulatoria del §9**. Donde este texto
 > y las enmiendas difieran, mandan las enmiendas. No se ha alterado ni una línea del cuerpo.
 
+> **[Enmendado por E-9 — Accepted 31-ago-2026]** El paquete E-9 + E-1 + E-2 + E-6,
+> ratificado por el operador bajo ADR-001 sobre el commit
+> `503aefbd0636ba3ef52b782c675b1a901e27466a`, sustituye el primer
+> comprador, el primer sustrato y el orden desde S6. E-1 y E-2 son vinculantes en ADR-007 y
+> ADR-008. Las notas de enmienda de §4, §5.9, §8 y §9 resumen los puntos desplazados;
+> el texto completo y sus límites están en
+> `roadmap/E-9-reposicionamiento-acta-economia-agentes.md`.
+
 **Fecha:** 31 de agosto de 2026
 **Tipo:** directiva de ejecución
 **Autoridad:** subordinado a `constitution/ACTA_Foundations_v1.2_consolidado.pdf` y a
@@ -113,12 +121,31 @@ relación con ACTA.
 El entregable de §1. Formato doble: JSON estructurado (máquina) y texto legible por alguien
 que no sabe qué es un Merkle (auditor). Esquema de salida en §3 de este documento.
 
+> **[Enmendado por E-9.3]** No cambia el orden tipográfico ya escrito: cambia la prioridad y
+> el consumidor principal. El JSON estructurado y versionado es la salida primaria para que
+> una contraparte máquina negocie su perfil de confianza; el texto humano permanece como
+> segunda representación.
+
 ### Bloque C — Demostradores
 
 **C1. Demo AML** (el suelo que se vende). Ya existe el ejemplo en `acta-core/examples`;
 promoverlo a crate de perfil independiente y llevarlo end-to-end con anclaje real.
 
 **C2. Demo Hyperon** (el techo que se demuestra). Especificada en §4.
+
+> **[Enmendado por E-9.6]** AML queda cerrado en su estado actual como perfil de referencia
+> interna, sin sesión dedicada ni criterio de anclaje end-to-end, y sale de la comunicación
+> externa. OpenWorker pasa a ser el objetivo público de nivel 1; OmegaClaw conserva el techo
+> técnico de nivel 2. C2 mantiene sus dos artefactos y se ejecuta en S6 con el rediseño E-6.
+
+> **[Estado S6 — implementación completa, cierre pendiente 1-sep-2026]** El Cognitive
+> Forensics Profile está formalizado como propuesta en `profiles/ai-agent/README.md` y
+> pendiente de aprobación específica mediante ADR-009. Los dos artefactos C2 están en
+> `demos/c2-omegaclaw/`: el primero detectó el borrado sobre una copia de la historia real E0
+> contra una raíz situada en una topología local separada; el segundo aplica ADR-008 a los
+> strings reales E0 y aporta el parche fijado de `src/loop.metta` antes de
+> `normalize_string`. Falta custodia realmente independiente o anclaje para el primero. Sus
+> README conservan los límites probatorios; ningún concepto Hyperon entró en Core.
 
 ### Bloque D — Deuda documental
 
@@ -149,6 +176,12 @@ la emite cuando detecta la condición; cuando la condición se retira, la línea
 | `TR-TIME-INCOHERENT` | Evento con `issued_at` anterior al evento causante en la cadena | La secuencia es válida pero temporalmente incoherente según el perfil |
 | `TR-KEYS-DEPENDENT` | Resolución de claves vía endpoint controlado por el emisor | La verificación de firmas depende de una fuente controlada por el productor |
 
+> **[Enmendado por E-9.2]** La contrafirma no retira hoy `TR-SIGNER-SELF`: el predicado
+> vigente avisa ante cualquier autofirma. Su retirada futura exige un predicado nuevo
+> ratificado que detecte al menos un atestador independiente **y** una vinculación externa de
+> identidad; con claves inline autoafirmadas, la contrafirma solo rebaja la condición. E-9 no
+> reescribe ese predicado por sí sola.
+
 **Regla de diseño:** el verificador nunca emite un veredicto. Emite qué está soportado y qué
 requeriría un paso adicional. Si no puede determinar una condición, lo dice; no la omite.
 
@@ -158,6 +191,13 @@ códigos que dependen de semántica de dominio pertenecen al Profile.
 ---
 
 ## 4. Los dos demostradores
+
+> **[Enmendado por E-9.6 — régimen vigente]** La presentación externa ya no tiene dos
+> demostradores AML/Hyperon. OpenWorker es el suelo público de forense de forma y OmegaClaw el
+> techo técnico de recomputación. AML se conserva solo como referencia interna que prueba la
+> generalidad no cognitiva del Core y como opción sobre el mercado de cumplimiento de 2027.
+> En cualquier demo de borrado, la rotura solo es probatoria si una raíz, receipt o
+> `epoch_root` quedó fuera del control del operador.
 
 ### 4.1 AML — el suelo
 
@@ -442,6 +482,13 @@ La postura del §6.7 (Cardano-first, ASI:Chain diferido) es correcta y se confir
 `*.dev.asichain.io`, y aunque tiene equipo grande y desarrollo activo (219 commits, activo en
 agosto), sigue siendo testnet. Mantener Cardano-first.
 
+> **[Enmendado por E-9.4]** El primer anclaje comercial pasa a EVM/Base, preferentemente EAS,
+> condicionado a una contraparte real y a las ADRs aplicables. Cardano pasa de *first* a
+> catálogo como segunda ancla natural; ASI:Chain queda también en catálogo si el ecosistema lo
+> pide. El diseño sigue siendo neutral: ningún sustrato es constitutivo. En v0, N anclas se
+> representan mediante N bundles con el mismo `epoch_root` o referencias externas; cualquier
+> nuevo formato de cable requiere su propia decisión versionada.
+
 ---
 
 ## 6. Deuda documental — llevar al repo lo decidido
@@ -511,6 +558,12 @@ Un bloque está cerrado cuando se cumple su criterio, no cuando el código pasa 
 > **[Enmendado]** La fila E0 y el rediseño del criterio de C2 están en
 > `roadmap/E0-protocolo-y-enmiendas.md` (Parte 1 y E-6) y en `next-milestones.md`.
 
+> **[Enmendado por E-9]** A2 cierra cuando el `epoch_root` se publica en el sustrato del
+> primer comprador y el `AnchorRefV0` contiene referencias reales. C1 pierde su criterio
+> end-to-end y queda referencia interna. C2 demuestra borrado con compromiso conservado por
+> una parte independiente y auditoría eslabón a eslabón conforme a ADR-008; el 5/5 de E0 solo
+> se cita como techo bajo instrucción explícita de copia, nunca como tasa del mediador.
+
 ---
 
 ## 9. La pregunta que decide el proyecto
@@ -545,3 +598,10 @@ GitHub.** Esa validación debería ir en paralelo al Bloque A, no después.
 > **[Enmendado por E-8]** Precisión regulatoria posterior (distinción procedencia del
 > contenido / procedencia del proceso; el 2-dic-2026 como fin de transitorio del art. 111.4,
 > no obligación nueva) en `roadmap/E0-protocolo-y-enmiendas.md`, con cita directa al DOUE.
+
+> **[Enmendado por E-9.8]** La validación primaria pasa a: (1) constructor sobre x402/AP2 y
+> (2) operador de agentes con dinero real en juego. Cumplimiento queda como conversación
+> opcional para fechar el segundo mercado. La compuerta de A2 conserva su espíritu: adaptador
+> real solo cuando exista una contraparte real. El informe de mercado del 31-ago que sustenta
+> el giro está pendiente de entrega e incorporación bajo `research/`; hasta entonces no se
+> presentan sus afirmaciones externas como verificadas desde este repositorio.

@@ -1,0 +1,16 @@
+diff --git a/src/loop.metta b/src/loop.metta
+index 2b7b7e9..ebcdeaf 100644
+--- a/src/loop.metta
++++ b/src/loop.metta
+@@ -95,7 +95,10 @@
+                                                       (RESULTS: (collapse (let $s (superpose $sexpr)
+                                                                            (let $precheck (HandleError UNKNOWN_SKILL_CALL $s $s)
+                                                                              (COMMAND_RETURN: ($s (if (== $precheck $s)
+-                                                                                                    (HandleError SINGLE_COMMAND_ERROR_NOTHING_WAS_DONE_PLEASE_FIX_AND_RETRY $s (catch (let $R (eval $s) (py-call (helper.normalize_string $R)))))
++                                                                                                    (HandleError SINGLE_COMMAND_ERROR_NOTHING_WAS_DONE_PLEASE_FIX_AND_RETRY $s
++                                                                                                      (catch (let $R (eval $s)
++                                                                                                               (progn (log INFO "e0_capture3" (RAW_EVAL: $s $R))
++                                                                                                                      (py-call (helper.normalize_string $R))))))
+                                                                                                     $precheck)))))))
+                                                       (RESULTS: $mcerr)))
+                                        ($_ (log INFO "loop" (RESPONSE: $results))))

@@ -6,7 +6,18 @@ use acta_ai_agent_profile::types::{
     ToolCallExecutedPayloadV0,
 };
 use acta_core::hash::hash_event_v0;
-use acta_core::types::validate_commitment_v0;
+use acta_core::types::{validate_commitment_v0, PolicySnapshotV0};
+
+fn policy_snapshot(policy_type: &str) -> PolicySnapshotV0 {
+    PolicySnapshotV0 {
+        policy_id: "ai-agent-policy-v0".to_string(),
+        policy_hash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string(),
+        policy_type: policy_type.to_string(),
+        jurisdiction: "NA".to_string(),
+        effective_from: "2026-01-01T00:00:00Z".to_string(),
+        effective_to: None,
+    }
+}
 
 fn valid_min_flow() -> Vec<AiAgentDomainEventV0> {
     let run_id = "AIRUN-2026-0001";
@@ -104,7 +115,12 @@ fn ai_agent_min_flow_positive_passes_and_maps_to_core() {
 
     for (i, ev) in flow.iter().enumerate() {
         assert!(validate_ai_agent_payload_v0(ev).is_ok());
-        let core = map_ai_agent_event_to_core_v0(ev, format!("evt-map-{i:04}")).unwrap();
+        let core = map_ai_agent_event_to_core_v0(
+            ev,
+            format!("evt-map-{i:04}"),
+            &policy_snapshot("ai_agent_policy"),
+        )
+        .unwrap();
         assert_eq!(core.event_kind.namespace, "ai_agent");
         assert_eq!(core.event_kind.kind, expected_kinds[i]);
         assert_eq!(core.event_kind.version, "1.0");
@@ -134,7 +150,12 @@ fn ai_agent_reinforced_flow_positive_passes_and_maps_to_core() {
     ];
 
     for (i, ev) in flow.iter().enumerate() {
-        let core = map_ai_agent_event_to_core_v0(ev, format!("evt-reinforced-{i:04}")).unwrap();
+        let core = map_ai_agent_event_to_core_v0(
+            ev,
+            format!("evt-reinforced-{i:04}"),
+            &policy_snapshot("ai_agent_policy"),
+        )
+        .unwrap();
         assert_eq!(core.event_kind.namespace, "ai_agent");
         assert_eq!(core.event_kind.kind, expected_kinds[i]);
         assert_eq!(core.event_kind.version, "1.0");
@@ -263,10 +284,14 @@ fn ai_agent_mapping_event_kinds_are_stable() {
     let kinds: Vec<String> = flow
         .iter()
         .map(|e| {
-            map_ai_agent_event_to_core_v0(e, "evt-stable".to_string())
-                .unwrap()
-                .event_kind
-                .kind
+            map_ai_agent_event_to_core_v0(
+                e,
+                "evt-stable".to_string(),
+                &policy_snapshot("ai_agent_policy"),
+            )
+            .unwrap()
+            .event_kind
+            .kind
         })
         .collect();
 
@@ -280,5 +305,27 @@ fn ai_agent_mapping_event_kinds_are_stable() {
             "tool_call_executed".to_string(),
             "significant_action_executed".to_string(),
         ]
+    );
+}
+
+#[test]
+fn inference_tool_mapping_uses_the_supplied_ruleset_snapshot_without_a_default() {
+    let flow = valid_min_flow();
+    let tool = &flow[3];
+    let ruleset = policy_snapshot("inference_ruleset");
+    let core = map_ai_agent_event_to_core_v0(tool, "evt-inference".to_string(), &ruleset).unwrap();
+    assert_eq!(core.policy_snapshot.policy_id, ruleset.policy_id);
+    assert_eq!(core.policy_snapshot.policy_hash, ruleset.policy_hash);
+    assert_eq!(core.policy_snapshot.policy_type, "inference_ruleset");
+}
+
+#[test]
+fn mapping_rejects_a_snapshot_that_disagrees_with_an_event_policy_hash() {
+    let flow = valid_min_flow();
+    let mut wrong = policy_snapshot("ai_agent_policy");
+    wrong.policy_hash =
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc".to_string();
+    assert!(
+        map_ai_agent_event_to_core_v0(&flow[1], "evt-policy-mismatch".to_string(), &wrong).is_err()
     );
 }

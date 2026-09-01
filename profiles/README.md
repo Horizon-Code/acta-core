@@ -16,3 +16,11 @@ Domain-specific specializations that use ACTA core primitives without redefining
 ## Relationship to other folders
 
 Profiles are subordinate to `architecture/` and constrained by ADRs in `decisions/`.
+
+## Registered profiles
+
+- `ai-agent/README.md` — proposed Cognitive Forensics Profile v1.0 submission requesting
+  provisional lifecycle status; its semantic review is recorded in
+  `ai-agent/acceptance-checklist.md`, maintainer approval is pending, and Rust validation
+  artifacts live under `ai-agent/rust/`.
+- `aml/` — AML reference profile, retained for internal Core-generality coverage.

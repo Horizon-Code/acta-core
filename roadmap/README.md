@@ -25,10 +25,11 @@ Planning materials for current state, milestones, risks, and next execution step
   verified ecosystem facts, and the closure criteria. Incorporated verbatim; where it and the
   amendments differ, the amendments win.
 - `E0-protocolo-y-enmiendas.md` — E0 experiment protocol, amendments E-1..E-8, and the external
-  source annex. Non-binding: amendments become binding only when rewritten under `architecture/`
-  or `decisions/`.
-- `E-9-reposicionamiento-acta-economia-agentes.md` — corrected proposed strategic amendment
-  repositioning ACTA as the evidence and dispute layer for the agent economy; inactive pending
-  operator ratification under ADR-001.
+  source annex. Non-binding by itself: E-1/E-2 are binding through ADR-007/ADR-008, and the
+  roadmap-scoped E-6 is Accepted through the consolidated E-9 package.
+- `E-9-reposicionamiento-acta-economia-agentes.md` — **Accepted** strategic amendment
+  repositioning ACTA as the evidence and dispute layer for the agent economy; ratified by the
+  operator under ADR-001 within the E-9 + E-1 + E-2 + E-6 package. Its future profile and
+  adapter details still require individual ADRs.
 - `acta-mvp-fases-tecnicas.md` — the ten MVP phases with a current status column.
 - `acta-roadmap-mejoras-futuras.md` — earlier post-MVP planning material.

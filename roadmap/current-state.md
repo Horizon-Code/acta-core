@@ -7,17 +7,36 @@
 - E0 gate is **open, 4/4 complete**: all captures have measured data and a written decision.
   Capture 3 measured a 5/5 ceiling in isomorphic tasks under explicit byte-copy instructions;
   it is not a general mediator rate. Auxiliary attempts recorded omission and recomputation.
-  C2 is unblocked by E0 but remains unstarted pending E-1/E-2/E-6 ratification and its profile.
+  C2 is unblocked by E0 and the ratified E-1/E-2/E-6 package. S6 implementation completed on
+  2026-09-01, but S6 remains open: the Cognitive Forensics Profile awaits specific approval
+  through Proposed ADR-009, and Artefact 1 still needs a receipt/root retained by a real
+  independent party or an external anchor.
 - ADR-003, ADR-004 and ADR-005 were ratified by the operator on 2026-08-31. Their equality,
-  lockfile-shape and raw-commitment-point decisions are binding; E-1/E-2 remain separate.
+  lockfile-shape and raw-commitment-point decisions are binding.
+- ADR-007 and ADR-008 materialize ratified E-1 and E-2: the four report codes use mechanically
+  evaluable conditions, and mediated-link fidelity is byte equality against declared `T(C)`
+  with same `process_ref`, Chronos precedence and an inseparable selection disclaimer.
 - ADR-006 was ratified on 2026-08-31: Chronos continuity does not reset at epoch boundaries.
   Its implementation and future `TR-CHRONOS-BOUNDARY-UNVERIFIED` report line remain
   unstarted pending an explicit execution order.
 - E-9, “Reposicionamiento: ACTA como capa de confianza de la economía entre agentes”, is
-  **Proposed** in its corrected form as a consolidated E-9 + E-1 + E-2 + E-6 ratification
-  package. ADR-003–006 do not ratify that package. It is not in force: Cardano-first, the
-  current §9 validation and the operational freeze remain binding; E-9 authorizes no work on
-  agents, EVM/Base/EAS or changes to AML while Proposed.
+  **Accepted** as part of the E-9 + E-1 + E-2 + E-6 package ratified by the operator on
+  2026-08-31 against commit `503aefbd0636ba3ef52b782c675b1a901e27466a`. The
+  Cardano/agents/EVM freeze is lifted. The active
+  direction is EVM/Base-first with multi-anchor neutrality, Cardano in the catalog,
+  `agent_commerce` as the next commercial Profile, OpenWorker as the public level-1 target,
+  OmegaClaw as the level-2 ceiling, and AML retained only as an internal reference.
+- E-9.1, E-9.2 and E-9.4 still require their own Proposed-to-Accepted ADRs before
+  implementation fixes profile, cross-attestation or adapter wire details. A real anchor
+  adapter remains gated on a real counterparty.
+- C2 Artefact 1 seals exact OmegaClaw history records into signed Chronos/Merkle bundles and
+  detects a silent deletion against a witness placed in a separate local domain. It passed on
+  its fixture and on a read-only copy of the real 100-record E0 history; the original volume
+  was untouched. That run is a topology simulation, not independent custody.
+- C2 Artefact 2 applies ADR-008 to the real E0 strings, emits
+  `TR-CHAIN-MEDIATED`/`TR-NONDET-INPUT`, preserves the selection disclaimer and provides the
+  pinned source patch at the raw `(eval $s)` boundary. The historical E0 process/Chronos fields
+  are explicitly test envelopes, not retroactive ACTA receipts.
 - A1 and A3 are implemented outside Core in `adapters/attestation-single-signer/rust`:
   Ed25519 signatures verify offline against public keys carried inline at the bundle JSON root.
   A manipulated signature is rejected, and the external report emits `TR-KEY-SELF-ASSERTED`
@@ -26,8 +45,14 @@
 - B1 is implemented at `tools/acta-verifier/rust`: the standalone binary accepts the portable
   bundle without network access and produces the same deterministic report as the library.
   Its JSON/text report already carries `TR-NO-ANCHOR`, `TR-ANCHOR-UNVERIFIED`, and
-  `TR-TIME-DECLARED`; B2 remains incremental because its human-readability criterion still
-  requires review by a non-technical reader.
+  `TR-TIME-DECLARED`; B2 remains incremental. Under E-9.3 its primary consumer and closure
+  priority are machine-first JSON, while human-readable text remains the second
+  representation.
+- The 31-Aug market-research report cited by E-9 has not yet been delivered to the repository.
+  Its incorporation and dated sourcing of E-9 §0 remain explicit documentary follow-up; no
+  substitute report has been inferred or fabricated. The operator's ratification message
+  explicitly moved delivery after ratification (“lo enviaré aparte”), superseding the
+  baseline draft's earlier atomic-delivery wording without treating the report as present.
 - The full documentary triad is in the repo: `acta-estado-consolidado.md`,
   `directiva-construccion-2026-08-31.md`, and `E0-protocolo-y-enmiendas.md`. The §1.2
   vocabulary-scale and §3.1 canonicalization references now resolve.

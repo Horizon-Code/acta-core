@@ -9,6 +9,13 @@
 > §1.2 y las **decisiones de canonicalización** (incluida la decisión 3 que cita E-7) en su
 > §3.1.
 
+> **[Enmendado por E-9 — Accepted 31-ago-2026]** La postura estratégica vigente es EVM/Base
+> first con multi-anclaje, Cardano en catálogo, `agent_commerce` como siguiente perfil
+> comercial y OpenWorker/OmegaClaw como suelo público/techo técnico. AML se conserva como
+> referencia interna. La enmienda completa, ratificada dentro del paquete E-9 + E-1 + E-2 +
+> E-6 sobre el commit `503aefbd0636ba3ef52b782c675b1a901e27466a`, está en
+> `roadmap/E-9-reposicionamiento-acta-economia-agentes.md`.
+
 **Fecha:** 31 de agosto de 2026
 **Tipo:** mapa interno de trabajo
 **Autoridad:** subordinado a `constitution/ACTA_Foundations_v1.2_consolidado.pdf`
@@ -247,9 +254,20 @@ ACTA avisa antes de una acción si cae fuera de una referencia normativa verific
 
 Para interacciones de agentes entre jurisdicciones, ACTA refleja la interacción contra todos los marcos relevantes simultáneamente. El acto de reflejar constituye adhesión sin imposición.
 
+> **[Enmendado por E-9.1]** En `agent_commerce`, esta idea se relee como multi-mandato. Como
+> `ActaEventV0` porta un solo `policy_snapshot`, el perfil podrá comprometer un manifiesto
+> canónico de N mandatos mediante un único `policy_hash`, o usar eventos separados. El formato
+> exacto no queda decidido aquí: requiere la ADR del perfil antes de implementarse.
+
 ### 6.7 Postura de sustrato
 
 Cardano-first, con arquitectura de adaptador (`AnchorBackend`) que hace de cualquier cadena un backend enchufable sin tocar el núcleo. El adaptador ASI:Chain se difiere: ASI:Chain está en DevNet/TestNet, con mainnet apuntado a finales de 2026–2027.
+
+> **[Enmendado por E-9.4 — postura vigente]** EVM/Base-first para el primer comprador, con
+> EAS como vía preferente por especificar; multi-anclaje por diseño; Cardano y ASI:Chain en el
+> catálogo. Ninguna cadena se vuelve constitutiva. `BundleV0` sigue portando un solo
+> `AnchorRefV0`: el multi-anclaje v0 usa bundles equivalentes o referencias externas al mismo
+> `epoch_root` hasta que una ADR decida cualquier formato nuevo.
 
 ---
 
@@ -280,6 +298,11 @@ Lectura de madurez del ecosistema: el sustrato (hyperon-experimental, MORK, PeTT
 Proyecto compañero: red/IA descentralizada que mantiene las leyes del mundo actualizadas y verificables, consumible por ACTA de forma opcional. Aragón como primer perímetro medible. Comparte el ADN de separación de planos: *quién construye* (votable) ≠ *qué es verdad* (no votable, validado contra fuente oficial) ≠ *quién paga* (si la verdad pasa).
 
 No tiene representación en el repositorio de ACTA. Decisión pendiente sobre si comparten una constitución ligera o integración estructural más pesada.
+
+> **[Enmendado por E-9.6]** El suelo público pasa a OpenWorker para forense de forma y el
+> techo técnico permanece en OmegaClaw para recomputación. AML deja la comunicación externa y
+> queda como perfil de referencia interna. Una demo de borrado exige un compromiso retenido
+> fuera del control del operador para que la rotura sea probatoria ante terceros.
 
 ---
 
@@ -391,3 +414,9 @@ Formulación consolidada tras el intercambio Claude ↔ Codex de abril de 2026.
 > **[Enmendado — estado posterior el mismo día]** El §9 de la Directiva añade el riesgo que
 > este resumen no recoge: **no consta comprador**. Las tres conversaciones de validación con
 > quien firma cumplimiento en banca o sanidad van en paralelo al Bloque A y condicionan A2.
+
+> **[Enmendado por E-9.8]** Las conversaciones vigentes se dirigen primero a un constructor
+> sobre x402/AP2 y a un operador de agentes con dinero real en juego; cumplimiento queda como
+> calibración opcional del mercado de 2027. A2 conserva la compuerta “adaptador real cuando
+> exista contraparte real”, ahora con el sustrato del primer comprador. El informe de mercado
+> del 31-ago sigue pendiente de entrega e incorporación bajo `research/`.
