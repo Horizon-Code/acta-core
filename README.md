@@ -22,7 +22,8 @@ No lower authority level may redefine a higher authority level.
 - `protocol/` — ACTA interoperable technical protocol specifications.
 - `direction/` — external, non-binding intellectual sources that guide ACTA.
 - `core/` — implementation of protocol primitives and invariants.
-- `adapters/` — substrate/integration adapters (for example Cardano anchoring, signer adapters).
+- `adapters/` — substrate/integration adapters (signer verification and the Proposed S8
+  EVM/EAS anchoring submission; Cardano remains in the multi-anchor catalog).
 - `profiles/` — domain-specific specializations subordinate to architecture.
 - `decisions/` — ADR records that freeze boundaries and key choices.
 - `research/` — exploratory notes, imports, open questions, and analysis.
@@ -39,6 +40,7 @@ No lower authority level may redefine a higher authority level.
 
 - Rust workspace crate: `core/rust/acta-core`
 - AML profile Rust helpers for examples: `profiles/aml/rust`
+- Agent Commerce Profile v1.0: `profiles/agent-commerce/` (Accepted, experimental)
 
 ## Foundations reference note
 

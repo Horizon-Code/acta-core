@@ -24,9 +24,8 @@ Profiles are subordinate to `architecture/` and constrained by ADRs in `decision
   byte (including its pre-decision review metadata); current registry status is carried by
   ADR-009 and this index. Rust validation artifacts live under `ai-agent/rust/`.
 - `aml/` — AML reference profile, retained for internal Core-generality coverage.
-
-## Proposed submissions
-
-- `agent-commerce/README.md` — S7 Agent Commerce Profile v1.0 candidate with
-  `experimental` lifecycle requested in ADR-010; cross-attestation semantics are separately
-  Proposed in ADR-011. Neither decision is binding before operator ratification.
+- `agent-commerce/README.md` — Agent Commerce Profile v1.0, Accepted by ADR-010 with
+  `experimental` lifecycle status. Its seven-file ratified submission is preserved byte for
+  byte (including pre-ratification metadata); current registry status is carried by ADR-010
+  and this index. Cross-attestation semantics are Accepted separately in ADR-011; report
+  activation still requires mechanically detectable external identity bindings.

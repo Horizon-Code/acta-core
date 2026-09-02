@@ -1,6 +1,8 @@
 use acta_attestation_single_signer::VerifiableBundleV0;
+use acta_evm_eas_anchor::{AnchorBackend, MockAnchorBackend};
 use acta_verifier::{
-    render_json_v0, render_text_v0, verify_offline_v0, TR_ANCHOR_UNVERIFIED, TR_NO_ANCHOR,
+    render_json_v0, render_text_v0, verify_machine_v1, verify_offline_v0, MachineProfileRefV1,
+    MachineTrustRequirementsV1, MACHINE_REPORT_VERSION_V1, TR_ANCHOR_UNVERIFIED, TR_NO_ANCHOR,
     TR_TIME_DECLARED,
 };
 use std::path::PathBuf;
@@ -57,4 +59,97 @@ fn text_report_explains_residual_trust_in_plain_language() {
     assert!(text.contains("Dependencias de confianza que permanecen"));
     assert!(text.contains("inclusión real requiere consulta al sustrato"));
     assert!(text.contains("Este informe no afirma"));
+}
+
+#[test]
+fn machine_report_promotes_only_a_mechanically_verified_anchor() {
+    let mut bundle = vector();
+    let backend = MockAnchorBackend::new("0x1111111111111111111111111111111111111111");
+    let evidence = backend
+        .publish_epoch_root(&bundle.bundle.epoch_root)
+        .unwrap();
+    bundle.bundle.anchor = Some(evidence.anchor_ref.clone());
+    let verified = backend
+        .verify_epoch_root(bundle.bundle.anchor.as_ref().unwrap(), &evidence)
+        .unwrap();
+    let report = verify_machine_v1(&bundle, Some(Ok(verified)), None);
+
+    assert_eq!(report.report_version, MACHINE_REPORT_VERSION_V1);
+    assert_eq!(report.consumer, "machine");
+    assert_eq!(report.anchor.status, "verified");
+    assert!(!report
+        .detected_conditions
+        .iter()
+        .any(|condition| condition.code == TR_ANCHOR_UNVERIFIED));
+    assert!(report
+        .checks
+        .iter()
+        .any(|check| check.name == "external_anchor_verified" && check.status == "pass"));
+}
+
+#[test]
+fn machine_requirements_are_mechanical_and_do_not_change_technical_status() {
+    let bundle = vector();
+    let requirements = MachineTrustRequirementsV1 {
+        requirements_version: "acta.machine-trust-requirements.v1".to_string(),
+        required_profile: Some(MachineProfileRefV1 {
+            namespace: "agent_commerce".to_string(),
+            version: "1.0".to_string(),
+        }),
+        require_verified_anchor: true,
+        accepted_anchor_networks: vec!["eip155:84532".to_string()],
+        forbidden_conditions: vec![TR_ANCHOR_UNVERIFIED.to_string()],
+    };
+    let report = verify_machine_v1(&bundle, None, Some(&requirements));
+
+    assert_eq!(report.status, "pass");
+    let result = report.requirements.unwrap();
+    assert!(!result.satisfied);
+    assert!(result
+        .unmet
+        .contains(&"verified_anchor_required".to_string()));
+    assert!(result
+        .unmet
+        .contains(&"required_profile:agent_commerce@1.0".to_string()));
+    assert!(result
+        .unmet
+        .contains(&"forbidden_condition:TR-ANCHOR-UNVERIFIED".to_string()));
+}
+
+#[test]
+fn failed_external_verification_is_a_report_failure() {
+    let report = verify_machine_v1(
+        &vector(),
+        Some(Err(
+            "receipt does not contain the claimed EAS event".to_string()
+        )),
+        None,
+    );
+    assert_eq!(report.status, "fail");
+    assert_eq!(report.anchor.status, "verification_failed");
+    assert!(report
+        .failures
+        .iter()
+        .any(|failure| failure.code == "AnchorVerificationFailed"));
+}
+
+#[test]
+fn a_forged_verified_result_cannot_promote_a_different_bundle_anchor() {
+    let mut bundle = vector();
+    let backend = MockAnchorBackend::new("0x1111111111111111111111111111111111111111");
+    let evidence = backend
+        .publish_epoch_root(&bundle.bundle.epoch_root)
+        .unwrap();
+    let verified = backend
+        .verify_epoch_root(&evidence.anchor_ref, &evidence)
+        .unwrap();
+    bundle.bundle.anchor = None;
+
+    let report = verify_machine_v1(&bundle, Some(Ok(verified)), None);
+    assert_eq!(report.status, "fail");
+    assert_eq!(report.anchor.status, "verification_failed");
+    assert!(report.failures.iter().any(|failure| {
+        failure.code == "AnchorVerificationFailed"
+            && failure.detail.contains("does not match bundle.anchor")
+    }));
 }

@@ -1,8 +1,9 @@
 # ADR-011: Cross-Attestation Semantics and Independent-Signer Predicate
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-02
-- Decision authority requested: operator under ADR-001
+- Accepted: 2026-09-02 by the operator under ADR-001
+- Ratified submission commit: `ed5cd658d80c55a4780dbe41985010874ae76378`
 - Prerequisites: Accepted E-9.2 direction, ADR-009 and cryptographic signature verification
 - Coupled dependency: E-9.5 external identity binding
 - Profile submission under review: ADR-010
@@ -19,7 +20,7 @@ among verified receipt signers, even if another signer is present. Inline A3 key
 possession but assert their own identity binding. Treating any second key as an independent
 party would therefore erase a residual-trust condition without evidence.
 
-## Proposed decision
+## Decision
 
 Name and keep separate two cross-attestation forms.
 
@@ -60,13 +61,13 @@ second key is not evidence of a second institution.
 This makes E-9.2 and E-9.5 one dependency pair. A future DID/VC adapter may supply the external
 bindings; this ADR neither selects nor implements that resolver.
 
-### 4. No activation while Proposed
+### 4. Activation requires report implementation
 
 The S7 reference function `assess_verified_cross_attestation_v1` exposes the three candidate
 outcomes `ProducerOnly`, `CounterSignedIdentityUnresolved` and
-`IndependentCounterAttestation`. It is not connected to the verifier report. While this ADR
-is Proposed, the Accepted `TR-SIGNER-SELF` predicate and existing report behavior remain
-unchanged.
+`IndependentCounterAttestation`. Acceptance makes the predicate binding but does not pretend
+the current verifier report is already connected to it. Until report integration and external
+identity resolution exist, the current `TR-SIGNER-SELF` behavior remains unchanged.
 
 ## Submission fixed for review
 
@@ -82,7 +83,7 @@ re-review.
 | `profiles/agent-commerce/rust/src/types.rs` | `6d297512eff674f5998e0b636b87666fd7301fd6c642428634616161f8d08455` |
 | `profiles/agent-commerce/rust/tests/agent_commerce_profile_v1.rs` | `97a420316af9057572fcf15b74b57f1d8ee00f127b867b0d82573576b9f22aa8` |
 
-## Consequences if accepted
+## Consequences
 
 - Consumers can distinguish agreement over one assertion from a second party's own observed
   assertion.
@@ -100,8 +101,10 @@ This ADR does not define institutional independence, select a DID method or VC t
 validate delivery quality, prove payment finality, define adjudication, add a report code or
 authorize S8. It does not make ADR-010 Accepted automatically.
 
-## Ratification requested
+## Ratification
 
-The operator may accept this decision only by explicitly ratifying ADR-011 and its fixed
-submission. Until then it is non-binding, the reference assessment remains inactive for
-reporting, and `TR-SIGNER-SELF` keeps its current Accepted predicate.
+Ratified explicitly by the operator on 2026-09-02 under ADR-001 against commit
+`ed5cd658d80c55a4780dbe41985010874ae76378` and the five SHA-256 values above. The
+cross-attestation distinction and independent-signer predicate are binding. Report integration
+and E-9.5 identity resolution remain separate detectable-functionality work; acceptance does
+not erase `TR-SIGNER-SELF` in dossiers the current verifier cannot prove independent.

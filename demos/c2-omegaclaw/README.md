@@ -1,8 +1,7 @@
 # C2 — OmegaClaw
 
-Status: **S6 implementation complete; closure gates still open**. The operator-ratified
-E-9 + E-1 + E-2 + E-6 package authorized S6, but Profile approval and actual independent
-retention remain pending.
+Status: **S6 implementation complete; external-custody gate still open**. ADR-009/Profile is
+Accepted; only actual independent retention or a verified external anchor remains pending.
 
 C2 contains two independent demonstrators. Both remain outside Core and Protocol:
 
@@ -48,8 +47,10 @@ python3 audit_links.py vectors/e0-capture3.json --format text
 ```
 
 Neither demo needs network access or credentials. Artifact 1's external directory is a
-topology simulation, not proof of an independent institution or public-chain anchor; S6 does
-not close until a real party retains the receipt/root or an external anchor exists. Artifact
+topology simulation, not proof of an independent institution or public-chain anchor; the
+deployment gate does not close until a real party retains the receipt/root or a verified
+external anchor exists. The Proposed S8 EAS adapter supplies the path but no transaction has
+yet been sent. Artifact
 2's E0 strings are captured data, while its `process_ref` and verified-Chronos positions are
-test envelopes because E0 predates ACTA instrumentation. The Profile submission also awaits
-specific operator approval. The individual README files state the complete claim boundaries.
+test envelopes because E0 predates ACTA instrumentation. The individual README files state
+the complete claim boundaries.

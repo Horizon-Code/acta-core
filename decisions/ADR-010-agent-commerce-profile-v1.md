@@ -1,9 +1,10 @@
 # ADR-010: Agent Commerce Profile v1.0
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-02
-- Decision authority requested: operator under ADR-001
-- Requested lifecycle status: `experimental`
+- Accepted: 2026-09-02 by the operator under ADR-001
+- Ratified submission commit: `ed5cd658d80c55a4780dbe41985010874ae76378`
+- Lifecycle status: `experimental`
 - Prerequisites: Accepted E-9.1 direction and ADR-009
 - Coupled review: ADR-011 cross-attestation semantics
 
@@ -20,7 +21,7 @@ from several parties. E-9.1 therefore requires one canonical manifest of N manda
 is the policy hash. The Profile must also distinguish a sender's delivery commitment from a
 receiver's later observation and must support both prepaid and postpaid transaction order.
 
-## Proposed decision
+## Decision
 
 Accept the exact Agent Commerce Profile v1.0 submission below with `experimental` lifecycle
 status.
@@ -68,7 +69,7 @@ requires refreshing this table and re-reviewing the affected part before ratific
 Semantic review and retained risks are in
 `profiles/agent-commerce/acceptance-checklist.md`.
 
-## Consequences if accepted
+## Consequences
 
 - The Profile becomes the experimental domain vocabulary for agent transactions.
 - The manifest wire representation and seven event meanings become versioned Profile rules.
@@ -86,7 +87,9 @@ This ADR does not accept ADR-011, change `TR-SIGNER-SELF`, prove attestor indepe
 DID/VC resolution, choose an EAS schema, implement an EVM anchor, establish payment finality or
 authorize S8. It does not modify Core or Protocol v0.
 
-## Ratification requested
+## Ratification
 
-The operator may ratify this exact submission by explicitly accepting ADR-010. Until then the
-Profile and its Rust crate remain a Proposed S7 candidate and have no binding registry status.
+Ratified explicitly by the operator on 2026-09-02 under ADR-001 against commit
+`ed5cd658d80c55a4780dbe41985010874ae76378` and the seven SHA-256 values above. The
+ratification accepts the exact submission with `experimental` lifecycle status. A byte change
+requires a refreshed table and review of the affected part before it remains ratified.

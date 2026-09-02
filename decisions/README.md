@@ -24,10 +24,15 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   selection disclaimer.
 - `ADR-009-cognitive-forensics-profile-v1.md` — exact Cognitive Forensics Profile v1.0
   submission, Accepted with provisional lifecycle status on its fixed eight-file hash set.
+- `ADR-010-agent-commerce-profile-v1.md` — exact Agent Commerce Profile v1.0 submission,
+  Accepted with `experimental` lifecycle status on its fixed seven-file hash set.
+- `ADR-011-cross-attestation-semantics.md` — separates receipt co-signature from reciprocal
+  events and binds retirement of `TR-SIGNER-SELF` to cryptographic verification plus distinct,
+  externally resolved identities. Report integration remains pending.
 
 ## Proposed decisions awaiting operator review
 
-- `ADR-010-agent-commerce-profile-v1.md` — exact S7 Agent Commerce Profile v1.0 submission,
-  requesting `experimental` lifecycle status.
-- `ADR-011-cross-attestation-semantics.md` — separates receipt co-signature from reciprocal
-  events and proposes the externally bound independent-signer predicate without activating it.
+- `ADR-012-evm-eas-anchor-backend-v1.md` — exact S8 EAS/Base adapter candidate, sidecar and
+  direct contract/receipt verification predicate.
+- `ADR-013-machine-consumer-report-v1.md` — versioned machine-consumer envelope and mechanical
+  counterparty requirements evaluation without changing Offline Report v0.

@@ -26,4 +26,6 @@ Research can inform architecture and decisions but does not define them.
   supporting E-9 §0; sections 1–7 record sourced findings and its `Síntesis` is explicitly
   strategic inference, not a normative decision.
 - `runtime-and-llm-control-notes.md` — runtime/LLM control notes.
+- `s8-eas-base-verification-2026-09-02.md` — primary-source and read-only network checks for
+  the Proposed S8 EAS/Base adapter; measured facts are separated from design inference.
 - `imported-notes/` — preserved notes from the earlier repository layout.

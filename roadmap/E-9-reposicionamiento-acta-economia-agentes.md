@@ -292,8 +292,8 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 | Sesión | Contenido |
 |---|---|
 | S6 — **cerrado en lo ejecutable** | ADR-009/Profile Accepted y ambos artefactos C2 ejecutados localmente; queda la custodia externa real del compromiso del Artefacto 1, prevista para S8 |
-| S7 — **submission preparado** | Perfil `agent_commerce` (E-9.1) y forma nombrada de atestación cruzada (E-9.2) fijados en ADR-010/011 *Proposed*; sin activación del predicado de informe |
-| S8 | Solo tras validar una contraparte real y aceptar las ADR aplicables: adaptador `AnchorBackend` EVM/EAS con mock→Base testnet (E-9.4) + informe JSON-primero (E-9.3) |
+| S7 — **Accepted** | Perfil `agent_commerce` experimental y semántica de atestación cruzada ratificados el 2-sep-2026 en ADR-010/011 sobre sus hashes fijados; la retirada de `TR-SIGNER-SELF` sigue pendiente de integración + identidad externa |
+| S8 — **submission preparado; despliegue abierto** | Candidato `AnchorBackend` EVM/EAS y reporte para consumidor-máquina en ADR-012/013 *Proposed*; mock y preflight read-only pasan, pero no hay esquema/tx real ni custodia externa todavía |
 | S9 | Conector de emisión OpenWorker + Artefacto 1 sobre OpenWorker (E-9.6) |
 | S10 | Propuesta de extensión a x402/AP2 (E-9.7) — **solo con demo funcionando** |
 | Paralelo [RUB] | Conversaciones E-9.8; ratificaciones; contactos de comunidad |
@@ -335,3 +335,8 @@ estratégicas.
 Las piezas con forma de decisión de protocolo o perfil (E-9.1, E-9.2 y E-9.4) entrarán como
 ADRs *Proposed* individuales y deberán alcanzar `Accepted` antes de que su implementación fije
 detalles normativos. Esta enmienda fija el rumbo, no esos detalles.
+
+**Seguimiento 2-sep-2026.** El operador ratificó ADR-010 y ADR-011 contra el commit
+`ed5cd658d80c55a4780dbe41985010874ae76378` y autorizó S8. ADR-012/013 fijan ahora el
+submission candidato para revisión; mientras sigan *Proposed*, sus wires no son promesas
+vinculantes y no se registra ni publica el esquema como ACTA v1.

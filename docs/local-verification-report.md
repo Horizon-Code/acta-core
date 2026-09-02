@@ -89,8 +89,14 @@ combined report to `Fail`; the Core-only report remains unchanged and contains n
 - `TR-NO-ANCHOR` when the dossier has no anchor reference; or
 - `TR-ANCHOR-UNVERIFIED` when an anchor is declared but has not been queried on its substrate.
 
-The CLI emits deterministic structured JSON and a plain-text rendering. It performs no network
-request; external ledger verification remains a separate adapter concern.
+The stable v0 CLI emits deterministic structured JSON and a plain-text rendering. Those modes
+perform no network request; external ledger verification remains a separate adapter concern.
+
+The S8 submission adds the separate `acta.machine-verification-report.v1` envelope under
+Proposed ADR-013. Its explicit `--machine --anchor-evidence` path composes a result from the
+Proposed EAS adapter. It removes `TR-ANCHOR-UNVERIFIED` only after direct contract and receipt
+verification; this does not change Offline Report v0 or teach Core about EAS. Full wire and
+requirements semantics are documented in `machine-verification-report-v1.md`.
 
 ## How It Relates To Core
 
@@ -113,5 +119,5 @@ request; external ledger verification remains a separate adapter concern.
 - human/regulator/auditor report variants.
 - localization.
 - UI presentation.
-- external anchor and identity-registry verification layers.
+- identity-registry verification layers.
 - expanded machine-readable error taxonomy when needed.

@@ -29,14 +29,20 @@
   direction is EVM/Base-first with multi-anchor neutrality, Cardano in the catalog,
   `agent_commerce` as the next commercial Profile, OpenWorker as the public level-1 target,
   OmegaClaw as the level-2 ceiling, and AML retained only as an internal reference.
-- S7 produced the exact Agent Commerce Profile v1.0 candidate and reference validator under
-  `profiles/agent-commerce/`. ADR-010 proposes the Profile with `experimental` lifecycle;
-  ADR-011 separately proposes cross-attestation semantics and the independent-signer
-  predicate. Both remain non-binding pending operator ratification. The current verifier
-  still emits `TR-SIGNER-SELF` for any producer self-signature.
-- E-9.4 still requires its own Proposed-to-Accepted ADR before implementation fixes adapter
-  wire details. S8 is not authorized, and a real anchor adapter remains gated on a real
-  counterparty.
+- ADR-010 and ADR-011 were ratified by the operator on 2026-09-02 against commit
+  `ed5cd658d80c55a4780dbe41985010874ae76378` and their fixed hash tables. Agent Commerce
+  Profile v1.0 is Accepted with `experimental` lifecycle. Cross-attestation semantics and the
+  independent-signer predicate are binding, but the current verifier still emits
+  `TR-SIGNER-SELF` until report integration plus external identity resolution can prove every
+  ADR-011 condition.
+- S8 was explicitly authorized on 2026-09-02. The implementation candidate now provides an
+  EAS/Base Sepolia `AnchorBackend` mock, thin publisher, direct JSON-RPC verification and a
+  separate machine-consumer report/requirements envelope. ADR-012 and ADR-013 are Proposed;
+  neither self-ratifies.
+- Base Sepolia read-only preflight passes on chain id 84532 and both official EAS contract
+  addresses. The proposed ACTA schema is not registered, no signer was supplied and no
+  transaction was sent. S6 Artefact 1 therefore remains non-publicable: real external custody
+  is still open despite the working implementation candidate.
 - C2 Artefact 1 seals exact OmegaClaw history records into signed Chronos/Merkle bundles and
   detects a silent deletion against a witness placed in a separate local domain. It passed on
   its fixture and on a read-only copy of the real 100-record E0 history; the original volume

@@ -147,7 +147,9 @@ cd ~/proyectos/e0-substrate/OmegaClaw-Core
 env TEST_SERVER_IP=172.17.0.1 ./scripts/omegaclaw start -s 0000 -p Test -t test -d omegaclaw:mock
 
 # Real provider — capture 3. This is the combination that currently fails to bind.
-export ANTHROPIC_API_KEY=...          # from the operator, out of band
+read -rsp "Anthropic API key (input hidden; never commit it): " ANTHROPIC_API_KEY
+printf '\n'
+export ANTHROPIC_API_KEY
 env TEST_SERVER_IP=172.17.0.1 ./scripts/omegaclaw start -s 0000 -p Anthropic -t test \
     -m claude-haiku-4-5-20251001 -d omegaclaw:mock
 
@@ -182,7 +184,8 @@ the provider supports; the experiment measures the loop, not the model's quality
 - Env var, or a file outside the repo with mode `600`.
 - Before every commit: `git ls-files -z | xargs -0 grep -l 'sk''-ant'` must return nothing. The
   `.rawlog` files are committed, so check them too.
-- The launcher passes the key as `-e ANTHROPIC_API_KEY=…`, which makes it visible in
+- The launcher passes the existing variable as `-e ANTHROPIC_API_KEY`, which still makes its
+  resolved value visible in
   `docker inspect`. Captures come from `docker logs`, which is clean — but verify, don't assume.
 - **Operator note:** the key and the sudo password used in the predecessor session were pasted
   into a chat transcript. They should have been rotated. Confirm before reusing anything.

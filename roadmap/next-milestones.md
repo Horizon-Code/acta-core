@@ -1,11 +1,11 @@
 # Next Milestones
 
-1. Review and explicitly accept or return Proposed ADR-010 and ADR-011. Their fixed S7
-   submission is non-binding until operator ratification.
-2. Do not start S8 before the S7 report and ratification of its applicable ADRs. A real
-   counterparty must still validate the anchor need.
-3. Treat real independent custody/anchoring of the S6 Artefact 1 commitment as a first-class
-   S8 requirement; it is not a side effect.
+1. Review and explicitly accept or return Proposed ADR-012 and ADR-013 on their fixed S8 hash
+   sets. Their adapter/report wires remain non-binding until operator ratification.
+2. After ADR-012 acceptance, provide a dedicated funded Base Sepolia signer out of band,
+   register the fixed schema, publish the S6 Artefact 1 root and verify its real sidecar.
+3. Treat successful real independent custody/anchoring—not code, mock output or schema
+   registration alone—as the remaining S6/S8 deployment criterion.
 4. Define the profile registration/review workflow linked to ADRs.
 5. Add CI checks to detect misplaced files by authority level.
 
@@ -48,11 +48,16 @@ Ratified by Rub on 2026-09-02:
 
 - `decisions/ADR-009-cognitive-forensics-profile-v1.md` on its fixed eight-file submission,
   with `provisional` lifecycle status.
+- `decisions/ADR-010-agent-commerce-profile-v1.md` on its fixed seven-file submission, with
+  `experimental` lifecycle status.
+- `decisions/ADR-011-cross-attestation-semantics.md` on its fixed cross-attestation submission.
 
 **Gate rule: not a single line of C2 before E0 closes.**
-**Profile rule:** ADR-009 is Accepted on its exact hash set. The S7 Profile and
-cross-attestation semantics remain Proposed under ADR-010/011 and do not authorize S8.
-**Validation rule: no real anchor adapter before a real counterparty validates the need and the applicable ADRs are Accepted.**
+**Profile rule:** ADR-009/010 are Accepted on their exact hash sets; ADR-011 is binding but
+cannot retire `TR-SIGNER-SELF` without its detectable external-identity inputs.
+**Anchor rule:** a candidate and mock may be built under S8 authorization, but no ACTA schema
+or real root is represented as binding/publicable before ADR-012 acceptance and successful
+external verification.
 
 ### Resulting execution order
 
@@ -63,10 +68,12 @@ cross-attestation semantics remain Proposed under ADR-010/011 and do not authori
   artefacts; local fixture, real-history copy and E0-vector checks pass.
 - **Completed / S6:** ADR-009/Profile Accepted; S6 executable work closed. Retain the
   independent-custody/anchor deployment gate for S8.
-- **Prepared / S7:** exact `agent_commerce` candidate plus ADR-010/011 Proposed; eight Profile
-  tests pass. No report predicate was changed.
-- **Next only after ADR-010/011 decisions and explicit order / S8:** follow S8–S10 below, one
-  gated session at a time. Do not begin S8 early.
+- **Completed / S7:** exact `agent_commerce` submission and cross-attestation semantics
+  Accepted under ADR-010/011; eight Profile tests pass. No report predicate was silently
+  changed.
+- **Prepared / S8 review:** EAS/Base adapter and machine-consumer report candidates under
+  Proposed ADR-012/013. Mock, ABI fixtures, CLI composition and read-only Base deployment
+  preflight pass; no external transaction has been sent.
 - **A2 / real anchor:** EVM/Base-first, only after a real counterparty and Accepted adapter
   decisions. Until then, mock + `TR-ANCHOR-UNVERIFIED` remains honest product behavior.
 - **Always in parallel:** documentary debt and the redefined E-9.8 conversations.
@@ -80,8 +87,8 @@ ADRs to move from Proposed to Accepted before their implementation fixes normati
 | Session | Scope | Gate |
 |---|---|---|
 | **S6 — closed in executable work** | Accepted Cognitive Forensics Profile; C2 Artefact 1 (silent deletion with simulated external topology) and Artefact 2 (ADR-008 link-by-link audit) on OmegaClaw | Deployment gate open: real independent custody/anchor deferred to S8. Local real-history copy and E0-vector checks pass |
-| **S7 — submission prepared** | Exact `agent_commerce` Profile candidate and named cross-attestation forms in ADR-010/011 | Both ADRs Proposed; no report activation; eight tests pass |
-| **S8 — not authorized** | EVM/EAS `AnchorBackend` mock → Base testnet plus machine-consumer report priority and real custody for S6 Artefact 1 | S7 report delivered; real counterparty validated; applicable ADRs Accepted; explicit order required |
+| **S7 — accepted** | Exact `agent_commerce` Profile and named cross-attestation forms in ADR-010/011 | Both ADRs Accepted on fixed hashes; external identity/report integration remains future work |
+| **S8 — candidate prepared; deployment open** | EVM/EAS `AnchorBackend` mock + Base Sepolia publisher/verifier and machine-consumer report | ADR-012/013 Proposed; real schema/root transaction and S6 custody require acceptance plus funded signer |
 | **S9** | OpenWorker emission connector and public level-1 Artefact 1 | S8 gate/report dependencies resolved |
 | **S10** | x402/AP2 evidence-extension proposal | Working demo required |
 | **Parallel [RUB]** | E-9.8 conversations, ratifications and community contacts | Non-delegable where specified |
@@ -121,7 +128,7 @@ verifier cannot evaluate is not a report line — it is a promise in the source.
 | `TR-IMPORT-UNPINNED` | Detection defined by ADR-007; lockfile implementation conforming to ADR-004 | With inference lockfile verification |
 | `TR-CHAIN-MEDIATED` | Predicate Accepted in ADR-008; Cognitive Forensics Profile/report composition | S6 Artefact 2 |
 | `TR-KEY-SELF-ASSERTED` | — | **Implemented with A3** |
-| `TR-SIGNER-SELF` | ADR-011 is Proposed; external identity binding remains future E-9.5 work | **Implemented with A1 under its current predicate**; no S7 change. ADR-011 proposes retirement only when cryptographic verification plus external bindings prove producer and counter-attestor are distinct subjects. Counter-signature with inline self-asserted keys does not remove it |
+| `TR-SIGNER-SELF` | ADR-011 Accepted; external identity binding remains future E-9.5 work | **Implemented with A1 under its current predicate**. Retirement is permitted only when report integration proves cryptographic verification plus externally bound, distinct producer/counter-attestor subjects. Counter-signature with inline self-asserted keys does not remove it |
 | `TR-NO-ANCHOR`, `TR-ANCHOR-UNVERIFIED` | — | **Implemented with B1** |
 | `TR-TIME-DECLARED` | — | **Implemented with the B2 report slice** |
 | `TR-CHRONOS-BOUNDARY-UNVERIFIED` | ADR-006 + declared chain scope and optional expected predecessor | Suffix/chain verification API + report composition (`DossierDetected`) |

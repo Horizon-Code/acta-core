@@ -3,16 +3,19 @@
 **Completion date:** 2026-09-02
 **Authority:** operator acceptance of ADR-009 and explicit S7 authorization against commit
 `19dde9f4143e4ea61102db5647cc8d2698c266c6`
+**Ratification:** ADR-010 and ADR-011 Accepted by the operator on 2026-09-02 against commit
+`ed5cd658d80c55a4780dbe41985010874ae76378` and their fixed hash tables.
 
 ## Outcome
 
-S7 prepared one exact Profile submission and two separate Proposed decisions:
+S7 prepared one exact Profile submission and two separate decisions, now Accepted:
 
-- `profiles/agent-commerce/` specifies Agent Commerce Profile v1.0 and requests
-  `experimental` lifecycle status through ADR-010.
-- ADR-011 names co-signature and reciprocal-event forms and proposes the externally bound
+- `profiles/agent-commerce/` specifies Agent Commerce Profile v1.0 with `experimental`
+  lifecycle status through ADR-010.
+- ADR-011 names co-signature and reciprocal-event forms and binds the externally resolved
   independent-signer predicate.
-- Neither ADR is self-ratified. S8 has not started and is not authorized.
+- Acceptance does not rewrite the byte-identical seven-file submission or pretend its report
+  integration/external identity dependency already exists. S8 was authorized separately.
 
 ## Profile scope
 
@@ -43,11 +46,11 @@ or Protocol fields.
   receipts and source-event hashes.
 - A counter-signature using inline keys is classified as identity unresolved and does not
   remove `TR-SIGNER-SELF`.
-- ADR-011 proposes full retirement only after cryptographic verification and externally
+- ADR-011 permits full retirement only after cryptographic verification and externally
   resolved bindings show producer and counter-attestor are distinct subjects. That makes
   E-9.2 dependent on E-9.5.
-- The candidate assessment is not wired into the report while ADR-011 is Proposed. Existing
-  report behavior remains unchanged.
+- The accepted reference assessment is not yet wired into the report because external identity
+  resolution is absent. Existing report behavior remains unchanged.
 
 ## Verification
 
@@ -62,10 +65,11 @@ policy binding, duplicate rejection, all seven event mappings, predecessor and t
 checks, x402-style prepayment, reciprocal delivery binding and the three cross-attestation
 outcomes/identity boundary.
 
-## Gates
+## Closure and following gate
 
-- ADR-010 and ADR-011 require explicit operator review and ratification.
-- S8 requires the S7 report, Accepted applicable ADRs, a real counterparty and explicit order.
+- ADR-010 and ADR-011 are Accepted on the exact hashes recorded in them.
+- S8 was explicitly authorized by the operator on 2026-09-02. Its adapter/report wire remains
+  Proposed under ADR-012/013 until separately ratified.
 - S8 must treat independent custody/anchoring of the S6 Artefact 1 commitment as a first-class
   requirement.
 
