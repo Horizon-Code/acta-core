@@ -1,14 +1,13 @@
 # Next Milestones
 
-1. **Close S6:** obtain explicit acceptance of Proposed ADR-009/Profile and place an Artefact 1
-   receipt/root in real independent custody (or an external anchor). Both C2 implementations
-   and their local verification are complete.
-2. Await S6 closure and an explicit order before S7; do not start `agent_commerce` or
-   cross-attestation early.
-3. Incorporate the 31-Aug market-research report when the operator supplies it; do not invent
-   a replacement.
-4. Define the profile registration/review workflow linked to ADRs.
-5. Add CI checks to detect misplaced files by authority level.
+1. **S6 is closed in executable work; two gates remain open:** obtain explicit acceptance of
+   Proposed ADR-009/Profile, and in S8 place an Artefact 1 receipt/root in real independent
+   custody (or an external anchor). Both C2 implementations and their local verification are
+   complete.
+2. Do not start S7 until ADR-009 is Accepted and an explicit order is given; do not start
+   `agent_commerce` or cross-attestation early.
+3. Define the profile registration/review workflow linked to ADRs.
+4. Add CI checks to detect misplaced files by authority level.
 
 ## E0 gate
 
@@ -33,8 +32,8 @@ C2 is no longer blocked by E0 or ratification. The operator ratified the consoli
 E-9 + E-1 + E-2 + E-6 package on 2026-08-31 against commit
 `503aefbd0636ba3ef52b782c675b1a901e27466a`; E-1 and E-2 are
 binding as ADR-007 and ADR-008. S6 then implemented the Cognitive Forensics Profile submission
-and both C2 artefacts on 2026-09-01; profile approval and real external custody remain closure
-gates.
+and both C2 artefacts on 2026-09-01. S6 is closed in executable work; profile approval remains
+the gate to S7 and real external custody remains deferred to S8.
 
 Ratified by Rub on 2026-08-31:
 
@@ -46,8 +45,9 @@ Ratified by Rub on 2026-08-31:
 - `decisions/ADR-008-mediated-chain-link-fidelity.md`
 
 **Gate rule: not a single line of C2 before E0 closes.**
-**Profile rule:** the S6 implementation is not an Accepted Profile or closed demonstrator until
-Proposed ADR-009 receives specific operator approval.
+**Profile rule:** the S6 implementation is not an Accepted Profile until Proposed ADR-009
+receives specific operator approval; S7 cannot start before that approval and an explicit
+order.
 **Validation rule: no real anchor adapter before a real counterparty validates the need and the applicable ADRs are Accepted.**
 
 ### Resulting execution order
@@ -57,10 +57,10 @@ Proposed ADR-009 receives specific operator approval.
   `TR-ANCHOR-UNVERIFIED` · `TR-TIME-DECLARED`.
 - **Implemented / S6:** Cognitive Forensics Profile submission and both C2 OmegaClaw
   artefacts; local fixture, real-history copy and E0-vector checks pass.
-- **Now / S6 closure:** accept ADR-009/Profile and arrange real independent custody or an
-  external anchor for Artefact 1.
-- **Next only after closure and explicit order / S7:** follow S7–S10 below, one gated session
-  at a time. Do not begin S7 early.
+- **Now / open S6 gates:** accept ADR-009/Profile; retain the independent-custody/anchor gate
+  for S8. S6 executable work is closed.
+- **Next only after ADR-009 acceptance and explicit order / S7:** follow S7–S10 below, one
+  gated session at a time. Do not begin S7 early.
 - **A2 / real anchor:** EVM/Base-first, only after a real counterparty and Accepted adapter
   decisions. Until then, mock + `TR-ANCHOR-UNVERIFIED` remains honest product behavior.
 - **Always in parallel:** documentary debt and the redefined E-9.8 conversations.
@@ -73,17 +73,16 @@ ADRs to move from Proposed to Accepted before their implementation fixes normati
 
 | Session | Scope | Gate |
 |---|---|---|
-| **S6 — implementation complete, closure pending** | Proposed Cognitive Forensics Profile; C2 Artefact 1 (silent deletion with simulated external topology) and Artefact 2 (ADR-008 link-by-link audit) on OmegaClaw | Open: explicit ADR-009/Profile approval + real independent custody/anchor. Local real-history copy and E0-vector checks pass |
-| **S7** | Specify `agent_commerce` and named cross-attestation forms as Proposed ADRs | Do not start before S6 closes |
+| **S6 — closed in executable work; two gates open** | Proposed Cognitive Forensics Profile; C2 Artefact 1 (silent deletion with simulated external topology) and Artefact 2 (ADR-008 link-by-link audit) on OmegaClaw | Open: explicit ADR-009/Profile approval; real independent custody/anchor deferred to S8. Local real-history copy and E0-vector checks pass |
+| **S7** | Specify `agent_commerce` and named cross-attestation forms as Proposed ADRs | Do not start before ADR-009 is Accepted and an explicit order is given |
 | **S8** | EVM/EAS `AnchorBackend` mock → Base testnet plus machine-consumer report priority | Real counterparty validated; applicable ADRs Accepted |
 | **S9** | OpenWorker emission connector and public level-1 Artefact 1 | S8 gate/report dependencies resolved |
 | **S10** | x402/AP2 evidence-extension proposal | Working demo required |
 | **Parallel [RUB]** | E-9.8 conversations, ratifications and community contacts | Non-delegable where specified |
 | **Parallel [EJEC]** | Remaining documentary debt; freeze AML in its current internal-reference regime | No dedicated C1 session |
 
-The market-research report cited by E-9 §0 is pending operator delivery. Once received, add it
-under `research/` and cite it with dates while separating measured facts from strategic
-inference. Do not synthesize a substitute.
+The market-research report cited by E-9 §0 was incorporated literally under `research/` on
+2026-09-02. E-9 §0 points to its dated findings and separates them from strategic inference.
 
 ### Amendments E-1..E-8: ratification status
 

@@ -603,5 +603,6 @@ GitHub.** Esa validación debería ir en paralelo al Bloque A, no después.
 > (2) operador de agentes con dinero real en juego. Cumplimiento queda como conversación
 > opcional para fechar el segundo mercado. La compuerta de A2 conserva su espíritu: adaptador
 > real solo cuando exista una contraparte real. El informe de mercado del 31-ago que sustenta
-> el giro está pendiente de entrega e incorporación bajo `research/`; hasta entonces no se
-> presentan sus afirmaciones externas como verificadas desde este repositorio.
+> el giro fue incorporado literalmente el 2-sept-2026 como
+> `research/investigacion-validacion-mercado-2026-08-31.md`; E-9 §0 enlaza cada afirmación con
+> sus hallazgos y separa la inferencia estratégica.

@@ -419,4 +419,6 @@ Formulación consolidada tras el intercambio Claude ↔ Codex de abril de 2026.
 > sobre x402/AP2 y a un operador de agentes con dinero real en juego; cumplimiento queda como
 > calibración opcional del mercado de 2027. A2 conserva la compuerta “adaptador real cuando
 > exista contraparte real”, ahora con el sustrato del primer comprador. El informe de mercado
-> del 31-ago sigue pendiente de entrega e incorporación bajo `research/`.
+> del 31-ago fue incorporado literalmente el 2-sept-2026 como
+> `research/investigacion-validacion-mercado-2026-08-31.md`, con sus inferencias estratégicas
+> separadas de los hallazgos fechados.

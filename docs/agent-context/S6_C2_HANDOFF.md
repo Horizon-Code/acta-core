@@ -12,8 +12,9 @@
   passed semantic review and awaits specific operator approval through Proposed ADR-009.
 - C2 Artefact 1 and Artefact 2 are implemented under `demos/c2-omegaclaw/`.
 
-S6 is not declared closed: Artefact 1 still needs custody of a receipt/epoch root by a real
-independent party (or an external anchor), and the Profile needs maintainer approval.
+S6 está **cerrado en lo ejecutable; quedan dos compuertas abiertas**: la ratificación de
+ADR-009/Profile y la custodia independiente, pendiente de S8. S7 no empieza hasta que
+ADR-009 sea Accepted y exista orden explícita.
 
 ## Artefact 1
 
@@ -40,6 +41,11 @@ Limits: the demo signing seed is public, keys are inline, and the external-party
 a topology simulation. It proves the mechanics and the need to retain a commitment outside
 operator control; it does not supply institutional independence or a public anchor and cannot
 close that E-9.6 criterion.
+
+El Artefacto 1 está **implementado y verificado, no demostrable en público**. La detección del
+borrado es probatoria ante un tercero solo cuando el compromiso se conserva fuera del control
+del operador. La custodia independiente o el anclaje externo llegan en **S8** (adaptador
+EVM/EAS). Hasta entonces, la demo no se presenta a terceros ni se publica.
 
 ## Artefact 2
 
@@ -79,9 +85,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
 
 - Specific operator acceptance of Proposed ADR-009 and its exact Profile submission.
 - Real independent custody of the Artefact 1 receipt/root, or an external anchor. A sibling
-  local directory is not sufficient.
-- The operator-announced 31-Aug market-research report has not been supplied; do not
-  reconstruct it.
+  local directory is not sufficient; this is deferred to S8.
 - S7 is next but has **not started**. It requires its own session and Proposed ADRs for
-  `agent_commerce` and named cross-attestation semantics.
+  `agent_commerce` and named cross-attestation semantics, and cannot start until ADR-009 is
+  Accepted and an explicit order is given.
 - A real anchor adapter remains gated on a real counterparty and Accepted adapter decisions.

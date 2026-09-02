@@ -7,10 +7,10 @@
 - E0 gate is **open, 4/4 complete**: all captures have measured data and a written decision.
   Capture 3 measured a 5/5 ceiling in isomorphic tasks under explicit byte-copy instructions;
   it is not a general mediator rate. Auxiliary attempts recorded omission and recomputation.
-  C2 is unblocked by E0 and the ratified E-1/E-2/E-6 package. S6 implementation completed on
-  2026-09-01, but S6 remains open: the Cognitive Forensics Profile awaits specific approval
-  through Proposed ADR-009, and Artefact 1 still needs a receipt/root retained by a real
-  independent party or an external anchor.
+  C2 is unblocked by E0 and the ratified E-1/E-2/E-6 package. S6 is closed in executable work
+  as of 2026-09-01, with two gates still open: the Cognitive Forensics Profile awaits specific
+  approval through Proposed ADR-009, and Artefact 1 custody/anchoring is deferred to S8.
+  S7 cannot start until ADR-009 is Accepted and an explicit order is given.
 - ADR-003, ADR-004 and ADR-005 were ratified by the operator on 2026-08-31. Their equality,
   lockfile-shape and raw-commitment-point decisions are binding.
 - ADR-007 and ADR-008 materialize ratified E-1 and E-2: the four report codes use mechanically
@@ -33,6 +33,10 @@
   detects a silent deletion against a witness placed in a separate local domain. It passed on
   its fixture and on a read-only copy of the real 100-record E0 history; the original volume
   was untouched. That run is a topology simulation, not independent custody.
+- El Artefacto 1 está **implementado y verificado, no demostrable en público**. La detección
+  del borrado es probatoria ante un tercero solo cuando el compromiso se conserva fuera del
+  control del operador. La custodia independiente o el anclaje externo llegan en **S8**
+  (adaptador EVM/EAS). Hasta entonces, la demo no se presenta a terceros ni se publica.
 - C2 Artefact 2 applies ADR-008 to the real E0 strings, emits
   `TR-CHAIN-MEDIATED`/`TR-NONDET-INPUT`, preserves the selection disclaimer and provides the
   pinned source patch at the raw `(eval $s)` boundary. The historical E0 process/Chronos fields
@@ -48,11 +52,10 @@
   `TR-TIME-DECLARED`; B2 remains incremental. Under E-9.3 its primary consumer and closure
   priority are machine-first JSON, while human-readable text remains the second
   representation.
-- The 31-Aug market-research report cited by E-9 has not yet been delivered to the repository.
-  Its incorporation and dated sourcing of E-9 §0 remain explicit documentary follow-up; no
-  substitute report has been inferred or fabricated. The operator's ratification message
-  explicitly moved delivery after ratification (“lo enviaré aparte”), superseding the
-  baseline draft's earlier atomic-delivery wording without treating the report as present.
+- The 31-Aug market-research report cited by E-9 was incorporated literally at
+  `research/investigacion-validacion-mercado-2026-08-31.md` on 2026-09-02. E-9 §0 now maps
+  every motivating claim to dated report findings and labels the strategic inference
+  separately.
 - The full documentary triad is in the repo: `acta-estado-consolidado.md`,
   `directiva-construccion-2026-08-31.md`, and `E0-protocolo-y-enmiendas.md`. The §1.2
   vocabulary-scale and §3.1 canonicalization references now resolve.

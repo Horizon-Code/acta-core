@@ -26,25 +26,32 @@ observables (desk research multi-fuente, 31-ago-2026) y el guion de conversacion
 `research/guion-validacion-tres-conversaciones.md`, pendiente de ejecutarse con interlocutores
 redefinidos por esta enmienda). Los hallazgos que motivan el giro:
 
-> **Estado de fuentes.** El operador anunció que entregará aparte el informe de investigación
-> de mercado del 31-ago-2026. Hasta incorporarlo bajo `research/` y enlazar sus fuentes
-> fechadas, las cifras y afirmaciones externas de este §0 son la base declarada de la decisión
-> estratégica, no hechos independientemente reproducibles desde este repositorio. La
-> ratificación fija el rumbo; no convierte la evidencia pendiente en evidencia presente.
+> **Estado de fuentes (incorporado el 2-sept-2026).** La evidencia fechada está en
+> `research/investigacion-validacion-mercado-2026-08-31.md`. Sus §§1–7 contienen los
+> hallazgos y limitaciones metodológicas; su `Síntesis — INFERENCIA ESTRATÉGICA` separa las
+> interpretaciones que motivan el rumbo. Las referencias de cada punto distinguen abajo
+> dato incorporado de inferencia estratégica; aceptar E-9 no convierte esta última en hecho.
 
 1. **El comprador de cumplimiento compra atestación, no verificabilidad.** El mercado de AI
    governance/assurance es real y creciente (~$3,1bn TRiSM 2025; £1,01bn UK), pero el gasto
    compra el modelo "logs del operador + procedimiento firmado". Los supervisores (EBA, BCE
    jul-2025, FDA) exigen "trazabilidad" y la aceptan auto-atestada. Ninguna sanción ha citado
    jamás la integridad del log como el fallo.
+   **Base incorporada:** informe de mercado, Resumen y §§1.1, 2, 4–6. **Inferencia:** que el
+   patrón observado describe la preferencia general del comprador, informe `Síntesis`.
 2. **La propuesta exacta de ACTA ya se probó en ese mercado y quedó en nicho.** Guardtime
    vende verificabilidad-sin-confiar-en-el-operador a banca y sanidad desde 2012; catorce
    años después sigue siendo nicho. Amazon cerró QLDB (su ledger criptográficamente
    verificable) en 2025, presumiblemente por baja demanda.
+   **Base incorporada:** informe de mercado §1.2. **Inferencia:** atribuir el cierre de QLDB
+   a baja demanda y extrapolar el nicho a la propuesta de ACTA, informe `Síntesis`.
 3. **El disparador del mercado de cumplimiento es externo y llega en 2027**: que un
    estándar armonizado (CEN-CENELEC JTC21 definiendo "logging" del AI Act) o un supervisor
    exija integridad verificable por terceros. Obligaciones de logging de alto riesgo:
    2-dic-2027 (Anexo III) / 2-ago-2028 (Anexo I).
+   **Base incorporada:** informe de mercado, Resumen y §§4–5. **Inferencia:** que una exigencia
+   supervisora o armonizada será el disparador comercial y que llega en 2027, informe
+   `Síntesis`.
 4. **En la economía de agentes la distinción de ACTA no es prima: es prerequisito.** El
    stack en formación (Google AP2 con mandates firmados como W3C Verifiable Credentials;
    Coinbase x402 con Visa, AWS, Anthropic, Stripe; Visa TAP; PayPal Agent Ready) resuelve
@@ -53,11 +60,15 @@ redefinidos por esta enmienda). Los hallazgos que motivan el giro:
    cobro. Sin chargebacks, la evidencia de ejecución es el único mecanismo de disputa que
    queda. Y entre agentes no hay operador humano cuya palabra aceptar: la verificabilidad
    sin confianza deja de ser lujo.
+   **Base incorporada:** informe de mercado §7. **Inferencia:** que la evidencia de ejecución
+   es el único mecanismo de disputa y la verificabilidad un prerrequisito, informe `Síntesis`.
 5. **La demanda de la categoría "evidencia de agente" ya es visible del lado mainstream:**
    OpenWorker (Andrew Ng, 17k⭐, MIT) vende como titular "governance is the architecture" y
    un audit trail con procedencia de aprobación por tool call — implementado como registro
    local auto-atestado, sin encadenamiento ni anclaje. El mercado quiere el cuaderno; nadie
    vende el candado.
+   **Base incorporada:** informe de mercado §7. **Inferencia:** “el mercado quiere el
+   cuaderno; nadie vende el candado”, informe `Síntesis`.
 
 **Tesis de la enmienda:** ACTA se posiciona como **la capa de evidencia y disputa de la
 economía entre agentes** — la tercera pieza del stack (autorización → **ejecución probada**
@@ -280,7 +291,7 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 
 | Sesión | Contenido |
 |---|---|
-| S6 — **implementación completada; cierre pendiente** | Profile propuesto y ambos artefactos C2 ejecutados localmente; requiere aprobación específica de ADR-009/Profile y custodia externa real del compromiso del Artefacto 1 |
+| S6 — **cerrado en lo ejecutable; dos compuertas abiertas** | Profile propuesto y ambos artefactos C2 ejecutados localmente; quedan la aprobación específica de ADR-009/Profile y la custodia externa real del compromiso del Artefacto 1, prevista para S8 |
 | S7 | Especificación del perfil `agent_commerce` (E-9.1) + forma nombrada de atestación cruzada (E-9.2) como ADR *Proposed* |
 | S8 | Solo tras validar una contraparte real y aceptar las ADR aplicables: adaptador `AnchorBackend` EVM/EAS con mock→Base testnet (E-9.4) + informe JSON-primero (E-9.3) |
 | S9 | Conector de emisión OpenWorker + Artefacto 1 sobre OpenWorker (E-9.6) |
@@ -315,16 +326,11 @@ ratificada como decisión de roadmap, con el alcance medido y los límites descr
 C2 queda desbloqueado por el paquete, sujeto a formalizar y ratificar primero el Cognitive
 Forensics Profile y a cualquier nueva decisión normativa que aparezca durante S6.
 
-La ratificación: (1) levanta la congelación de Cardano/agentes/EVM; (2) pone en vigor la
-secuencia S6–S10 de esta enmienda; y (3) mantiene como tarea documental pendiente la
-incorporación del **informe de investigación de mercado del 31-ago** bajo `research/`, seguida
-de la anotación de este §0 con referencias fechadas que separen hechos medidos de inferencias
-estratégicas. No se inventa ni se reconstruye ese informe antes de que el operador lo entregue.
-
-El mensaje de ratificación hizo explícita la entrega posterior del informe (“lo enviaré
-aparte”). Esa instrucción posterior dispensa la condición de incorporación previa o atómica
-que figuraba en el baseline ratificado, sin convertir las afirmaciones del §0 en evidencia ya
-presente. El estado de fuentes de este documento sigue siendo vinculante hasta la entrega.
+La ratificación: (1) levanta la congelación de Cardano/agentes/EVM; y (2) pone en vigor la
+secuencia S6–S10 de esta enmienda. El informe de investigación de mercado del 31-ago fue
+entregado por el operador e incorporado literalmente bajo `research/` el 2-sept-2026; este
+§0 quedó anotado en el mismo acto con referencias fechadas que separan hallazgos e inferencias
+estratégicas.
 
 Las piezas con forma de decisión de protocolo o perfil (E-9.1, E-9.2 y E-9.4) entrarán como
 ADRs *Proposed* individuales y deberán alcanzar `Accepted` antes de que su implementación fije
