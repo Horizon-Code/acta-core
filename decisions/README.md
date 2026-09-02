@@ -22,8 +22,12 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
 - `ADR-007-residual-trust-codes-e1.md` — E-1 residual-trust vocabulary.
 - `ADR-008-mediated-chain-link-fidelity.md` — E-2 declared-`T` link predicate and inseparable
   selection disclaimer.
+- `ADR-009-cognitive-forensics-profile-v1.md` — exact Cognitive Forensics Profile v1.0
+  submission, Accepted with provisional lifecycle status on its fixed eight-file hash set.
 
 ## Proposed decisions awaiting operator review
 
-- `ADR-009-cognitive-forensics-profile-v1.md` — exact Cognitive Forensics Profile v1.0
-  submission prepared in S6; maintainer approval pending.
+- `ADR-010-agent-commerce-profile-v1.md` — exact S7 Agent Commerce Profile v1.0 submission,
+  requesting `experimental` lifecycle status.
+- `ADR-011-cross-attestation-semantics.md` — separates receipt co-signature from reciprocal
+  events and proposes the externally bound independent-signer predicate without activating it.

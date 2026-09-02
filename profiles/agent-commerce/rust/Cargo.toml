@@ -1,0 +1,17 @@
+[package]
+name = "acta-agent-commerce-profile"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+name = "acta_agent_commerce_profile"
+path = "src/lib.rs"
+
+[dependencies]
+acta-core = { path = "../../../core/rust/acta-core" }
+ciborium = "0.2"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.10"
+thiserror = "1.0"

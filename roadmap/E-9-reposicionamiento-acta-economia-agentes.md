@@ -291,8 +291,8 @@ pero la compuerta "adaptador real cuando haya contraparte real" se conserva).
 
 | Sesión | Contenido |
 |---|---|
-| S6 — **cerrado en lo ejecutable; dos compuertas abiertas** | Profile propuesto y ambos artefactos C2 ejecutados localmente; quedan la aprobación específica de ADR-009/Profile y la custodia externa real del compromiso del Artefacto 1, prevista para S8 |
-| S7 | Especificación del perfil `agent_commerce` (E-9.1) + forma nombrada de atestación cruzada (E-9.2) como ADR *Proposed* |
+| S6 — **cerrado en lo ejecutable** | ADR-009/Profile Accepted y ambos artefactos C2 ejecutados localmente; queda la custodia externa real del compromiso del Artefacto 1, prevista para S8 |
+| S7 — **submission preparado** | Perfil `agent_commerce` (E-9.1) y forma nombrada de atestación cruzada (E-9.2) fijados en ADR-010/011 *Proposed*; sin activación del predicado de informe |
 | S8 | Solo tras validar una contraparte real y aceptar las ADR aplicables: adaptador `AnchorBackend` EVM/EAS con mock→Base testnet (E-9.4) + informe JSON-primero (E-9.3) |
 | S9 | Conector de emisión OpenWorker + Artefacto 1 sobre OpenWorker (E-9.6) |
 | S10 | Propuesta de extensión a x402/AP2 (E-9.7) — **solo con demo funcionando** |

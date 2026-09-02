@@ -8,9 +8,8 @@
   Capture 3 measured a 5/5 ceiling in isomorphic tasks under explicit byte-copy instructions;
   it is not a general mediator rate. Auxiliary attempts recorded omission and recomputation.
   C2 is unblocked by E0 and the ratified E-1/E-2/E-6 package. S6 is closed in executable work
-  as of 2026-09-01, with two gates still open: the Cognitive Forensics Profile awaits specific
-  approval through Proposed ADR-009, and Artefact 1 custody/anchoring is deferred to S8.
-  S7 cannot start until ADR-009 is Accepted and an explicit order is given.
+  as of 2026-09-01. ADR-009 was Accepted on 2026-09-02 with `provisional` lifecycle status;
+  Artefact 1 custody/anchoring remains the sole S6 deployment gate and is deferred to S8.
 - ADR-003, ADR-004 and ADR-005 were ratified by the operator on 2026-08-31. Their equality,
   lockfile-shape and raw-commitment-point decisions are binding.
 - ADR-007 and ADR-008 materialize ratified E-1 and E-2: the four report codes use mechanically
@@ -19,6 +18,10 @@
 - ADR-006 was ratified on 2026-08-31: Chronos continuity does not reset at epoch boundaries.
   Its implementation and future `TR-CHRONOS-BOUNDARY-UNVERIFIED` report line remain
   unstarted pending an explicit execution order.
+- ADR-009 was ratified by the operator on 2026-09-02 against commit
+  `19dde9f4143e4ea61102db5647cc8d2698c266c6` and its exact eight-file hash set. The
+  Cognitive Forensics Profile is Accepted with `provisional` lifecycle status; the eight
+  submitted files remain byte-identical to the ratified set.
 - E-9, “Reposicionamiento: ACTA como capa de confianza de la economía entre agentes”, is
   **Accepted** as part of the E-9 + E-1 + E-2 + E-6 package ratified by the operator on
   2026-08-31 against commit `503aefbd0636ba3ef52b782c675b1a901e27466a`. The
@@ -26,9 +29,14 @@
   direction is EVM/Base-first with multi-anchor neutrality, Cardano in the catalog,
   `agent_commerce` as the next commercial Profile, OpenWorker as the public level-1 target,
   OmegaClaw as the level-2 ceiling, and AML retained only as an internal reference.
-- E-9.1, E-9.2 and E-9.4 still require their own Proposed-to-Accepted ADRs before
-  implementation fixes profile, cross-attestation or adapter wire details. A real anchor
-  adapter remains gated on a real counterparty.
+- S7 produced the exact Agent Commerce Profile v1.0 candidate and reference validator under
+  `profiles/agent-commerce/`. ADR-010 proposes the Profile with `experimental` lifecycle;
+  ADR-011 separately proposes cross-attestation semantics and the independent-signer
+  predicate. Both remain non-binding pending operator ratification. The current verifier
+  still emits `TR-SIGNER-SELF` for any producer self-signature.
+- E-9.4 still requires its own Proposed-to-Accepted ADR before implementation fixes adapter
+  wire details. S8 is not authorized, and a real anchor adapter remains gated on a real
+  counterparty.
 - C2 Artefact 1 seals exact OmegaClaw history records into signed Chronos/Merkle bundles and
   detects a silent deletion against a witness placed in a separate local domain. It passed on
   its fixture and on a read-only copy of the real 100-record E0 history; the original volume

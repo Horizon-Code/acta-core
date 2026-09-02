@@ -8,13 +8,13 @@
 
 - E-9 is Accepted and the old Cardano/agents/EVM freeze is lifted.
 - E-1 and E-2 are binding as ADR-007 and ADR-008; E-6 is Accepted roadmap scope.
-- The Cognitive Forensics Profile v1.0 is formalized under `profiles/ai-agent/README.md`, has
-  passed semantic review and awaits specific operator approval through Proposed ADR-009.
+- The Cognitive Forensics Profile v1.0 is Accepted by ADR-009 with `provisional` lifecycle
+  status on the exact eight-file submission ratified on 2026-09-02.
 - C2 Artefact 1 and Artefact 2 are implemented under `demos/c2-omegaclaw/`.
 
-S6 está **cerrado en lo ejecutable; quedan dos compuertas abiertas**: la ratificación de
-ADR-009/Profile y la custodia independiente, pendiente de S8. S7 no empieza hasta que
-ADR-009 sea Accepted y exista orden explícita.
+S6 está **cerrado en lo ejecutable**. La compuerta de ADR-009/Profile cerró con la
+ratificación del 2-sept-2026; la compuerta de custodia independiente sigue abierta y queda
+pendiente de S8.
 
 ## Artefact 1
 
@@ -83,10 +83,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
 
 ## Still pending
 
-- Specific operator acceptance of Proposed ADR-009 and its exact Profile submission.
 - Real independent custody of the Artefact 1 receipt/root, or an external anchor. A sibling
   local directory is not sufficient; this is deferred to S8.
-- S7 is next but has **not started**. It requires its own session and Proposed ADRs for
-  `agent_commerce` and named cross-attestation semantics, and cannot start until ADR-009 is
-  Accepted and an explicit order is given.
+- S7 was authorized on 2026-09-02. Its `agent_commerce` and named cross-attestation decisions
+  must remain Proposed until separately ratified.
 - A real anchor adapter remains gated on a real counterparty and Accepted adapter decisions.

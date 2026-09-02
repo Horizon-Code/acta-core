@@ -1,9 +1,10 @@
 # ADR-009: Cognitive Forensics Profile v1.0
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-01
-- Decision authority requested: operator under ADR-001
-- Requested lifecycle status: `provisional`
+- Accepted: 2026-09-02 by the operator under ADR-001
+- Ratified submission commit: `19dde9f4143e4ea61102db5647cc8d2698c266c6`
+- Lifecycle status: `provisional`
 - Prerequisites: Accepted E-1/E-2/E-6, ADR-003 through ADR-008
 
 ## Context
@@ -18,7 +19,7 @@ This ADR gives that approval a stable target. It does not claim that the Profile
 Accepted and it does not close the separate E-9.6 requirement for real independent custody of
 the Artefact 1 commitment.
 
-## Proposed decision
+## Decision
 
 Accept Cognitive Forensics Profile v1.0 with `provisional` lifecycle status for bounded
 production evidence and the S6 demonstrator, subject to all limitations in its specification.
@@ -61,12 +62,13 @@ part before ratification.
 Semantic review outcome and known risks are recorded in
 `profiles/ai-agent/acceptance-checklist.md`.
 
-## Consequences if accepted
+## Consequences
 
 - The Profile becomes the normative S6 vocabulary with `provisional` maturity.
 - The current Rust validation and mapping artifact becomes its reference implementation.
 - An independent consumer is still required before `stable` maturity.
-- S6 still cannot close until Artefact 1 has real independent custody or an external anchor.
+- S6 is closed in executable work. Artefact 1 remains non-publicable until it has real
+  independent custody or an external anchor, scheduled as a first-class S8 requirement.
 - Any new event meaning, closure rule or change to commitment semantics follows the Profile's
   versioning rules.
 
@@ -76,7 +78,10 @@ This ADR does not define `agent_commerce`, cross-attestation, DID/VC, EVM/EAS, O
 the ADR-004 lockfile implementation. Those remain in later gated sessions. It does not add a
 new Core or Protocol type and does not authorize S7.
 
-## Ratification requested
+## Ratification
 
-The operator may ratify this exact submission by explicitly accepting ADR-009. Until then the
-Profile and registry entry remain Proposed and S6 remains open.
+Ratified explicitly by the operator on 2026-09-02 under ADR-001 against commit
+`19dde9f4143e4ea61102db5647cc8d2698c266c6` and the eight SHA-256 values above. The
+ratification accepts the exact submission with `provisional` lifecycle status. If any byte of
+those eight files changes, the table must be refreshed and the affected part reviewed again
+before it is treated as ratified. Stable maturity still requires an independent consumer.

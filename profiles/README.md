@@ -19,8 +19,14 @@ Profiles are subordinate to `architecture/` and constrained by ADRs in `decision
 
 ## Registered profiles
 
-- `ai-agent/README.md` — proposed Cognitive Forensics Profile v1.0 submission requesting
-  provisional lifecycle status; its semantic review is recorded in
-  `ai-agent/acceptance-checklist.md`, maintainer approval is pending, and Rust validation
-  artifacts live under `ai-agent/rust/`.
+- `ai-agent/README.md` — Cognitive Forensics Profile v1.0, Accepted by ADR-009 with
+  `provisional` lifecycle status. Its eight-file ratified submission is preserved byte for
+  byte (including its pre-decision review metadata); current registry status is carried by
+  ADR-009 and this index. Rust validation artifacts live under `ai-agent/rust/`.
 - `aml/` — AML reference profile, retained for internal Core-generality coverage.
+
+## Proposed submissions
+
+- `agent-commerce/README.md` — S7 Agent Commerce Profile v1.0 candidate with
+  `experimental` lifecycle requested in ADR-010; cross-attestation semantics are separately
+  Proposed in ADR-011. Neither decision is binding before operator ratification.

@@ -3,6 +3,18 @@
 version = 4
 
 [[package]]
+name = "acta-agent-commerce-profile"
+version = "0.1.0"
+dependencies = [
+ "acta-core",
+ "ciborium",
+ "hex",
+ "serde",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
 name = "acta-ai-agent-profile"
 version = "0.1.0"
 dependencies = [
