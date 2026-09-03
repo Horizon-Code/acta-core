@@ -1,0 +1,73 @@
+name: vigilancia semanal
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: vigilancia-semanal
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Preparar rama de revisión
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="automation/vigilancia"
+          git fetch origin main "$branch" || git fetch origin main
+          if gh pr list --state open --head "$branch" --json number --jq 'length > 0' | grep -q true; then
+            git checkout -B "$branch" "origin/$branch"
+            git merge --no-edit origin/main
+          else
+            git checkout -B "$branch" origin/main
+          fi
+
+      - name: Tests del recolector
+        run: python -m unittest discover -s tools/vigilancia/tests -v
+
+      - name: Recoger cambios
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ACTA_EURLEX_FEED_URLS_JSON: ${{ secrets.ACTA_EURLEX_FEED_URLS_JSON }}
+        run: python tools/vigilancia/main.py
+
+      - name: Abrir o actualizar PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="automation/vigilancia"
+          if [ -z "$(git status --porcelain -- vigilancia)" ]; then
+            echo "No hay cambios que proponer"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vigilancia
+          git commit -m "chore(vigilancia): actualizar bandeja semanal"
+          git push --force-with-lease --set-upstream origin "$branch"
+          if ! gh pr list --state open --head "$branch" --json number --jq 'length > 0' | grep -q true; then
+            gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "chore: vigilancia semanal" \
+              --body "Actualización mecánica de la bandeja de vigilancia. No contiene juicio, hallazgos ni cambios en el cerebro de ACTA. Revisar especialmente las secciones de atención y errores antes de fusionar."
+          fi

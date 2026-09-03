@@ -1,0 +1,116 @@
+[settings]
+state_path = "vigilancia/state.json"
+output_dir = "vigilancia"
+max_attention = 5
+
+[sources.A1_SCITT]
+display_id = "A1"
+label = "IETF SCITT"
+kind = "atom"
+url = "https://datatracker.ietf.org/group/scitt/documents/feed/?significant=1"
+always_attention = true
+highlight_terms = ["recharter", "agent", "artificial intelligence", "SCRAPI", "adopt"]
+
+[sources.A2_COSE]
+display_id = "A2"
+label = "IETF COSE"
+kind = "atom"
+url = "https://datatracker.ietf.org/group/cose/documents/feed/?significant=1"
+include_terms = ["receipt", "hash envelope", "hash-envelope", "epoch marker", "epoch-marker"]
+highlight_terms = ["receipt", "hash envelope", "hash-envelope", "epoch marker", "epoch-marker"]
+
+[sources.A2_RATS]
+display_id = "A2"
+label = "IETF RATS"
+kind = "atom"
+url = "https://datatracker.ietf.org/group/rats/documents/feed/?significant=1"
+include_terms = ["receipt", "epoch marker", "epoch-marker"]
+highlight_terms = ["receipt", "epoch marker", "epoch-marker"]
+
+[sources.A3_VCON]
+display_id = "A3"
+label = "IETF VCON"
+kind = "atom"
+url = "https://datatracker.ietf.org/group/vcon/documents/feed/?significant=1"
+highlight_terms = ["trace", "log", "evidence", "provenance"]
+
+[sources.A3_DAWN]
+display_id = "A3"
+label = "IETF DAWN"
+kind = "atom"
+url = "https://datatracker.ietf.org/group/dawn/documents/feed/?significant=1"
+highlight_terms = ["trace", "log", "evidence", "provenance"]
+
+[sources.A3_AGENTPROTO]
+display_id = "A3"
+label = "IETF agentproto/BoF"
+enabled = false
+reason = "el diseño no identifica todavía el grupo definitivo"
+
+[sources.A4_AIUC_E015]
+display_id = "A4"
+label = "AIUC-1 E015"
+kind = "html_block"
+url = "https://www.aiuc-1.com/accountability/log-model-activity"
+block_name = "ficha E015 (Should include/May include)"
+block_pattern = '''Should include.*?E015\.2 Config: AI agent logging implementation.*?(?=Organizations can submit alternative evidence|AIUC-1 is built with)'''
+
+[sources.A5_LOTL]
+display_id = "A5"
+label = "Lista de confianza de la UE (LOTL)"
+kind = "lotl"
+url = "https://ec.europa.eu/tools/lotl/eu-lotl.xml"
+# Se buscan identificadores de tipo de servicio de forma literal y auditable. Los nombres
+# definitivos de eIDAS 2 deben sustituir/confirmar estos patrones cuando la Comisión los publique.
+service_patterns = ["ledger", "archiv"]
+parallel_downloads = 8
+
+[sources.A6_EURLEX]
+display_id = "A6"
+label = "EUR-Lex"
+kind = "env_atom_list"
+environment_variable = "ACTA_EURLEX_FEED_URLS_JSON"
+max_seen = 500
+
+[sources.A7_AP2_118]
+display_id = "A7"
+label = "AP2 issue #118"
+kind = "github_issue"
+url = "https://api.github.com/repos/google-agentic-commerce/AP2/issues/118"
+
+[sources.A7_OPENWORKER]
+display_id = "A7"
+label = "OpenWorker"
+kind = "github_issues"
+url = "https://api.github.com/repos/andrewyng/openworker/issues?state=all&sort=updated&direction=desc&per_page=100"
+include_terms = ["integrity", "tamper", "evidence", "append-only", "provenance"]
+
+[sources.A7_SCITT_CCF]
+display_id = "A7"
+label = "Microsoft SCITT CCF ledger"
+kind = "atom"
+url = "https://github.com/microsoft/scitt-ccf-ledger/commits/main.atom"
+archive_only = true
+
+[sources.A7_X402]
+display_id = "A7"
+label = "x402"
+kind = "github_issues"
+url = "https://api.github.com/repos/x402-foundation/x402/issues?state=all&sort=updated&direction=desc&per_page=100"
+include_terms = ["dispute", "evidence", "conformance"]
+
+[sources.A8_ARXIV]
+display_id = "A8"
+label = "arXiv cs.CR/cs.AI/cs.MA"
+kind = "atom"
+url = "https://export.arxiv.org/api/query?search_query=%28cat%3Acs.CR+OR+cat%3Acs.AI+OR+cat%3Acs.MA%29&sortBy=submittedDate&sortOrder=descending&max_results=100"
+include_terms = ["agent provenance", "tamper-evident", "agent insurance", "execution evidence", "trace underwriting", "verifiable agent"]
+archive_only = true
+max_seen = 500
+max_observations = 2
+
+[sources.A9_EAS]
+display_id = "A9"
+label = "EAS en Base"
+enabled = false
+reason = "falta fijar red, métrica de coste, ventana, línea base y umbral reproducible"
