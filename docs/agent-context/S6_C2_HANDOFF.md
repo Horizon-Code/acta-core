@@ -12,9 +12,9 @@
   status on the exact eight-file submission ratified on 2026-09-02.
 - C2 Artefact 1 and Artefact 2 are implemented under `demos/c2-omegaclaw/`.
 
-S6 está **cerrado en lo ejecutable**. La compuerta de ADR-009/Profile cerró con la
-ratificación del 2-sept-2026; la compuerta de custodia independiente sigue abierta y queda
-pendiente de S8.
+S6 está **cerrado**. La compuerta de ADR-009/Profile cerró con la ratificación del
+2-sept-2026; la compuerta de custodia cerró el 3-sept-2026 con el anclaje real de S8, en el
+alcance de demostración declarado más abajo.
 
 ## Artefact 1
 
@@ -42,10 +42,29 @@ a topology simulation. It proves the mechanics and the need to retain a commitme
 operator control; it does not supply institutional independence or a public anchor and cannot
 close that E-9.6 criterion.
 
-El Artefacto 1 está **implementado y verificado, no demostrable en público**. La detección del
-borrado es probatoria ante un tercero solo cuando el compromiso se conserva fuera del control
-del operador. La custodia independiente o el anclaje externo llegan en **S8** (adaptador
-EVM/EAS). Hasta entonces, la demo no se presenta a terceros ni se publica.
+El Artefacto 1 es **demostrable ante un tercero, con el alcance declarado abajo**. El
+3-sept-2026 su raíz de época `bd60c5e6fbdd425047387e9d87f1a3e2b3307ed718d229b19141afd843238fba`
+quedó anclada en Base Sepolia como atestación EAS irrevocable, y la verificación pasó las siete
+comprobaciones del predicado de ADR-012 §4 por el camino del tercero: verificador Rust contra
+Ethereum JSON-RPC crudo, sin publicador, sin indexador, sin explorador y sin endpoint de ACTA.
+Registro completo en `research/s8-eas-base-deployment-2026-09-03.md`.
+
+Cuatro precisiones acompañan siempre a esa afirmación. Presentar la demo omitiendo cualquiera
+de ellas la convierte en una afirmación falsa:
+
+- **Alcance.** Lo cerrado es la **custodia de demostración**, y el mecanismo de anclaje está
+  verificado de punta a punta.
+- **Testnet.** Base Sepolia demuestra el mecanismo ante un tercero; **no es custodia de
+  producción**. Un anclaje en red de pruebas prueba que el camino funciona; no equivale a un
+  anclaje en mainnet.
+- **Attester.** La clave firmante circuló fuera del canal previsto, así que la atestación
+  acredita que **el camino funciona, no quién firmó**. `TR-SIGNER-SELF` y
+  `TR-KEY-SELF-ASSERTED` siguen puestos.
+- **Procedencia.** Los bundles que reproducen la raíz anclada se regeneran de forma
+  determinista desde la historia fuente retenida en `fixtures/e0-real-history.metta`. **No se
+  afirma que sean los bundles originales del 1-sept.** La raíz se computa sobre los eventos, no
+  sobre los receipts: la coincidencia del witness prueba identidad de eventos y de orden, no de
+  firmas.
 
 ## Artefact 2
 
@@ -83,8 +102,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
 
 ## Still pending
 
-- Real independent custody of the Artefact 1 receipt/root, or an external anchor. A sibling
-  local directory is not sufficient; this is deferred to S8.
+- Production custody. The Artefact 1 root is anchored on Base Sepolia and externally verified,
+  which closes demonstration custody only. Mainnet anchoring and an attester whose identity is
+  resolvable remain open.
 - S7 was authorized on 2026-09-02. Its `agent_commerce` and named cross-attestation decisions
   must remain Proposed until separately ratified.
 - A real anchor adapter remains gated on a real counterparty and Accepted adapter decisions.

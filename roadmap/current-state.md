@@ -39,18 +39,34 @@
   EAS/Base Sepolia `AnchorBackend` mock, thin publisher, direct JSON-RPC verification and a
   separate machine-consumer report/requirements envelope. ADR-012 and ADR-013 are Proposed;
   neither self-ratifies.
-- Base Sepolia read-only preflight passes on chain id 84532 and both official EAS contract
-  addresses. The proposed ACTA schema is not registered, no signer was supplied and no
-  transaction was sent. S6 Artefact 1 therefore remains non-publicable: real external custody
-  is still open despite the working implementation candidate.
+- ADR-012 and ADR-013 were ratified on 2026-09-02 against their complete fixed hash sets, with
+  `experimental` lifecycle. On 2026-09-03 the ACTA schema was registered on Base Sepolia
+  (UID `0x1fbe4ca6…325f71`) and the S6 Artefact 1 epoch root was published as an irrevocable EAS
+  attestation. All seven ADR-012 §4 checks pass over the third-party path: Rust verifier against
+  raw Ethereum JSON-RPC, no publisher, no indexer, no ACTA endpoint. Measured cost was 0.0073 USD
+  for both transactions, correcting the 0.002 USD estimate in ADR-012 by a factor of 3.67.
+  Deployment record in `research/s8-eas-base-deployment-2026-09-03.md`.
 - C2 Artefact 1 seals exact OmegaClaw history records into signed Chronos/Merkle bundles and
   detects a silent deletion against a witness placed in a separate local domain. It passed on
   its fixture and on a read-only copy of the real 100-record E0 history; the original volume
-  was untouched. That run is a topology simulation, not independent custody.
-- El Artefacto 1 está **implementado y verificado, no demostrable en público**. La detección
-  del borrado es probatoria ante un tercero solo cuando el compromiso se conserva fuera del
-  control del operador. La custodia independiente o el anclaje externo llegan en **S8**
-  (adaptador EVM/EAS). Hasta entonces, la demo no se presenta a terceros ni se publica.
+  was untouched. The source history is now retained in `fixtures/e0-real-history.metta`, so the
+  run is deterministically reproducible from the repository and no longer depends on the Docker
+  volume.
+- El Artefacto 1 es **demostrable ante un tercero, con alcance declarado**. Su raíz de época
+  está anclada en Base Sepolia y verificada de forma independiente. Cuatro precisiones
+  acompañan siempre a esa afirmación; presentar la demo omitiendo cualquiera de ellas la
+  convierte en una afirmación falsa:
+  - **Alcance.** Lo cerrado es la **custodia de demostración**, y el mecanismo de anclaje está
+    verificado de punta a punta.
+  - **Testnet.** Base Sepolia demuestra el mecanismo ante un tercero; **no es custodia de
+    producción**. Un anclaje en red de pruebas no equivale a un anclaje en mainnet.
+  - **Attester.** La clave firmante circuló fuera del canal previsto, así que la atestación
+    acredita que **el camino funciona, no quién firmó**. `TR-SIGNER-SELF` y
+    `TR-KEY-SELF-ASSERTED` siguen puestos.
+  - **Procedencia.** Los bundles que reproducen la raíz anclada se regeneran de forma
+    determinista desde la historia fuente retenida. **No se afirma que sean los bundles
+    originales del 1-sept.** La raíz se computa sobre los eventos, no sobre los receipts: la
+    coincidencia del witness prueba identidad de eventos y de orden, no de firmas.
 - C2 Artefact 2 applies ADR-008 to the real E0 strings, emits
   `TR-CHAIN-MEDIATED`/`TR-NONDET-INPUT`, preserves the selection disclaimer and provides the
   pinned source patch at the raw `(eval $s)` boundary. The historical E0 process/Chronos fields

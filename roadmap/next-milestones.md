@@ -1,11 +1,12 @@
 # Next Milestones
 
-1. Review and explicitly accept or return Proposed ADR-012 and ADR-013 on their fixed S8 hash
-   sets. Their adapter/report wires remain non-binding until operator ratification.
-2. After ADR-012 acceptance, provide a dedicated funded Base Sepolia signer out of band,
-   register the fixed schema, publish the S6 Artefact 1 root and verify its real sidecar.
-3. Treat successful real independent custody/anchoring—not code, mock output or schema
-   registration alone—as the remaining S6/S8 deployment criterion.
+1. S9: OpenWorker emission connector and Artefact 1 over OpenWorker (E-9.6), keeping the
+   external reference condition. Unblocked by the S8 closure of 2026-09-03.
+2. Mainnet anchoring and a resolvable attester identity, the two limits demonstration custody
+   does not cover.
+3. SCITT mini-E0, which must now budget for choosing and configuring a registration policy:
+   SCRAPI declares issuer authentication out of scope, so each Transparency Service imposes
+   its own.
 4. Define the profile registration/review workflow linked to ADRs.
 5. Add CI checks to detect misplaced files by authority level.
 
@@ -55,9 +56,10 @@ Ratified by Rub on 2026-09-02:
 **Gate rule: not a single line of C2 before E0 closes.**
 **Profile rule:** ADR-009/010 are Accepted on their exact hash sets; ADR-011 is binding but
 cannot retire `TR-SIGNER-SELF` without its detectable external-identity inputs.
-**Anchor rule:** a candidate and mock may be built under S8 authorization, but no ACTA schema
-or real root is represented as binding/publicable before ADR-012 acceptance and successful
-external verification.
+**Anchor rule:** satisfied on 2026-09-03. ADR-012/013 were ratified on their complete hash
+sets, the schema and the S6 root are on Base Sepolia and external verification passed the full
+seven-check predicate. The rule now reads forward: a testnet anchor is demonstration custody,
+never production custody, and mock output still never counts as either.
 
 ### Resulting execution order
 
@@ -66,8 +68,9 @@ external verification.
   `TR-ANCHOR-UNVERIFIED` · `TR-TIME-DECLARED`.
 - **Implemented / S6:** Cognitive Forensics Profile submission and both C2 OmegaClaw
   artefacts; local fixture, real-history copy and E0-vector checks pass.
-- **Completed / S6:** ADR-009/Profile Accepted; S6 executable work closed. Retain the
-  independent-custody/anchor deployment gate for S8.
+- **Completed / S6:** ADR-009/Profile Accepted; S6 closed. The independent-custody gate closed
+  on 2026-09-03 with the real Base Sepolia anchor, for the demonstration scope declared in
+  `docs/agent-context/S6_C2_HANDOFF.md`.
 - **Completed / S7:** exact `agent_commerce` submission and cross-attestation semantics
   Accepted under ADR-010/011; eight Profile tests pass. No report predicate was silently
   changed.
@@ -86,10 +89,10 @@ ADRs to move from Proposed to Accepted before their implementation fixes normati
 
 | Session | Scope | Gate |
 |---|---|---|
-| **S6 — closed in executable work** | Accepted Cognitive Forensics Profile; C2 Artefact 1 (silent deletion with simulated external topology) and Artefact 2 (ADR-008 link-by-link audit) on OmegaClaw | Deployment gate open: real independent custody/anchor deferred to S8. Local real-history copy and E0-vector checks pass |
+| **S6 — closed** | Accepted Cognitive Forensics Profile; C2 Artefact 1 (silent deletion against a retained witness) and Artefact 2 (ADR-008 link-by-link audit) on OmegaClaw | Custody gate closed on 2026-09-03 by the real Base Sepolia anchor, demonstration scope only. Source history retained in-tree, so the run is deterministically reproducible |
 | **S7 — accepted** | Exact `agent_commerce` Profile and named cross-attestation forms in ADR-010/011 | Both ADRs Accepted on fixed hashes; external identity/report integration remains future work |
-| **S8 — candidate prepared; deployment open** | EVM/EAS `AnchorBackend` mock + Base Sepolia publisher/verifier and machine-consumer report | ADR-012/013 Proposed; real schema/root transaction and S6 custody require acceptance plus funded signer |
-| **S9** | OpenWorker emission connector and public level-1 Artefact 1 | S8 gate/report dependencies resolved |
+| **S8 — closed** | EVM/EAS `AnchorBackend` + Base Sepolia publisher/verifier and machine-consumer report; schema registered and S6 root anchored for real | ADR-012/013 ratified `experimental`; seven-check predicate passes over the third-party path. Demonstration custody only: testnet, and the attester identity is not established |
+| **S9 — unblocked** | OpenWorker emission connector and public level-1 Artefact 1 | S8 gate/report dependencies resolved on 2026-09-03 |
 | **S10** | x402/AP2 evidence-extension proposal | Working demo required |
 | **Parallel [RUB]** | E-9.8 conversations, ratifications and community contacts | Non-delegable where specified |
 | **Parallel [EJEC]** | Remaining documentary debt; freeze AML in its current internal-reference regime | No dedicated C1 session |

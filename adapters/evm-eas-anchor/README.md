@@ -92,6 +92,18 @@ node src/eas-anchor.cjs attach epoch.anchor-evidence.json input-bundle.json outp
 The command refuses root mismatch, an existing anchor and output overwrite. Every bundle in
 the same epoch may receive the same anchor reference; each remains independently verifiable.
 
+> **Changing `attachAnchor` semantics obliges a second edit.** `attachAnchor` in
+> `src/eas-anchor.cjs` is the only implementation of the attach, but its three rules are
+> deliberately reimplemented in Rust by the C2 Artefact 1 test
+> `committed_e0_history_reproduces_original_root_and_witness` in
+> `demos/c2-omegaclaw/artifact1/src/main.rs`, so that the demonstrator stays offline and free
+> of `node_modules` and of this adapter's reqwest/TLS graph. That copy does not track this file
+> automatically. Any change to the rules — the accepted evidence version, the epoch-root match,
+> the refusal to replace an existing anchor, or the shape of the attached reference — requires
+> revisiting that test in the same change. The copy is pinned to this file at SHA-256
+> `b3839a971f49f6176bea9357afd7eeedfe4bd2fbf8d963c6ecdad5318e3606d9`, the hash fixed for it in
+> the ADR-012 table.
+
 ## S6 custody gate
 
 For OmegaClaw Artefact 1, publish the `epoch_root` from `epoch-witness.json`, attach the

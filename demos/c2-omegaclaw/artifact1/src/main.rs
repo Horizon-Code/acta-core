@@ -819,7 +819,13 @@ mod tests {
     /// Reimplementa las tres reglas de `attachAnchor` del publicador Node, que es el unico
     /// sitio donde vive el attach. Se replican aqui a proposito: el demostrador se mantiene
     /// aislado y offline, sin depender de `node_modules` ni del adaptador con reqwest/TLS.
-    /// Si el publicador cambiara su semantica, esta copia dejaria de reflejarlo.
+    ///
+    /// COPIA DECLARADA. La logica esta copiada de
+    /// `adapters/evm-eas-anchor/src/eas-anchor.cjs`, paquete
+    /// `@acta/evm-eas-anchor-publisher` v0.1.0, SHA-256
+    /// `b3839a971f49f6176bea9357afd7eeedfe4bd2fbf8d963c6ecdad5318e3606d9`, que es el hash
+    /// fijado para ese fichero en la tabla de ADR-012. Si ese hash cambia, la semantica del
+    /// attach puede haber cambiado y esta copia debe revisarse: el test no lo detecta solo.
     fn attach_anchor(
         bundle: &serde_json::Value,
         evidence: &AnchorEvidenceV1,

@@ -70,10 +70,28 @@ outcomes/identity boundary.
 - ADR-010 and ADR-011 are Accepted on the exact hashes recorded in them.
 - S8 was explicitly authorized by the operator on 2026-09-02. Its adapter/report wire remains
   Proposed under ADR-012/013 until separately ratified.
-- S8 must treat independent custody/anchoring of the S6 Artefact 1 commitment as a first-class
-  requirement.
+- S8 treated independent custody/anchoring of the S6 Artefact 1 commitment as a first-class
+  requirement and closed it on 2026-09-03 for the demonstration scope stated below.
 
-El Artefacto 1 está **implementado y verificado, no demostrable en público**. La detección del
-borrado es probatoria ante un tercero solo cuando el compromiso se conserva fuera del control
-del operador. La custodia independiente o el anclaje externo llegan en **S8** (adaptador
-EVM/EAS). Hasta entonces, la demo no se presenta a terceros ni se publica.
+El Artefacto 1 es **demostrable ante un tercero, con alcance declarado**. El 3-sept-2026 su
+raíz de época `bd60c5e6fbdd425047387e9d87f1a3e2b3307ed718d229b19141afd843238fba` quedó anclada
+en Base Sepolia como atestación EAS irrevocable, y la verificación pasó las siete comprobaciones
+del predicado de ADR-012 §4 por el camino del tercero: verificador Rust contra Ethereum JSON-RPC
+crudo, sin publicador, sin indexador y sin endpoint de ACTA. Registro completo en
+`research/s8-eas-base-deployment-2026-09-03.md`.
+
+Cuatro precisiones acompañan siempre a esa afirmación. Presentar la demo omitiendo cualquiera de
+ellas la convierte en una afirmación falsa:
+
+- **Alcance.** Lo cerrado es la **custodia de demostración**, y el mecanismo de anclaje está
+  verificado de punta a punta.
+- **Testnet.** Base Sepolia demuestra el mecanismo ante un tercero; **no es custodia de
+  producción**. Un anclaje en red de pruebas prueba que el camino funciona; no equivale a un
+  anclaje en mainnet.
+- **Attester.** La clave firmante circuló fuera del canal previsto, así que la atestación
+  acredita que **el camino funciona, no quién firmó**. `TR-SIGNER-SELF` y
+  `TR-KEY-SELF-ASSERTED` siguen puestos.
+- **Procedencia.** Los bundles que reproducen la raíz anclada se regeneran de forma determinista
+  desde la historia fuente retenida en `fixtures/e0-real-history.metta`. **No se afirma que sean
+  los bundles originales del 1-sept.** La raíz se computa sobre los eventos, no sobre los
+  receipts: la coincidencia del witness prueba identidad de eventos y de orden, no de firmas.
