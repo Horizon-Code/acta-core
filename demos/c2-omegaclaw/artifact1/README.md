@@ -79,6 +79,28 @@ La prueba crea los bundles derivados en un directorio temporal, ejecuta la verif
 completa y los elimina al terminar. Los 102 bundles no se versionan porque son reproducibles a
 partir de `fixtures/e0-real-history.metta`.
 
+## Ancla externa retenida
+
+`anchor/epoch.anchor-evidence.json` es el sidecar `acta.eas-anchor-evidence.v1` de la
+atestación EAS real publicada en Base Sepolia el 3-sep-2026 para esta misma raíz. Contiene
+evidencia pública de cadena, no credenciales.
+
+Con él, la cadena completa —historia → bundles → raíz → ancla— queda reproducible desde el
+repositorio y comprobada en cada build. El mismo test regenera la corrida, adjunta la
+referencia de anclaje a los 102 bundles y comprueba que queda bien puesta: que es exactamente
+la del sidecar, que solo cambia el campo `anchor` (los bytes firmados no se tocan, ADR-012 §5)
+y que cada bundle anclado sigue verificando offline. `attach_refuses_a_foreign_root_and_an_occupied_anchor`
+fija los rechazos: raíz ajena, ancla ya ocupada y versión de evidencia distinta.
+
+Ese test es offline y no comprueba el estado en cadena: verifica que la referencia se coloca
+bien, no que la atestación siga siendo válida. La comprobación contra cadena es el camino
+separado del verificador Rust por JSON-RPC, descrito en `research/s8-eas-base-deployment-2026-09-03.md`.
+
+El attach vive en el publicador Node (`adapters/evm-eas-anchor`); el test replica sus tres
+reglas en Rust a propósito, para que el demostrador siga siendo offline y sin dependencias de
+`node_modules`. Es una copia deliberada: si el publicador cambiara su semántica, este test no
+lo reflejaría por sí solo.
+
 La fixture contiene tres bloques deterministas con la forma documentada y ejercitada por el
 arnés mock de OmegaClaw; no se presenta como captura de una sesión real.
 

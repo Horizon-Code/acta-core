@@ -1,0 +1,21 @@
+{
+  "evidence_version": "acta.eas-anchor-evidence.v1",
+  "anchor_ref": {
+    "substrate": "eas",
+    "network": "eip155:84532",
+    "tx_id": "0x63d805480cda9ebaa61e30dcbdfa1db23ac39c3cf7c85b7baae61ed2950a48fc",
+    "slot": 46343480,
+    "epoch_root": "bd60c5e6fbdd425047387e9d87f1a3e2b3307ed718d229b19141afd843238fba"
+  },
+  "eas": {
+    "chain_id": 84532,
+    "contract_address": "0x4200000000000000000000000000000000000021",
+    "schema_registry_address": "0x4200000000000000000000000000000000000020",
+    "schema_uid": "0x1fbe4ca64e41bb8503eafb480385306db0f8d18aa67c152839e4b50cd4325f71",
+    "attestation_uid": "0x3cc34239d3f1f46907e45bdd15082dbe112e58fbf5745546b7642a276696c907",
+    "attester": "0xb0d8bd5c0183d72626c65c11a39fcc5c6701aa15",
+    "schema": "bytes32 epochRoot",
+    "resolver": "0x0000000000000000000000000000000000000000",
+    "revocable": false
+  }
+}

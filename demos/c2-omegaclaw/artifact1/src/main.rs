@@ -6,7 +6,7 @@ use acta_ai_agent_profile::types::{
 use acta_attestation_single_signer::{
     verify_verifiable_bundle_v0, AttestorPublicKeyV0, VerifiableBundleV0, ED25519_SCHEME_V0,
 };
-use acta_core::bundle::BundleV0;
+use acta_core::bundle::{AnchorRefV0, BundleV0};
 use acta_core::epoch::build_local_epoch_v0;
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0};
 use acta_core::receipt::receipt_v0_signing_payload;
@@ -790,6 +790,56 @@ mod tests {
         include_bytes!("../fixtures/e0-real-history.metta")
     }
 
+    /// Sidecar real publicado en Base Sepolia el 3-sep-2026, retenido en el repo para que la
+    /// cadena historia -> bundles -> raiz -> ancla sea reproducible sin red ni publicador.
+    fn committed_anchor_evidence() -> &'static str {
+        include_str!("../anchor/epoch.anchor-evidence.json")
+    }
+
+    #[derive(Deserialize)]
+    struct AnchorEvidenceV1 {
+        evidence_version: String,
+        anchor_ref: AnchorRefV0,
+        eas: EasEvidenceDetailsV1,
+    }
+
+    #[derive(Deserialize)]
+    struct EasEvidenceDetailsV1 {
+        chain_id: u64,
+        contract_address: String,
+        schema_registry_address: String,
+        schema_uid: String,
+        attestation_uid: String,
+        attester: String,
+        schema: String,
+        resolver: String,
+        revocable: bool,
+    }
+
+    /// Reimplementa las tres reglas de `attachAnchor` del publicador Node, que es el unico
+    /// sitio donde vive el attach. Se replican aqui a proposito: el demostrador se mantiene
+    /// aislado y offline, sin depender de `node_modules` ni del adaptador con reqwest/TLS.
+    /// Si el publicador cambiara su semantica, esta copia dejaria de reflejarlo.
+    fn attach_anchor(
+        bundle: &serde_json::Value,
+        evidence: &AnchorEvidenceV1,
+    ) -> Result<serde_json::Value, String> {
+        if evidence.evidence_version != "acta.eas-anchor-evidence.v1" {
+            return Err("anchor evidence must use acta.eas-anchor-evidence.v1".to_string());
+        }
+        if bundle.get("epoch_root").and_then(serde_json::Value::as_str)
+            != Some(evidence.anchor_ref.epoch_root.as_str())
+        {
+            return Err("bundle epoch_root does not match anchor evidence".to_string());
+        }
+        if !matches!(bundle.get("anchor"), None | Some(serde_json::Value::Null)) {
+            return Err("refusing to replace an existing bundle anchor".to_string());
+        }
+        let mut attached = bundle.clone();
+        attached["anchor"] = serde_json::to_value(&evidence.anchor_ref).unwrap();
+        Ok(attached)
+    }
+
     #[test]
     fn parses_exact_omegaclaw_records_without_normalizing_bytes() {
         let records = parse_history(fixture()).unwrap();
@@ -866,6 +916,14 @@ mod tests {
         const EPOCH_ROOT: &str = "bd60c5e6fbdd425047387e9d87f1a3e2b3307ed718d229b19141afd843238fba";
         const WITNESS_SHA256: &str =
             "3aa94889b07052ea6191ebd953cd35629497869a73e9d135dcd4a9e3a22217f8";
+        const ANCHOR_TX_ID: &str =
+            "0x63d805480cda9ebaa61e30dcbdfa1db23ac39c3cf7c85b7baae61ed2950a48fc";
+        const ANCHOR_BLOCK: u64 = 46_343_480;
+        const ANCHOR_SCHEMA_UID: &str =
+            "0x1fbe4ca64e41bb8503eafb480385306db0f8d18aa67c152839e4b50cd4325f71";
+        const ANCHOR_ATTESTATION_UID: &str =
+            "0x3cc34239d3f1f46907e45bdd15082dbe112e58fbf5745546b7642a276696c907";
+        const ANCHOR_ATTESTER: &str = "0xb0d8bd5c0183d72626c65c11a39fcc5c6701aa15";
 
         assert_eq!(sha256_hex(retained_e0_history()), HISTORY_SHA256);
 
@@ -886,6 +944,117 @@ mod tests {
         assert_eq!(sha256_hex(&witness_bytes), WITNESS_SHA256);
         assert_eq!(fs::read_dir(operator.join("bundles")).unwrap().count(), 102);
         verify(&history, &operator, &witness_path).unwrap();
+
+        // --- ancla: la cadena historia -> bundles -> raiz -> ancla, comprobada en cada build ---
+        let evidence: AnchorEvidenceV1 = serde_json::from_str(committed_anchor_evidence()).unwrap();
+
+        // El sidecar retenido ancla exactamente la raiz que esta corrida reproduce.
+        assert_eq!(evidence.anchor_ref.epoch_root, EPOCH_ROOT);
+        assert_eq!(evidence.anchor_ref.substrate, "eas");
+        assert_eq!(evidence.anchor_ref.network.as_deref(), Some("eip155:84532"));
+        assert_eq!(evidence.anchor_ref.tx_id.as_deref(), Some(ANCHOR_TX_ID));
+        assert_eq!(evidence.anchor_ref.slot, Some(ANCHOR_BLOCK));
+
+        // Perfil fijado en ADR-012 §2. Si un byte del sidecar cambia, esto lo detecta.
+        assert_eq!(evidence.eas.chain_id, 84_532);
+        assert_eq!(
+            evidence.eas.contract_address,
+            "0x4200000000000000000000000000000000000021"
+        );
+        assert_eq!(
+            evidence.eas.schema_registry_address,
+            "0x4200000000000000000000000000000000000020"
+        );
+        assert_eq!(evidence.eas.schema, "bytes32 epochRoot");
+        assert_eq!(evidence.eas.schema_uid, ANCHOR_SCHEMA_UID);
+        assert_eq!(evidence.eas.attestation_uid, ANCHOR_ATTESTATION_UID);
+        assert_eq!(evidence.eas.attester, ANCHOR_ATTESTER);
+        assert_eq!(
+            evidence.eas.resolver,
+            "0x0000000000000000000000000000000000000000"
+        );
+        assert!(!evidence.eas.revocable);
+
+        // Cada bundle de la epoca recibe la misma referencia, como exige ADR-012 §5.
+        let mut attached_count = 0;
+        let mut bundle_files: Vec<PathBuf> = fs::read_dir(operator.join("bundles"))
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect();
+        bundle_files.sort();
+        for bundle_path in &bundle_files {
+            let raw = fs::read(bundle_path).unwrap();
+            let original: serde_json::Value = serde_json::from_slice(&raw).unwrap();
+            assert!(matches!(
+                original.get("anchor"),
+                None | Some(serde_json::Value::Null)
+            ));
+
+            let attached = attach_anchor(&original, &evidence).unwrap();
+
+            // La referencia queda puesta, y es exactamente la del sidecar.
+            assert_eq!(
+                attached["anchor"],
+                serde_json::to_value(&evidence.anchor_ref).unwrap()
+            );
+
+            // ADR-012 §5: los bytes firmados no cambian. Solo se anade `anchor`.
+            let mut before = original.clone();
+            let mut after = attached.clone();
+            before.as_object_mut().unwrap().remove("anchor");
+            after.as_object_mut().unwrap().remove("anchor");
+            assert_eq!(before, after);
+
+            // El bundle anclado sigue verificando offline con las firmas originales.
+            let reparsed: VerifiableBundleV0 = serde_json::from_value(attached).unwrap();
+            verify_verifiable_bundle_v0(&reparsed).unwrap();
+            attached_count += 1;
+        }
+        assert_eq!(attached_count, 102);
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn attach_refuses_a_foreign_root_and_an_occupied_anchor() {
+        let evidence: AnchorEvidenceV1 = serde_json::from_str(committed_anchor_evidence()).unwrap();
+
+        let root = temp_dir("attach-refusals");
+        let history = root.join("operator/history.metta");
+        let operator = root.join("operator/evidence");
+        let witness_path = root.join("external/epoch-witness.json");
+        fs::create_dir_all(history.parent().unwrap()).unwrap();
+        fs::write(&history, retained_e0_history()).unwrap();
+        seal(&history, &operator, &witness_path).unwrap();
+
+        let mut bundle_files: Vec<PathBuf> = fs::read_dir(operator.join("bundles"))
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect();
+        bundle_files.sort();
+        let bundle: serde_json::Value =
+            serde_json::from_slice(&fs::read(&bundle_files[0]).unwrap()).unwrap();
+
+        // Raiz ajena: el ancla no puede migrar a una epoca distinta.
+        let mut foreign = bundle.clone();
+        foreign["epoch_root"] = serde_json::Value::String("00".repeat(32));
+        assert!(attach_anchor(&foreign, &evidence)
+            .unwrap_err()
+            .contains("epoch_root"));
+
+        // Ancla ya ocupada: no se reemplaza en silencio.
+        let occupied = attach_anchor(&bundle, &evidence).unwrap();
+        assert!(attach_anchor(&occupied, &evidence)
+            .unwrap_err()
+            .contains("existing bundle anchor"));
+
+        // Version de evidencia distinta: se rechaza la envolvente.
+        let mut wrong_version: AnchorEvidenceV1 =
+            serde_json::from_str(committed_anchor_evidence()).unwrap();
+        wrong_version.evidence_version = "acta.eas-anchor-evidence.v0".to_string();
+        assert!(attach_anchor(&bundle, &wrong_version)
+            .unwrap_err()
+            .contains("acta.eas-anchor-evidence.v1"));
 
         fs::remove_dir_all(root).unwrap();
     }
