@@ -56,6 +56,9 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   was sent, what came back preserved byte for byte, and failures recorded without letting
   transient transport errors pollute the evidence. Specifies form only; implements nothing and
   adds no substrate to the anchor catalogue.
+- `ADR-018-report-condition-integration.md` — proposal to surface the v1.1 conditions in the
+  machine dossier, and the hash-table refresh it requires. Notes that `Cargo.lock` sits in both
+  the ADR-012 and ADR-013 tables, so refreshing ADR-013 alone would silently break ADR-012.
 - `ADR-017-profile-v1-1-implementation.md` — implementation submission for both v1.1 profiles,
   in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
   structural conditions plus three detected ones whose checks it contains, and demonstrates the
