@@ -44,3 +44,7 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   was sent, what came back preserved byte for byte, and failures recorded without letting
   transient transport errors pollute the evidence. Specifies form only; implements nothing and
   adds no substrate to the anchor catalogue.
+- `ADR-015-cognitive-forensics-profile-v1-1.md` — `ai_agent` Profile v1.1 vocabulary for what
+  did not happen: a denial event, declared session coverage intervals, profile-declared coverage,
+  sessions tied to an agent identity with its self-assertion ceiling declared, and the v1.0
+  ordering rule corrected. Vocabulary only; Core and Protocol v0 untouched.

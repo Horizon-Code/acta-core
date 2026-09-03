@@ -117,6 +117,28 @@ A profile MUST capture only the structure necessary for attribution, reconstruct
 
 A profile MUST NOT use ACTA as general monitoring infrastructure. Continuous behavioral capture, broad user profiling, and evidentiary accumulation without a bounded accountable act are incompatible with ACTA and MUST be rejected.
 
+### 4.16 Silence must be interrogated at design time
+
+A profile design MUST explicitly ask **what is left outside the record, and who benefits from
+that silence**. The answer MUST be written down, and every silence the designers choose to keep
+MUST be declared in the profile rather than left implicit.
+
+The natural bias is to record what a system *does* and to forget what it *attempts and cannot*,
+or what it *stops doing*. That bias is not neutral: an unrecorded refusal, an unrecorded
+non-delivery and an unrecorded blackout all favour the same party — the one whose conduct the
+missing record would have described.
+
+This principle exists because ACTA's own first profile fell into the bias. `ai_agent` v1.0
+defines six event kinds; all six describe actions taken and none describes an attempt that was
+refused. The consequence was measured, not theorised: deleting a denied action from a source
+trail does not break the epoch root, because the profile never let ACTA commit it. Alteration
+was protected and omission was not.
+
+A profile satisfies this principle when, for each kind of silence it retains, it states the
+silence, names who it favours, and either justifies keeping it or records a residual-trust
+condition so a reader is told the record cannot speak to it. Declaring a silence is acceptable;
+leaving it undeclared is not.
+
 ## 5. Profile Lifecycle Model
 
 ### 5.1 `draft`

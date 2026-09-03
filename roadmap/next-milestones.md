@@ -1,7 +1,7 @@
 # Next Milestones
 
 1. **SCITT mini-E0 — immediate, and ahead of S9.** SCITT compatibility is reasoned from
-   reading RFC 9942, not measured, and it is about to carry both a catalogue decision and
+   reading RFC 9943, not measured, and it is about to carry both a catalogue decision and
    public material. It gets measured before anything is claimed. Its five measurement points
    and closure criterion are in `research/scitt-mini-e0-2026-09-03.md`. A negative result here
    is as valuable as a positive one, and arrives in time.
@@ -21,6 +21,18 @@
 6. SCITT adapter as a catalogue option, only after the mini-E0, via an adapter ADR. Adding a
    substrate to the anchor catalogue requires an operator amendment; it is never done from a
    construction session.
+
+   **Known cost of that decision, so it is not a surprise when it is taken.** Adding SCITT to
+   the anchor catalogue will require touching **ratified ADR-013**. `MachineAnchorV1` carries
+   EAS-specific fields — `attestation_uid`, `schema_uid`, `attester` — so a second substrate
+   either adds more per-substrate optional fields, degrading the envelope into a drawer, or
+   forces a common shape. Either way it is a new ADR over a ratified envelope, and its hash
+   table must be refreshed and re-reviewed. Proposed ADR-014 exists to settle that shape once,
+   before there are two incompatible ones to maintain. Core needs no change: `AnchorRefV0`
+   already leaves `tx_id` and `slot` optional.
+
+   **Second input, measured:** the choice of Transparency Service is constrained by ACTA's
+   signature algorithm. See the risk in `roadmap/risk-register.md`.
 7. Define the profile registration/review workflow linked to ADRs.
 8. Add CI checks to detect misplaced files by authority level.
 

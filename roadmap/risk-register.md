@@ -126,3 +126,22 @@ Recorded on 2026-09-03 during the S8 anchor deployment preflight.
   - Mitigation: Every run intended as demonstration material persists bundles and witness
     outside the volume — in the tree or at a declared path — in the same act that generates
     them. Without that step the run does not count as demonstration material.
+
+## SCITT / substrate compatibility
+
+Measured on 2026-09-03 during the SCITT mini-E0 (`research/scitt-mini-e0-2026-09-03.md`).
+
+- Risk: ACTA's signature algorithm is not universally accepted by Transparency Services. ACTA
+  signs **Ed25519**. `scitt-ccf-ledger` accepts `EDDSA` in its default algorithm list
+  (`["ES256","ES384","ES512","PS256","PS384","PS512","EDDSA"]`), but the DataTrails quickstart
+  signs with **prime256v1/ES256**, and in both cases the accepted list is **configurable by the
+  service administrator**. RFC 9943 puts issuer authentication explicitly out of scope, so the
+  standard guarantees nothing here: acceptance is decided per service.
+  - Impact: a Transparency Service can be chosen on every other merit and then reject ACTA's
+    signatures outright. Discovering this after selecting a service would mean either changing
+    ACTA's signing algorithm — which touches every receipt and every existing bundle — or
+    abandoning the service.
+  - Mitigation: the accepted-algorithm list of a candidate service is a **mandatory input** to
+    the future SCITT adapter ADR, checked against the live service rather than assumed from its
+    documentation. The choice of service is conditioned by the algorithm, not the reverse. No
+    service is presented as supported until that check is on record.
