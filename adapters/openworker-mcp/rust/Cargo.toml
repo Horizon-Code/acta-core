@@ -1,0 +1,25 @@
+[package]
+name = "acta-openworker-mcp"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+# Isolated from the repository workspace on purpose. The connector consumes the public
+# crates without joining the workspace graph, which also keeps the root Cargo.toml and
+# Cargo.lock — both fixed by the ADR-012/013 hash tables — untouched.
+[workspace]
+
+[lib]
+name = "acta_openworker_mcp"
+path = "src/lib.rs"
+
+[dependencies]
+acta-ai-agent-profile = { path = "../../../profiles/ai-agent/rust" }
+acta-core = { path = "../../../core/rust/acta-core" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+thiserror = "2.0"
+
+[dev-dependencies]
+sha2 = "0.10"

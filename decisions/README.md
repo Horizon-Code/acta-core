@@ -30,9 +30,17 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   events and binds retirement of `TR-SIGNER-SELF` to cryptographic verification plus distinct,
   externally resolved identities. Report integration remains pending.
 
+- `ADR-012-evm-eas-anchor-backend-v1.md` — S8 EAS/Base adapter, sidecar and direct
+  contract/receipt verification predicate. Accepted 2026-09-02 with `experimental` lifecycle;
+  hash table refreshed and re-ratified 2026-09-03 for one documentary edit. Deployed on Base
+  Sepolia 2026-09-03.
+- `ADR-013-machine-consumer-report-v1.md` — versioned machine-consumer envelope and mechanical
+  counterparty requirements evaluation without changing Offline Report v0. Accepted 2026-09-02
+  with `experimental` lifecycle.
+
 ## Proposed decisions awaiting operator review
 
-- `ADR-012-evm-eas-anchor-backend-v1.md` — exact S8 EAS/Base adapter candidate, sidecar and
-  direct contract/receipt verification predicate.
-- `ADR-013-machine-consumer-report-v1.md` — versioned machine-consumer envelope and mechanical
-  counterparty requirements evaluation without changing Offline Report v0.
+- `ADR-014-anchor-retention-policy-v1.md` — one retention rule for every anchor backend: what
+  was sent, what came back preserved byte for byte, and failures recorded without letting
+  transient transport errors pollute the evidence. Specifies form only; implements nothing and
+  adds no substrate to the anchor catalogue.
