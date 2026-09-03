@@ -110,3 +110,19 @@ Source: `research/E0-resultados.md`, captures 3 and 4.
   - Impact: Readers may mistake literal continuity for completeness or constrained selection.
   - Mitigation: Treat `TR-CHAIN-MEDIATED` as the default landscape whenever an LLM joins hops;
     keep the faithful/free figure and the selection disclaimer inseparable.
+
+## S8 / demonstration evidence custody
+
+Recorded on 2026-09-03 during the S8 anchor deployment preflight.
+
+- Risk: Demonstration evidence held in ephemeral storage. The bundles and `epoch-witness.json`
+  of the real C2 run (2026-09-01, epoch root `bd60c5e6…38fba`) lived only inside the
+  `omegaclaw-memory` Docker volume and are not recoverable from the current environment. This
+  is the same failure ACTA identifies in OmegaClaw's `memory/history.metta` — evidence without
+  retention — reproduced at home.
+  - Impact: The anchor reference cannot be attached to the Artefact 1 bundles, so ADR-012 §5
+    custody closure stays open even after a real on-chain attestation of the correct root. A
+    published anchor proves the mechanism, not the custody of the demo it was meant to close.
+  - Mitigation: Every run intended as demonstration material persists bundles and witness
+    outside the volume — in the tree or at a declared path — in the same act that generates
+    them. Without that step the run does not count as demonstration material.
