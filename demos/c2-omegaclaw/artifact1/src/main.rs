@@ -786,6 +786,10 @@ mod tests {
         include_bytes!("../fixtures/history.metta")
     }
 
+    fn retained_e0_history() -> &'static [u8] {
+        include_bytes!("../fixtures/e0-real-history.metta")
+    }
+
     #[test]
     fn parses_exact_omegaclaw_records_without_normalizing_bytes() {
         let records = parse_history(fixture()).unwrap();
@@ -852,6 +856,37 @@ mod tests {
             3
         );
         verify(&history, &operator, &witness_path).unwrap();
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn committed_e0_history_reproduces_original_root_and_witness() {
+        const HISTORY_SHA256: &str =
+            "d320182a34ad8e737f8df404d1359851589675a7c8b0e4ff869770988f19983a";
+        const EPOCH_ROOT: &str = "bd60c5e6fbdd425047387e9d87f1a3e2b3307ed718d229b19141afd843238fba";
+        const WITNESS_SHA256: &str =
+            "3aa94889b07052ea6191ebd953cd35629497869a73e9d135dcd4a9e3a22217f8";
+
+        assert_eq!(sha256_hex(retained_e0_history()), HISTORY_SHA256);
+
+        let root = temp_dir("retained-e0");
+        let history = root.join("operator/history.metta");
+        let operator = root.join("operator/evidence");
+        let witness_path = root.join("external/epoch-witness.json");
+        fs::create_dir_all(history.parent().unwrap()).unwrap();
+        fs::write(&history, retained_e0_history()).unwrap();
+
+        seal(&history, &operator, &witness_path).unwrap();
+
+        let witness_bytes = fs::read(&witness_path).unwrap();
+        let witness: ExternalWitnessV0 = serde_json::from_slice(&witness_bytes).unwrap();
+        assert_eq!(witness.history_record_count, 100);
+        assert_eq!(witness.lifecycle_event_count, 102);
+        assert_eq!(witness.epoch_root, EPOCH_ROOT);
+        assert_eq!(sha256_hex(&witness_bytes), WITNESS_SHA256);
+        assert_eq!(fs::read_dir(operator.join("bundles")).unwrap().count(), 102);
+        verify(&history, &operator, &witness_path).unwrap();
+
         fs::remove_dir_all(root).unwrap();
     }
 

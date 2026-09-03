@@ -56,6 +56,29 @@ un agente vivo. Para usar material real, sustituir la fixture por una copia de
 La ejecución ya realizada sobre la historia E0 de 100 registros queda registrada, con hashes
 y hallazgos, en `e0-real-history-run.md`.
 
+## Reproducir la captura E0 retenida
+
+La historia exacta de esa ejecución está versionada en
+`fixtures/e0-real-history.metta` (21.642 bytes; SHA-256
+`d320182a34ad8e737f8df404d1359851589675a7c8b0e4ff869770988f19983a`). Se revisó el fichero
+completo antes de incorporarlo: contiene solo timestamps, identificadores E0, expresiones
+MeTTa/NAL y mensajes operativos genéricos; no contiene credenciales, tokens, datos personales,
+URLs ni endpoints privados.
+
+OmegaClaw y Docker solo son necesarios para producir trazas nuevas. Para esta captura no hacen
+falta: cualquier máquina con el toolchain Rust puede partir de la historia versionada,
+regenerar temporalmente los 102 bundles y el witness, y verificar que obtiene la raíz
+`bd60c5e6fbdd425047387e9d87f1a3e2b3307ed718d229b19141afd843238fba` y el SHA-256 de witness
+`3aa94889b07052ea6191ebd953cd35629497869a73e9d135dcd4a9e3a22217f8`:
+
+```bash
+cargo test --manifest-path Cargo.toml committed_e0_history_reproduces_original_root_and_witness
+```
+
+La prueba crea los bundles derivados en un directorio temporal, ejecuta la verificación
+completa y los elimina al terminar. Los 102 bundles no se versionan porque son reproducibles a
+partir de `fixtures/e0-real-history.metta`.
+
 La fixture contiene tres bloques deterministas con la forma documentada y ejercitada por el
 arnés mock de OmegaClaw; no se presenta como captura de una sesión real.
 
@@ -130,5 +153,6 @@ cargo test --offline --manifest-path Cargo.toml
 ```
 
 Los tests cubren preservación exacta de bytes, validez y mapeo del lifecycle, separación de
-conteos 5/3, detección del registro central borrado y rechazo de un witness colocado bajo el
-dominio del operador, incluidos intentos con `..` y con symlink.
+conteos 5/3, reproducción de la captura E0 retenida con sus hashes y conteos 102/100, detección
+del registro central borrado y rechazo de un witness colocado bajo el dominio del operador,
+incluidos intentos con `..` y con symlink.
