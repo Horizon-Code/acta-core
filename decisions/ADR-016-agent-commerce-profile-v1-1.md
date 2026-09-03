@@ -7,8 +7,8 @@
   `1da112f4ad9d91b1ee10c72a0d88bdad540ad0037f61cc437dc7819cae85930a`, commit `30282fc`
 - Decision authority: operator under ADR-001
 - Amends: Accepted ADR-010 (`agent_commerce` Profile v1.0), under its versioning rules
-- Applies: principle 4.16 of `architecture/profile-architecture-v1.0.md`
-- Companion: Proposed ADR-015 (`ai_agent` Profile v1.1) — same bias, different domain
+- Applies: principles 4.16, 4.17 and 4.18 of `architecture/profile-architecture-v1.0.md`
+- Companion: Accepted ADR-015 (`ai_agent` Profile v1.1) — same bias, different domain
 - Evidence: `research/profile-silence-review-2026-09-03.md`
 - Implementation: **none**. Vocabulary only. Core and Protocol v0 are not touched, and ADR-010
   is not modified.
@@ -45,28 +45,17 @@ current meaning; v1.1 adds.
 
 ### 1. Refused action against the mandate
 
-**Form: a new event kind, not an outcome field on `action_executed_against_mandate`.** The
-reasoning is the same as ADR-015 §1 and is deliberately identical rather than re-derived:
+Principle **4.17** governs the form: a new event kind, never an outcome field on
+`action_executed_against_mandate`, and a refusal distinguished from a failure by whether some
+control evaluated the conduct and decided against it. That reasoning is not restated here.
 
-- machine-side refusals never pass through the executing party, so an outcome field on the
-  execution event cannot carry them;
-- adding an outcome field to a ratified event kind would change what its presence asserts today
-  and leave every existing record ambiguous — absent field, or execution?
+Domain specifics: the event carries the transaction, what was attempted, which control refused
+it and what that control is, a commitment over the stated grounds, **the mandate it was checked
+against**, and when. Binding the refusal to the mandate is what makes it evidence in this
+domain rather than a bare log line — the record shows not only that something was stopped but
+which committed norm stopped it.
 
-The event carries the transaction, what was attempted, which control refused it and what that
-control is, a commitment over the stated grounds, the mandate it was checked against, and when.
 It carries no verdict about whether refusing was correct.
-
-**The denial/failure criterion is the same as ADR-015 and is stated in the same words**, because
-divergence here would be an accident of drafting rather than a domain difference:
-
-- A **refusal** is a control's judgement about a conduct. It is evidence.
-- A **failure** — timeout, retry, malformed input, transport error — is plumbing. It is not.
-
-An outcome is a refusal when some control evaluated the conduct and decided against it; a
-failure when no judgement about the conduct took place. Classifying concrete cases is domain
-judgement for whoever writes the profile instance. An implementation that cannot tell which it
-is records neither, and says so.
 
 ### 2. Dispute resolution
 
@@ -115,27 +104,21 @@ resolved dispute is a resolved dispute, not a completed exchange.
 
 ### 3. Making incomplete transactions countable, without a terminal event
 
-The gap is made countable by **declaring what was expected**, not by asserting that anything
-finished. No terminal event is introduced; ADR-010's decision is preserved.
+Principle **4.18** governs the mechanism, including its limits: no completeness claim, no
+terminal event, and reuse of the committed norm the domain already has instead of adding a
+parallel one. ADR-010's refusal of a terminal event is preserved.
 
-The mandate is already the committed norm of this profile, and `MandateEntryV1` already carries
-`expires_at`. The proposal builds on both rather than inventing a parallel mechanism:
+Domain specifics: the committed norm here is the mandate, and `MandateEntryV1` already carries
+`expires_at`.
 
 - the mandate manifest declares which milestones the transaction is expected to produce —
   delivery, settlement, or neither — as part of the manifest already committed at
   `mandate_received`;
-- the report compares what the mandate declared against what the record contains, and states
-  the difference;
-- `expires_at`, where present, bounds the window in which the comparison is meaningful.
-
-The resulting statement is never "this transaction is incomplete", which would be a verdict. It
-is "the committed mandate declared a delivery and the record contains none", which is a fact
-about two committed artifacts. Silence stops being invisible and becomes a discrepancy against a
-norm the producer itself committed to — the same move ADR-015 §3 makes for coverage, reusing
-this domain's existing norm object instead of adding one.
-
-This is deliberately weaker than a completeness claim, and that is the point: it cannot say a
-transaction finished, only that what was promised and what was recorded do not match.
+- the report states the difference between what the mandate declared and what the record
+  contains;
+- `expires_at`, where present, bounds the window in which that comparison is meaningful. A
+  mandate that has not expired and lacks its declared delivery is a different statement from one
+  that expired without it, and the report must be able to tell them apart.
 
 ### 4. Candidate residual-trust conditions
 
@@ -160,45 +143,28 @@ resolver was not neutral, and lets the reader weigh it.
 
 ## Coherence with ADR-015
 
-The two profiles resolve the same bias in different domains. Where the mechanism is the same,
-the solution is the same and says so: the form of the refusal event, the denial/failure
-criterion, the treatment of silence as a discrepancy against a committed norm, and the pairing
-of a `*-UNSUPPORTED` structural condition with a detected one so absence is readable.
+Both profiles resolve the same bias in different domains. What they share is no longer restated
+in either: the form of the refusal event, the refusal/failure criterion, the resolution
+vocabulary rule and the treatment of silence as a discrepancy against a committed norm were
+promoted on 2026-09-03 to principles **4.17** and **4.18** of
+`architecture/profile-architecture-v1.0.md`, and both ADRs now cite them.
 
-Where they diverge, the reason is domain and is written down:
+Where the two diverge, the reason is domain and is written down:
 
 - `ai_agent` needs session coverage intervals because an agent run has no external norm
-  declaring what it should produce. `agent_commerce` does not need them: the mandate already is
-  that norm, and inventing intervals beside it would duplicate the mechanism.
+  declaring what it should produce. `agent_commerce` does not: the mandate already is that norm,
+  and inventing intervals beside it would duplicate the mechanism 4.18 requires it to reuse.
 - `agent_commerce` needs a resolver nature because its negative event is an accusation between
-  parties. `ai_agent`'s refusals have a control, not an opponent, so no equivalent is required.
+  parties. `ai_agent`'s refusals face a control, not an opponent, so no equivalent is required.
 
-### Proposed promotion to `architecture/profile-architecture-v1.0.md`
-
-Two mechanisms are now specified identically in two profiles, which is the point at which they
-should stop being repeated. Proposed as a common principle for the operator to lift, ratify or
-reject — **not written into the architecture document by this ADR**:
-
-> **A negative outcome is a first-class event.** Where a profile records an act, it MUST also be
-> able to record that the act was attempted and refused, and that a contested act was resolved.
-> The refusal MUST be its own event kind rather than an outcome field added to an existing one,
-> so that ratified event kinds keep their meaning and historical records stay unambiguous. A
-> profile MUST distinguish a refusal — a control's judgement about a conduct — from a failure,
-> which is plumbing and is not evidence.
-
-> **Declared expectation makes silence countable.** Where a profile has a committed norm, the
-> report MUST be able to state the difference between what that norm declared and what the
-> record contains. This creates no completeness claim and no terminal event: it states a
-> discrepancy between two committed artifacts and leaves the conclusion to the reader.
-
-If both are promoted, this ADR and ADR-015 keep only their domain-specific parts and cite the
-principles instead.
+ADR-015 retains its own full text rather than citing the principles, because it was ratified
+before they were promoted and trimming it afterwards would change what was ratified.
 
 ## Non-decisions
 
 This ADR does not implement anything, does not modify ADR-010 or any ratified profile, does not
-introduce a terminal event, does not change Core or Protocol v0, does not decide any dispute,
-does not rank resolvers, and does not edit `architecture/profile-architecture-v1.0.md`.
+introduce a terminal event, does not change Core or Protocol v0, does not decide any dispute
+and does not rank resolvers.
 
 There is no fixed hash table because there is no submission.
 
