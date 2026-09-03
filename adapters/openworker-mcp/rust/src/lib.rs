@@ -13,10 +13,24 @@ use acta_ai_agent_profile::types::{
     InstructionReceivedPayloadV0, RunStartedPayloadV0, SignificantActionExecutedPayloadV0,
     ToolCallExecutedPayloadV0,
 };
+use acta_ai_agent_profile_v1_1::{
+    ActionDeniedPayloadV1, AiAgentDomainEventV1, ControlNatureV1, CoverageSnapshotV1,
+    SessionClosedPayloadV1, SessionOpenedPayloadV1,
+};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-pub const CONNECTOR_VERSION: &str = "acta.openworker-mcp.v0";
+pub const CONNECTOR_VERSION: &str = "acta.openworker-mcp.v1";
+/// The kinds this connector commits to emitting while a session is open. This is the
+/// connector's own declaration under ADR-015 §3, not data read from OpenWorker.
+pub const DECLARED_KINDS: [&str; 6] = [
+    "run_started",
+    "instruction_received",
+    "context_committed",
+    "tool_call_executed",
+    "significant_action_executed",
+    "action_denied",
+];
 
 /// Approval provenance exactly as OpenWorker records it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -84,9 +98,28 @@ pub struct UnrepresentedRecordV0 {
     pub occurred_at: String,
 }
 
+/// Which profile version the core mapping is producing for. The only behavioural difference is
+/// the v1.0 ordering rule that ADR-015 §5 corrected.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum MappingTarget {
+    V1_0,
+    V1_1,
+}
+
 #[derive(Debug, Clone)]
 pub struct MappedRunV0 {
     pub events: Vec<AiAgentDomainEventV0>,
+    pub unrepresented: Vec<UnrepresentedRecordV0>,
+}
+
+/// A run mapped onto Profile v1.1.
+///
+/// `unrepresented` is kept even though v1.1 empties it for every record OpenWorker currently
+/// produces. The mechanism stays because the honest answer to a record the profile cannot
+/// express is to report it, and a future OpenWorker outcome may need it again.
+#[derive(Debug, Clone)]
+pub struct MappedRunV1 {
+    pub events: Vec<AiAgentDomainEventV1>,
     pub unrepresented: Vec<UnrepresentedRecordV0>,
 }
 
@@ -131,6 +164,13 @@ fn hex_lower(bytes: &[u8]) -> String {
 pub fn map_conversation_v0(
     conversation: &OpenWorkerConversationV0,
 ) -> Result<MappedRunV0, ConnectorError> {
+    map_conversation_core(conversation, MappingTarget::V1_0)
+}
+
+fn map_conversation_core(
+    conversation: &OpenWorkerConversationV0,
+    target: MappingTarget,
+) -> Result<MappedRunV0, ConnectorError> {
     if conversation.run_id.is_empty() {
         return Err(ConnectorError::Empty("run_id"));
     }
@@ -162,6 +202,10 @@ pub fn map_conversation_v0(
 
     for call in &conversation.tool_calls {
         match call.approval {
+            ApprovalProvenanceV0::Denied if target == MappingTarget::V1_1 => {
+                // v1.1 expresses refusals as first-class events; the caller emits them in place.
+                continue;
+            }
             ApprovalProvenanceV0::Denied => {
                 unrepresented.push(UnrepresentedRecordV0 {
                     tool_call_id: call.tool_call_id.clone(),
@@ -180,7 +224,7 @@ pub fn map_conversation_v0(
                     .reviewer_ref
                     .as_deref()
                     .ok_or_else(|| ConnectorError::MissingReviewer(call.tool_call_id.clone()))?;
-                if significant_action_emitted {
+                if target == MappingTarget::V1_0 && significant_action_emitted {
                     // Profile v1.0 forbids an authorization after a significant action. The
                     // call is still recorded below; only the human authorization is lost, and
                     // it is reported rather than reordered.
@@ -271,5 +315,96 @@ pub fn map_conversation_v0(
     Ok(MappedRunV0 {
         events,
         unrepresented,
+    })
+}
+
+/// Translate one OpenWorker conversation onto Profile v1.1.
+///
+/// Under v1.1 both walls ADR-015 documented are gone, and the difference is visible rather than
+/// argued: a refusal becomes `action_denied` and enters the chain, so deleting it from the
+/// source trail breaks the epoch root instead of surviving on a count; and several
+/// human-answered escalations keep the order in which they actually happened.
+///
+/// The session and its coverage manifest are the **connector's** declaration, not data read
+/// from OpenWorker. OpenWorker has no session object, and inventing one from its fields would
+/// be fabricating source data. What the connector can honestly declare is the interval it
+/// itself covered and the kinds it commits to emitting inside it.
+pub fn map_conversation_v1_1(
+    conversation: &OpenWorkerConversationV0,
+) -> Result<MappedRunV1, ConnectorError> {
+    if conversation.run_id.is_empty() {
+        return Err(ConnectorError::Empty("run_id"));
+    }
+    let run_id = conversation.run_id.clone();
+    let session_id = format!("{run_id}-session");
+    let last_at = conversation
+        .tool_calls
+        .last()
+        .map(|c| c.occurred_at.clone())
+        .unwrap_or_else(|| conversation.instruction_received_at.clone());
+
+    let mut events = vec![AiAgentDomainEventV1::SessionOpened(
+        SessionOpenedPayloadV1 {
+            session_id: session_id.clone(),
+            agent_identity_ref: conversation.agent_ref.clone(),
+            agent_identity_commitment: commit(conversation.agent_version.as_bytes()),
+            coverage: CoverageSnapshotV1 {
+                coverage_id: format!("{CONNECTOR_VERSION}:{run_id}"),
+                coverage_hash: commit(DECLARED_KINDS.join(",").as_bytes())
+                    .trim_start_matches("sha256:")
+                    .to_string(),
+                declared_kinds: DECLARED_KINDS.iter().map(|k| k.to_string()).collect(),
+                effective_from: conversation.started_at.clone(),
+                effective_to: Some(last_at.clone()),
+            },
+            opened_at: conversation.started_at.clone(),
+        },
+    )];
+
+    let inherited = map_conversation_core(conversation, MappingTarget::V1_1)?;
+    for event in inherited.events {
+        events.push(AiAgentDomainEventV1::Inherited(event));
+    }
+    // Denials are no longer dropped: each one becomes a first-class event, in place.
+    for call in &conversation.tool_calls {
+        if call.approval != ApprovalProvenanceV0::Denied {
+            continue;
+        }
+        let position = events
+            .iter()
+            .position(|e| e.occurred_at() > call.occurred_at.as_str())
+            .unwrap_or(events.len());
+        events.insert(
+            position,
+            AiAgentDomainEventV1::ActionDenied(ActionDeniedPayloadV1 {
+                run_id: run_id.clone(),
+                session_id: session_id.clone(),
+                attempted_ref: call.tool_ref.clone(),
+                attempted_input_commitment: commit(call.input.as_bytes()),
+                control_ref: call
+                    .reviewer_ref
+                    .clone()
+                    .unwrap_or_else(|| "ref:openworker:reviewer-model".to_string()),
+                control_nature: if call.reviewer_ref.is_some() {
+                    ControlNatureV1::Human
+                } else {
+                    ControlNatureV1::ReviewerModel
+                },
+                reasoning_commitment: commit(call.reviewer_reasoning.as_bytes()),
+                denied_at: call.occurred_at.clone(),
+            }),
+        );
+    }
+
+    events.push(AiAgentDomainEventV1::SessionClosed(
+        SessionClosedPayloadV1 {
+            session_id,
+            closed_at: last_at,
+        },
+    ));
+
+    Ok(MappedRunV1 {
+        events,
+        unrepresented: inherited.unrepresented,
     })
 }

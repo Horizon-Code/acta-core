@@ -1,0 +1,24 @@
+[package]
+name = "acta-ai-agent-profile-v1-1"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+# v1.1 lives in its own crate so that every file fixed by the ADR-009 hash table stays
+# byte-identical. v1.0 is consumed, never edited: a v1.0 dossier must keep validating under
+# v1.0 rules and keep telling the truth about itself.
+[workspace]
+
+[lib]
+name = "acta_ai_agent_profile_v1_1"
+path = "src/lib.rs"
+
+[dependencies]
+acta-ai-agent-profile = { path = "../../rust" }
+acta-core = { path = "../../../../core/rust/acta-core" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+[dev-dependencies]
+sha2 = "0.10"

@@ -45,14 +45,18 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   yet. Its sections 1 and 3 were promoted to principles 4.17 and 4.18 of the profile
   architecture.
 
+- `ADR-016-agent-commerce-profile-v1-1.md` — `agent_commerce` Profile v1.1: a refused action
+  against the mandate, `dispute_resolved` with outcomes that describe the claim rather than a
+  party, and mandate-declared expectation that makes silence countable without a terminal event.
+  Accepted 2026-09-03; implemented under ADR-017.
+
 ## Proposed decisions awaiting operator review
 
 - `ADR-014-anchor-retention-policy-v1.md` — one retention rule for every anchor backend: what
   was sent, what came back preserved byte for byte, and failures recorded without letting
   transient transport errors pollute the evidence. Specifies form only; implements nothing and
   adds no substrate to the anchor catalogue.
-- `ADR-016-agent-commerce-profile-v1-1.md` — `agent_commerce` Profile v1.1: a refused action
-  against the mandate, `dispute_resolved` with outcomes that describe the claim rather than a
-  party, and mandate-declared expectation that makes an incomplete transaction countable without
-  a terminal event. Also proposes promoting two mechanisms shared with ADR-015 to
-  `architecture/profile-architecture-v1.0.md`.
+- `ADR-017-profile-v1-1-implementation.md` — implementation submission for both v1.1 profiles,
+  in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
+  structural conditions plus three detected ones whose checks it contains, and demonstrates the
+  ADR-015 closure criterion by execution.

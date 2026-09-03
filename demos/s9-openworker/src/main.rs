@@ -8,7 +8,8 @@
 //! It also shows, deliberately, the one edit ACTA does **not** catch today, because a demo that
 //! hides its own hole is worth nothing.
 
-use acta_ai_agent_profile::map_ai_agent_event_to_core_v0;
+use acta_ai_agent_profile_v1_1::lifecycle::validate_lifecycle_v1_1;
+use acta_ai_agent_profile_v1_1::map_v1_1_event_to_core_v0;
 use acta_attestation_single_signer::{
     verify_verifiable_bundle_v0, AttestorPublicKeyV0, VerifiableBundleV0, ED25519_SCHEME_V0,
 };
@@ -17,7 +18,7 @@ use acta_core::epoch::build_local_epoch_v0;
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0};
 use acta_core::receipt::receipt_v0_signing_payload;
 use acta_core::types::{ChronosRefV0, PolicySnapshotV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION};
-use acta_openworker_mcp::{map_conversation_v0, OpenWorkerConversationV0, UnrepresentedRecordV0};
+use acta_openworker_mcp::{map_conversation_v1_1, OpenWorkerConversationV0, UnrepresentedRecordV0};
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::Engine;
 use ed25519_dalek::{Signer, SigningKey};
@@ -52,7 +53,8 @@ struct Sealed {
 }
 
 fn seal(conversation: &OpenWorkerConversationV0) -> Result<Sealed, String> {
-    let mapped = map_conversation_v0(conversation).map_err(|e| e.to_string())?;
+    let mapped = map_conversation_v1_1(conversation).map_err(|e| e.to_string())?;
+    validate_lifecycle_v1_1(&mapped.events).map_err(|e| e.to_string())?;
     let snapshot = PolicySnapshotV0 {
         policy_id: "openworker-demo-policy".to_string(),
         policy_hash: conversation.policy_hash.clone(),
@@ -64,10 +66,12 @@ fn seal(conversation: &OpenWorkerConversationV0) -> Result<Sealed, String> {
 
     let mut events = Vec::new();
     for (index, domain) in mapped.events.iter().enumerate() {
-        events.push(
-            map_ai_agent_event_to_core_v0(domain, format!("ow-event-{index:04}"), &snapshot)
-                .map_err(|e| e.to_string())?,
-        );
+        events.push(map_v1_1_event_to_core_v0(
+            domain,
+            format!("ow-event-{index:04}"),
+            &conversation.run_id,
+            &snapshot,
+        )?);
     }
     let mut event_hashes = Vec::with_capacity(events.len());
     for event in &events {
@@ -240,15 +244,14 @@ fn main() {
     }
     for line in [
         "",
-        "note: read the two failures above carefully, because they are not equally strong.",
-        "The approved call broke `epoch_root`: its deletion is caught by Chronos and Merkle,",
-        "cryptographically, by anyone holding the retained root.",
-        "The denied call did NOT break `epoch_root`, because ai_agent Profile v1.0 has no event",
-        "kind meaning refusal, so ACTA never committed it. It is caught only by",
-        "`tool_call_count_changed`, a plain count the witness happens to carry.",
-        "Strip that count from the witness and the denial becomes invisible. A refusal is the",
-        "single most incriminating record in an agent trail, and today it rests on the weakest",
-        "check ACTA offers. That is an argument for Profile v1.1, not a property to advertise.",
+        "note: both deletions now break `epoch_root`, and that is the point of Profile v1.1.",
+        "Under v1.0 the denied force-push did not break the root, because no event kind meant",
+        "refusal and ACTA never committed it; it survived only on a plain tool-call count the",
+        "witness happened to carry. Strip that count and the deletion was invisible.",
+        "Under v1.1 the refusal is `action_denied`, it is in the Merkle tree like any other",
+        "event, and removing it is caught cryptographically by anyone holding the retained root.",
+        "The most incriminating record in an agent trail is now protected by the strongest check",
+        "ACTA has, not the weakest.",
     ] {
         println!("{line}");
     }

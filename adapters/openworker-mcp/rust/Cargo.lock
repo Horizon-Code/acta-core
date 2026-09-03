@@ -12,6 +12,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "acta-ai-agent-profile-v1-1"
+version = "0.1.0"
+dependencies = [
+ "acta-ai-agent-profile",
+ "acta-core",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.20",
+]
+
+[[package]]
 name = "acta-core"
 version = "0.1.0"
 dependencies = [
@@ -28,6 +39,7 @@ name = "acta-openworker-mcp"
 version = "0.1.0"
 dependencies = [
  "acta-ai-agent-profile",
+ "acta-ai-agent-profile-v1-1",
  "acta-core",
  "serde",
  "serde_json",

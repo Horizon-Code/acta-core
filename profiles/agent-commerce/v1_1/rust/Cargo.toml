@@ -1,0 +1,20 @@
+[package]
+name = "acta-agent-commerce-profile-v1-1"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+# Own crate so every file fixed by the ADR-010 hash table stays byte-identical. v1.0 is
+# consumed, never edited.
+[workspace]
+
+[lib]
+name = "acta_agent_commerce_profile_v1_1"
+path = "src/lib.rs"
+
+[dependencies]
+acta-agent-commerce-profile = { path = "../../rust" }
+acta-core = { path = "../../../../core/rust/acta-core" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"

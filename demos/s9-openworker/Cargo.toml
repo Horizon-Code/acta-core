@@ -13,6 +13,7 @@ publish = false
 [dependencies]
 acta-attestation-single-signer = { path = "../../adapters/attestation-single-signer/rust" }
 acta-ai-agent-profile = { path = "../../profiles/ai-agent/rust" }
+acta-ai-agent-profile-v1-1 = { path = "../../profiles/ai-agent/v1_1/rust" }
 acta-core = { path = "../../core/rust/acta-core" }
 acta-openworker-mcp = { path = "../../adapters/openworker-mcp/rust" }
 base64 = "0.22"
