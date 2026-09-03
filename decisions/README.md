@@ -48,3 +48,8 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   did not happen: a denial event, declared session coverage intervals, profile-declared coverage,
   sessions tied to an agent identity with its self-assertion ceiling declared, and the v1.0
   ordering rule corrected. Vocabulary only; Core and Protocol v0 untouched.
+- `ADR-016-agent-commerce-profile-v1-1.md` — `agent_commerce` Profile v1.1: a refused action
+  against the mandate, `dispute_resolved` with outcomes that describe the claim rather than a
+  party, and mandate-declared expectation that makes an incomplete transaction countable without
+  a terminal event. Also proposes promoting two mechanisms shared with ADR-015 to
+  `architecture/profile-architecture-v1.0.md`.
