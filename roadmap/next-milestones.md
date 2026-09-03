@@ -1,14 +1,28 @@
 # Next Milestones
 
-1. S9: OpenWorker emission connector and Artefact 1 over OpenWorker (E-9.6), keeping the
-   external reference condition. Unblocked by the S8 closure of 2026-09-03.
-2. Mainnet anchoring and a resolvable attester identity, the two limits demonstration custody
-   does not cover.
-3. SCITT mini-E0, which must now budget for choosing and configuring a registration policy:
-   SCRAPI declares issuer authentication out of scope, so each Transparency Service imposes
-   its own.
-4. Define the profile registration/review workflow linked to ADRs.
-5. Add CI checks to detect misplaced files by authority level.
+1. **SCITT mini-E0 — immediate, and ahead of S9.** SCITT compatibility is reasoned from
+   reading RFC 9942, not measured, and it is about to carry both a catalogue decision and
+   public material. It gets measured before anything is claimed. Its five measurement points
+   and closure criterion are in `research/scitt-mini-e0-2026-09-03.md`. A negative result here
+   is as valuable as a positive one, and arrives in time.
+2. **Second anchoring pass with a clean account.** The current attestation was signed by an
+   account whose key circulated outside the intended channel. The EAS schema is **not**
+   re-registered — its UID is permanent — only a new attestation is published. That clean-pass
+   attestation becomes the reference for all external material.
+3. **Anchor retention policy** across the three substrates, proposed but not implemented, in
+   Proposed ADR-014.
+4. S9: OpenWorker emission connector and Artefact 1 over OpenWorker (E-9.6), keeping the
+   external reference condition and the new retention condition. Unblocked by the S8 closure of
+   2026-09-03, gated behind the mini-E0.
+5. **Mainnet and attester identity**: out of scope for now. Identity stays frozen because the
+   research confirmed there is no adoptable scheme today; the hard requirement is already
+   identified — the resolver must be able to say which key was valid **at signing time**, not
+   only which is valid now.
+6. SCITT adapter as a catalogue option, only after the mini-E0, via an adapter ADR. Adding a
+   substrate to the anchor catalogue requires an operator amendment; it is never done from a
+   construction session.
+7. Define the profile registration/review workflow linked to ADRs.
+8. Add CI checks to detect misplaced files by authority level.
 
 ## E0 gate
 

@@ -1,10 +1,12 @@
 # ADR-013: Machine-Consumer Verification Report v1
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-02
-- Decision authority requested: operator under ADR-001
+- Accepted: 2026-09-02 by the operator under ADR-001, with `experimental` lifecycle status
+- Ratified submission commit: `670342533b557eb7d0b4c74042877c9816930a1c`
+- Decision authority: operator under ADR-001
 - Directional prerequisite: Accepted E-9.3
-- Adapter dependency for verified EAS state: Proposed ADR-012
+- Adapter dependency for verified EAS state: Accepted ADR-012
 
 ## Context
 
@@ -98,8 +100,13 @@ This ADR does not accept ADR-012, choose a DID/VC resolver, retire `TR-SIGNER-SE
 agent payment/adjudication rules, create a negotiation transport or change Core/Protocol v0.
 It does not claim that a counterparty has validated these exact terms commercially.
 
-## Ratification requested
+## Ratification
 
-The operator may ratify ADR-013 only against the complete fixed hash set. Until then the
-machine envelope and exit-code contract are an S8 implementation candidate, not a binding
-interoperability promise.
+Ratified by the operator on 2026-09-02 against the complete fixed hash set, with `experimental`
+lifecycle status. The machine envelope and exit-code contract are binding at that lifecycle
+level; `experimental` means the shape may still change under a new ADR, not that it is
+advisory.
+
+The declared gap stands: MachineReportV1 carries no aggregate fidelity figure today, so this
+ADR does not implement the inseparability check and the ADR-008/009 obligation remains. When
+the C2 report is integrated, figure and disclaimer enter as a single semantic unit.
