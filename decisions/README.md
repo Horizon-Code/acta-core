@@ -38,16 +38,19 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   counterparty requirements evaluation without changing Offline Report v0. Accepted 2026-09-02
   with `experimental` lifecycle.
 
+- `ADR-015-cognitive-forensics-profile-v1-1.md` — `ai_agent` Profile v1.1 vocabulary for what
+  did not happen: a denial event, declared session coverage intervals, profile-declared coverage,
+  sessions tied to an agent identity with its self-assertion ceiling declared, and the v1.0
+  ordering rule corrected. Accepted 2026-09-03; vocabulary only, no implementation submission
+  yet. Its sections 1 and 3 were promoted to principles 4.17 and 4.18 of the profile
+  architecture.
+
 ## Proposed decisions awaiting operator review
 
 - `ADR-014-anchor-retention-policy-v1.md` — one retention rule for every anchor backend: what
   was sent, what came back preserved byte for byte, and failures recorded without letting
   transient transport errors pollute the evidence. Specifies form only; implements nothing and
   adds no substrate to the anchor catalogue.
-- `ADR-015-cognitive-forensics-profile-v1-1.md` — `ai_agent` Profile v1.1 vocabulary for what
-  did not happen: a denial event, declared session coverage intervals, profile-declared coverage,
-  sessions tied to an agent identity with its self-assertion ceiling declared, and the v1.0
-  ordering rule corrected. Vocabulary only; Core and Protocol v0 untouched.
 - `ADR-016-agent-commerce-profile-v1-1.md` — `agent_commerce` Profile v1.1: a refused action
   against the mandate, `dispute_resolved` with outcomes that describe the claim rather than a
   party, and mandate-declared expectation that makes an incomplete transaction countable without

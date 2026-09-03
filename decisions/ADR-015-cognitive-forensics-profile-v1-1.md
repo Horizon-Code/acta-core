@@ -1,8 +1,11 @@
 # ADR-015: Cognitive Forensics Profile v1.1 — recording what did not happen
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-03
-- Decision authority requested: operator under ADR-001
+- Accepted: 2026-09-03 by the operator under ADR-001
+- Ratified over: this file at SHA-256
+  `ff478174205c5a741cefe140528838297897b7ee20492f42a8e94f91d7c86852`, commit `ec8d932`
+- Decision authority: operator under ADR-001
 - Amends: Accepted ADR-009 (`ai_agent` Profile v1.0), under its versioning rules
 - Construction evidence: `adapters/openworker-mcp/`, `demos/s9-openworker/`
 - Implementation: **none**. Vocabulary only. Core and Protocol v0 are not touched.
@@ -170,8 +173,22 @@ an identity scheme, and does not decide what any operator should deny or record.
 There is no fixed hash table because there is no submission. An implementation will arrive as
 its own submission with its own table.
 
-## Ratification requested
+## Ratification
 
-The operator may ratify the vocabulary above. Until then Profile v1.0 stands unchanged, the
-connector keeps reporting both limits through `unrepresented`, and the S9 demonstrator keeps
-saying out loud that deleting a denied action does not break the root.
+Ratified by the operator on 2026-09-03 over this file at SHA-256
+`ff478174205c5a741cefe140528838297897b7ee20492f42a8e94f91d7c86852`, as committed in `ec8d932`.
+
+**The only change since that hash is this stamp**, which necessarily alters it — the same
+situation the ADR-012 table refresh recorded, and recorded here for the same reason: a reader
+comparing a hash from a prior review must be able to see why it moved without reconstructing it
+from `git log`. The vocabulary above is byte-identical to what was ratified.
+
+Ratification is of vocabulary, not of an implementation. Until an implementation submission
+arrives with its own hash table, Profile v1.0 remains what producers emit, the connector keeps
+reporting both v1.0 limits through `unrepresented`, and the S9 demonstrator keeps saying out
+loud that deleting a denied action does not break the root.
+
+Sections 1 and 3 of this ADR were promoted on the same date to principles 4.17 and 4.18 of
+`architecture/profile-architecture-v1.0.md`. The text here is retained as ratified rather than
+trimmed to a citation, because trimming it would change what was just ratified; the promotion
+means future profiles cite the principles instead of restating them.

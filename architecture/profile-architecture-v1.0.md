@@ -139,6 +139,48 @@ silence, names who it favours, and either justifies keeping it or records a resi
 condition so a reader is told the record cannot speak to it. Declaring a silence is acceptable;
 leaving it undeclared is not.
 
+### 4.17 A negative outcome is a first-class event
+
+Where a profile records an act, it MUST also be able to record that the act was **attempted and
+refused**, and, where the domain admits contested acts, that a contested act was **resolved**.
+
+The refusal MUST be its own event kind, never an outcome field added to an existing one. Two
+reasons, both load-bearing. Refusals decided by a machine control never pass through whoever
+performs the act, so an outcome field on the act cannot carry them. And adding an outcome field
+to an already-ratified event kind changes what its presence asserts, leaving every historical
+record ambiguous — absent field, or the outcome the field would have named?
+
+A profile MUST distinguish a **refusal** — a control's judgement about a conduct, which is
+evidence — from a **failure** — a timeout, retry, malformed input or transport error, which is
+plumbing and is not. The criterion is whether some control evaluated the conduct and decided
+against it. Classifying concrete cases is domain judgement for the profile. An implementation
+that cannot tell which of the two it is records neither, and says so.
+
+Where a resolution vocabulary is defined, it MUST describe **what happened to the claim**, never
+what happened to a party. Winning and losing depend on which side one stands, so a
+party-relative vocabulary lets the emitting party's viewpoint enter the evidence. Recording that
+somebody resolved, and in which sense, is a statement of fact; recording who was right is a
+judgement and does not belong to ACTA.
+
+### 4.18 Declared expectation makes silence countable
+
+Where a profile has a **committed norm** — a policy snapshot, a mandate manifest, a declared
+coverage manifest — the report MUST be able to state the difference between what that norm
+declared and what the record contains.
+
+This creates **no completeness claim and no terminal event**. The statement is never "this is
+incomplete", which would be a verdict about the world. It is "the committed norm declared X and
+the record contains no X", which is a fact about two committed artifacts, and it leaves the
+conclusion to the reader.
+
+Nobody can detect what was never emitted. Anyone can detect that someone **promised to emit it
+and did not**. That is the whole of the mechanism, and it is deliberately weaker than proving
+completeness.
+
+A profile MUST reuse the committed norm its domain already has rather than adding a parallel
+one. Where no such norm exists, the profile declares its own coverage; where one exists, the
+declaration hangs from it.
+
 ## 5. Profile Lifecycle Model
 
 ### 5.1 `draft`
