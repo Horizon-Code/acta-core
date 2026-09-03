@@ -1,8 +1,11 @@
 # ADR-016: Agent Commerce Profile v1.1 — refusal, resolution and countable silence
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-03
-- Decision authority requested: operator under ADR-001
+- Accepted: 2026-09-03 by the operator under ADR-001
+- Ratified over: this file at SHA-256
+  `1da112f4ad9d91b1ee10c72a0d88bdad540ad0037f61cc437dc7819cae85930a`, commit `30282fc`
+- Decision authority: operator under ADR-001
 - Amends: Accepted ADR-010 (`agent_commerce` Profile v1.0), under its versioning rules
 - Applies: principle 4.16 of `architecture/profile-architecture-v1.0.md`
 - Companion: Proposed ADR-015 (`ai_agent` Profile v1.1) — same bias, different domain
@@ -199,7 +202,12 @@ does not rank resolvers, and does not edit `architecture/profile-architecture-v1
 
 There is no fixed hash table because there is no submission.
 
-## Ratification requested
+## Ratification
 
-The operator may ratify the vocabulary above, and separately decide the promotion proposed
-under «Coherence». Until then `agent_commerce` v1.0 stands unchanged.
+Ratified by the operator on 2026-09-03 over this file at SHA-256
+`1da112f4ad9d91b1ee10c72a0d88bdad540ad0037f61cc437dc7819cae85930a`, as committed in `30282fc`.
+As with ADR-015, the stamp itself necessarily alters that hash and is recorded here so the move
+is readable without reconstructing it from `git log`.
+
+Ratification is of vocabulary. The implementation arrives as its own submission with its own
+hash table.
