@@ -1,4 +1,63 @@
 {
-  "sources": {},
+  "sources": {
+    "A1_SCITT": {
+      "ids": []
+    },
+    "A2_COSE": {
+      "ids": []
+    },
+    "A2_RATS": {
+      "ids": []
+    },
+    "A3_DAWN": {
+      "ids": []
+    },
+    "A3_VCON": {
+      "ids": []
+    },
+    "A4_AIUC_E015": {
+      "sha256": "5dc1da5d46fd9bcdbc95f07de253c281d788b5621a9b4f5c414c7d6da905929d"
+    },
+    "A7_AP2_118": {
+      "state": "open",
+      "state_reason": null,
+      "title": "[Feat]: Standardize Mandate Verification Flow",
+      "updated_at": "2026-06-12T15:24:22Z"
+    },
+    "A7_OPENWORKER": {
+      "items": {}
+    },
+    "A7_SCITT_CCF": {
+      "ids": [
+        "tag:github.com,2008:Grit::Commit/906d370558d394a53d5fa7bea685b690d17855f0",
+        "tag:github.com,2008:Grit::Commit/5fb181c70ce890a6c7de49435039ae2aedd8bb2f",
+        "tag:github.com,2008:Grit::Commit/2616471edf7362637569819a403bbf278deacb2c",
+        "tag:github.com,2008:Grit::Commit/e5dc11df8a419d3c6de17cd91290c2100d2ae6da",
+        "tag:github.com,2008:Grit::Commit/e591545f8f066e4e86d24956be22b932020791b0",
+        "tag:github.com,2008:Grit::Commit/c96e624c931f8aa06dc4904e1d698558e5f0a9f1",
+        "tag:github.com,2008:Grit::Commit/00101f769d872711356e080fbb089ac48589c60a",
+        "tag:github.com,2008:Grit::Commit/aa47e5aa6c7484e953c4ee9e7250b655ce97b01c",
+        "tag:github.com,2008:Grit::Commit/9813b0df70321af3cc3c4dcf7e2c15ce422aa60e",
+        "tag:github.com,2008:Grit::Commit/b9040534e7ea355ce6324e8663a1bcd2b69af9d5",
+        "tag:github.com,2008:Grit::Commit/2e67dc938921e4cac5cc32fd7ecbdf690c90fe08",
+        "tag:github.com,2008:Grit::Commit/5a973bb3af8a0c506923c501d4e2aeb508867105",
+        "tag:github.com,2008:Grit::Commit/b6631b2125600dd11d840a44adfc4c358f9d1fdf",
+        "tag:github.com,2008:Grit::Commit/bffdf529185ba7767db5f2cfc4c1898ec8ad3364",
+        "tag:github.com,2008:Grit::Commit/8476ac51f248362a1c32496b82417ef3cac17ec9",
+        "tag:github.com,2008:Grit::Commit/83062aac2b453cec7e98e4b5c335deba8f4cfc32",
+        "tag:github.com,2008:Grit::Commit/951707c09f98ec229e912f928fa20e2ce739f027",
+        "tag:github.com,2008:Grit::Commit/537ccbdf997df9a4927d6137ac3d25c601b27e25",
+        "tag:github.com,2008:Grit::Commit/b79cde173ce25e33ff0953e3e8acad2b47a8aa9e",
+        "tag:github.com,2008:Grit::Commit/4037c754ad160d3d68c3a105ea4c4cedfac1232d"
+      ]
+    },
+    "A7_X402": {
+      "items": {}
+    },
+    "A8_ARXIV": {
+      "ids": []
+    }
+  },
+  "updated_at": "2026-10-05T15:21:23.045805+00:00",
   "version": 1
 }
