@@ -1,15 +1,15 @@
 # ADR-021: WDK wallet MCP connector v0
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-11-27
-- Decision authority requested: operator under ADR-001
-- Directional prerequisite: Accepted ADR-015 (`ai_agent` Profile v1.1)
+- Accepted: 2026-11-27 by the operator under ADR-001
+- Ratified submission commit: `4c6cd51ae99847cd305a2aa9c18abfa4fc01996c`
+- Lifecycle status: `experimental`
+- Directional prerequisite: Accepted ADR-015 (`ai_agent` Profile v1.1 vocabulary)
 - Precedent: the OpenWorker connector (S9)
 - Measured inputs: `adapters/wdk-mcp/fixtures/session-local-wallet.json`
-- Implementation: **candidate present** in `adapters/wdk-mcp/` and `demos/s11-wdk-mcp/`. It
-  does not ratify itself.
-- Numbering: ADR-019 and ADR-020 are Proposed on another branch (x402 connector and evidence
-  transport). This ADR does not depend on them.
+- Implementation: in `adapters/wdk-mcp/` and `demos/s11-wdk-mcp/`, ratified with this ADR.
+- Independent of ADR-019 and ADR-020 (x402 connector and evidence transport).
 
 ## Context
 
@@ -22,7 +22,7 @@ OpenWorker (S9) gave ACTA a source that already recorded its tool calls. This so
 nothing, so the connector has to capture as well as map. That changes what it can honestly
 claim, and this ADR fixes those limits.
 
-## Proposed decision
+## Decision
 
 ### 1. A transparent proxy captures; a mapper maps
 
@@ -80,26 +80,39 @@ Neither says the agent did wrong.
   frozen identity.
 - MCP over HTTP.
 
-## Fixed submission
+## Submission fixed for review
 
-The hash table is left for the ratification pass.
+Fixed at commit `4c6cd51ae99847cd305a2aa9c18abfa4fc01996c`.
 
-- `adapters/wdk-mcp/README.md`
-- `adapters/wdk-mcp/js/package.json`
-- `adapters/wdk-mcp/js/package-lock.json`
-- `adapters/wdk-mcp/js/src/recorder.mjs`
-- `adapters/wdk-mcp/js/bin/acta-mcp-proxy.mjs`
-- `adapters/wdk-mcp/js/test/recorder.test.mjs`
-- `adapters/wdk-mcp/js/test/bare-smoke.mjs`
-- `adapters/wdk-mcp/js/test/local-session.mjs`
-- `adapters/wdk-mcp/js/test/local-session.test.mjs`
-- `adapters/wdk-mcp/js/scripts/generate-fixtures.mjs`
-- `adapters/wdk-mcp/fixtures/session-local-wallet.json`
-- `adapters/wdk-mcp/rust/Cargo.toml`
-- `adapters/wdk-mcp/rust/Cargo.lock`
-- `adapters/wdk-mcp/rust/src/lib.rs`
-- `adapters/wdk-mcp/rust/tests/mapping_v0.rs`
-- `demos/s11-wdk-mcp/Cargo.toml`
-- `demos/s11-wdk-mcp/Cargo.lock`
-- `demos/s11-wdk-mcp/src/main.rs`
-- `demos/s11-wdk-mcp/README.md`
+| File | SHA-256 |
+|---|---|
+| `adapters/wdk-mcp/README.md` | `516c0de299ddcc8c44d53fcfbf010f78101abcd35d336cdb720c564efbda9d0d` |
+| `adapters/wdk-mcp/js/package.json` | `f994b292c4511b5a15c99c8b34bb898975cacc173e99546fcf4ad2419f5b7e2b` |
+| `adapters/wdk-mcp/js/package-lock.json` | `c5d75e88c0ddbc46c6b8321656cce5be4c299a8bc48c0ccf4c26b289dc4036f3` |
+| `adapters/wdk-mcp/js/src/recorder.mjs` | `7f65e79a8836cbb5753e7c1dd476916ceef56748af6a04262f62d2a40bcbe566` |
+| `adapters/wdk-mcp/js/bin/acta-mcp-proxy.mjs` | `78ce3c9c7ad8a0d9dd9228600d9b69a42209a26532518a7ee6f1549a175a95ed` |
+| `adapters/wdk-mcp/js/test/recorder.test.mjs` | `73c7759078439349ac3c274ba433af6ad2f694a3ab21023018c00ed36660b769` |
+| `adapters/wdk-mcp/js/test/bare-smoke.mjs` | `2692b6147f9dd275766be3c5c26d3ba8fcc8c69623c5959eff8d952a0009bdde` |
+| `adapters/wdk-mcp/js/test/local-session.mjs` | `e681c3d6c7ae33af45671b6c636e18ce3b0cd1fa57fdab1d2598d27ef233da2b` |
+| `adapters/wdk-mcp/js/test/local-session.test.mjs` | `839af75d80d33d20ffb6ce767692507bce04038858d9a64316cf4dd82bf40cac` |
+| `adapters/wdk-mcp/js/scripts/generate-fixtures.mjs` | `8c308ed31555448d6a252fa6393ee8c038d4bb297322979498fd0d4894dc70b0` |
+| `adapters/wdk-mcp/fixtures/session-local-wallet.json` | `1625b3df7d651f66f1b5b8bc08fde833522c147bf73d444ac1a21a74517288df` |
+| `adapters/wdk-mcp/rust/Cargo.toml` | `917ef9788700444b1b834fa764213173cd0a84812ca55dc394ce0e829d2faf6f` |
+| `adapters/wdk-mcp/rust/Cargo.lock` | `a36a4c64b539c00350f374790be33040379f4527b3a99ad9f0d232a2747a9aab` |
+| `adapters/wdk-mcp/rust/src/lib.rs` | `14650266b7e93c58e70a9d417786ccafea52e5ed6a944adf3bbb0681610e6fb3` |
+| `adapters/wdk-mcp/rust/tests/mapping_v0.rs` | `1a61e42911ae6ca0b65b355374bc361b11cafb372aac62ffc5076df177318781` |
+| `demos/s11-wdk-mcp/Cargo.toml` | `f2647840846bc8533c2915792fdea12167ead68c0aa11293fba62e286667f961` |
+| `demos/s11-wdk-mcp/Cargo.lock` | `06affcabcea1a3c91a781273fc832fc015d1242c3083e99b85bf096fce0b5b90` |
+| `demos/s11-wdk-mcp/src/main.rs` | `e4a2ab2fa0a63dcb7e49488469ba5d095f82bcd400ff0ff9f9455dbbae911275` |
+| `demos/s11-wdk-mcp/README.md` | `6cf9c125b433cbf8cdee1eaec23cac93f3f4cbcaa745e6701a556357b8a61f6f` |
+
+## Ratification
+
+Ratified explicitly by the operator on 2026-11-27 under ADR-001 against commit
+`4c6cd51ae99847cd305a2aa9c18abfa4fc01996c` and the 19 SHA-256 values above. The
+ratification accepts the exact submission with `experimental` lifecycle status. A byte change
+requires a refreshed table and review of the affected part before it remains ratified.
+
+What the ratification does not cover: the `ai_agent` Profile v1.1 crate this connector maps
+onto is implemented under ADR-017, which remains Proposed. The whole mapping carries that
+status until ADR-017 is decided. Anchoring of the resulting bundles is not exercised.
