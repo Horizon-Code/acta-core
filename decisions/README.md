@@ -63,3 +63,8 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
   structural conditions plus three detected ones whose checks it contains, and demonstrates the
   ADR-015 closure criterion by execution.
+- `ADR-019-x402-wdk-connector-v0.md` — thin connector from an x402 payment (signed with a Tether
+  WDK wallet) to `agent_commerce` v1.0 events: a recorder that keeps the exchange as transmitted
+  and a mapper that commits to those bytes. Each party asserts only what it saw; a disagreement
+  is reported as a finding and never adjudicated. Submitted with an implementation candidate
+  and a demonstrator. Does not claim settlement, identity or anchoring.
