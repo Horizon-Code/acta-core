@@ -1,0 +1,26 @@
+{
+  "name": "@acta/x402-wdk-recorder",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "exports": "./src/recorder.mjs",
+  "scripts": {
+    "test": "node --test test/recorder.test.mjs",
+    "test:transport": "node --test test/transport.test.mjs",
+    "test:local-exchange": "node --test test/local-exchange.test.mjs",
+    "test:bare": "node node_modules/bare/bin/bare test/bare-smoke.mjs && node node_modules/bare/bin/bare test/bare-transport-smoke.mjs",
+    "e2e": "node scripts/e2e.mjs",
+    "fixtures": "node scripts/generate-fixtures.mjs"
+  },
+  "devDependencies": {
+    "@tetherto/wdk-wallet-evm": "1.0.0-beta.27",
+    "@x402/core": "2.26.0",
+    "@x402/evm": "2.26.0",
+    "@x402/express": "2.26.0",
+    "@x402/fetch": "2.26.0",
+    "bare": "^1.39.0",
+    "express": "5.2.1",
+    "hypercore": "^11.40.5"
+  }
+}
