@@ -53,14 +53,16 @@ Registro y límites: `adapters/x402-wdk/README.md`.
 | Informe para máquinas y requisitos negociables | Hecho (experimental) |
 | Conector x402/WDK → eventos ACTA | **Candidato de implementación (S10, ADR-019 Proposed)** |
 | Verificar el recibo de liquidación contra la cadena | No existe. Añade un sustrato: requiere enmienda del operador |
-| Transporte de bundles entre las partes | No existe |
-| Ejecutar el verificador en Bare/Pear | No existe. Vía prevista por Pear: addon nativo |
+| Transporte de bundles entre las partes | **Candidato (ADR-020 Proposed)** sobre Hypercore, conectado en proceso. Descubrimiento por red sin probar |
+| Recorder y transporte en Bare | **Probado** en Bare 1.39.0 |
+| Anclaje de los bundles de S10 | Preparado: la herramienta EAS existente adjunta el ancla sin romper la verificación. Falta publicar con una cuenta con fondos |
+| Ejecutar el verificador (Rust) en Bare/Pear | No existe. Vía prevista por Pear: addon nativo |
 | Anclaje donde vive USD₮0 | No existe. Hoy solo Base Sepolia |
 | Identidad de quien firma | Congelada (`roadmap/next-milestones.md`, punto 5) |
 
-Solape a tener presente: Hypercore ya es un registro firmado de solo-añadir. **No verificado
-en esta sesión**; antes de diseñar el transporte hay que medir qué garantiza y qué no, como se
-hizo con SCITT en el mini-E0.
+Solape medido: Hypercore es un registro firmado de solo-añadir, pero su escritor puede
+reescribirlo y el lector adopta la historia nueva sin aviso. No sustituye a la cadena de ACTA.
+Ver `research/hypercore-mini-e0-2026-11-27.md`.
 
 ## 4. Síntesis — INFERENCIA ESTRATÉGICA
 
@@ -80,9 +82,12 @@ Nada de lo que sigue es un hecho.
 
 ## 5. Orden de construcción propuesto (para decisión del operador)
 
-1. **Conector x402/WDK** — entregado como candidato (S10).
-2. **Mapper sobre Profile v1.1**, para expresar el rechazo de un pago.
-3. **Mini-E0 de Hypercore**: medir qué garantiza antes de usarlo como transporte.
-4. **Transporte** de bundles entre las partes.
-5. **Verificación del recibo contra la cadena** — requiere enmienda del operador.
-6. **Verificador en Bare** y demostración de extremo a extremo sobre el stack.
+1. **Conector x402/WDK** — entregado como candidato (S10, ADR-019).
+2. **Mapper sobre Profile v1.1** — entregado; falta que el Profile defina el paso a Core.
+3. **Mini-E0 de Hypercore** — hecho.
+4. **Transporte** de bundles entre las partes — entregado como candidato (ADR-020), en proceso.
+5. **Demostración de extremo a extremo** — `npm run e2e` en `adapters/x402-wdk/js`.
+6. **Anclar los bundles de S10** con una cuenta limpia en Base Sepolia — pendiente del operador.
+7. **Descubrimiento de pares por red** (Hyperswarm) — sin probar; necesita salida a la DHT.
+8. **Verificación del recibo contra la cadena** — requiere enmienda del operador.
+9. **Verificador Rust como addon de Bare** — sin empezar.

@@ -15,6 +15,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "acta-agent-commerce-profile-v1-1"
+version = "0.1.0"
+dependencies = [
+ "acta-agent-commerce-profile",
+ "acta-core",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "acta-attestation-single-signer"
 version = "0.1.0"
 dependencies = [
@@ -54,6 +65,7 @@ name = "acta-x402-wdk"
 version = "0.1.0"
 dependencies = [
  "acta-agent-commerce-profile",
+ "acta-agent-commerce-profile-v1-1",
  "acta-core",
  "base64",
  "serde",

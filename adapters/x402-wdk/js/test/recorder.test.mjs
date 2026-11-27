@@ -95,6 +95,15 @@ test('seller recorder captures what was received and what was sent', () => {
   }])
 })
 
+test('seller recorder encodes string chunks as UTF-8 without the platform encoder', () => {
+  const recorder = createSellerRecorder({ recorderRef: 'seller', counterpartyRef: 'buyer' })
+  const res = { statusCode: 200, getHeaders: () => ({}), write () { return true }, end () { return this } }
+  recorder.middleware({ method: 'GET', url: '/x', headers: { 'payment-signature': 'x' } }, res, () => {})
+  const text = 'aé€😀 ₮'
+  res.end(text)
+  assert.equal(recorder.records[0].response_body_b64, Buffer.from(text, 'utf8').toString('base64'))
+})
+
 test('seller recorder ignores unpaid requests', () => {
   const recorder = createSellerRecorder({ recorderRef: 'seller', counterpartyRef: 'buyer' })
   const res = { end () {} }

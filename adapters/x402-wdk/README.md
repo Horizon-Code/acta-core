@@ -1,7 +1,7 @@
 # x402 / WDK → ACTA connector (S10)
 
-Status: **implementation candidate** under Proposed ADR-019. Nothing here is binding until the
-operator ratifies it.
+Status: **implementation candidate** under Proposed ADR-019 (connector) and Proposed ADR-020
+(transport). Nothing here is binding until the operator ratifies it.
 
 x402 lets one agent pay another over HTTP: the seller answers `402` with its terms, the buyer
 signs a payment authorization with its wallet, the seller does the work and asks a facilitator
@@ -16,12 +16,13 @@ fills it for x402 and nothing wider.
 Core never learns that x402 or WDK exist. Both crates are isolated from the repository
 workspace, so the root `Cargo.toml` and `Cargo.lock` stay untouched.
 
-## Two pieces
+## Three pieces
 
 | Piece | Where | What it does |
 |---|---|---|
 | Recorder | `js/src/recorder.mjs` | Captures one exchange exactly as it crossed the wire, on the buyer side (a `fetch` wrapper) or the seller side (Express-style middleware). No dependencies, no Node built-ins. |
-| Mapper | `rust/` | Turns a recorded exchange into `agent_commerce` Profile v1.0 events and Core events. No transport, no chain access, no judgement. |
+| Mapper | `rust/` | Turns a recorded exchange into `agent_commerce` events (Profile v1.0, and v1.1 for refusals) and Core events. No transport, no chain access, no judgement. |
+| Transport | `js/src/transport.mjs` | Carries the seller's bundles to the buyer over a Hypercore, as a channel and never as custody. The buyer keeps a checkpoint that exposes a later rewrite. |
 
 The recorder keeps bytes. The mapper commits to them. Neither parses, normalises or re-encodes
 a header or a body, so anyone holding the same bytes can recompute every commitment.
@@ -51,21 +52,27 @@ workaround would assert something the evidence does not support.
 1. **`settlement_observed` is not proof of payment.** The buyer sees a receipt header that the
    seller relayed. Checking it against a chain is a separate adapter and is not built. The
    retained fixtures come from a stand-in facilitator: the transaction hash in them is made up.
-2. **The buyer cannot complete a lifecycle alone.** Its observations reference the seller's
-   events by hash, and x402 has no channel to carry the seller's bundles to the buyer. In the
-   demonstrator they are passed in-process. Between real agents this is the missing transport.
-3. **A refused payment has no event in Profile v1.0.** It is reported in `unrepresented` with a
-   commitment over the record. Profile v1.1 has the vocabulary; moving the mapper to it is a
-   follow-up.
-4. **The buyer's own spending limits are not committed.** The seller never sees them, so they
+2. **These bundles are not anchored.** ACTA anchors epoch roots on Base Sepolia through the EAS
+   adapter, and that tool attaches an anchor to these bundles without breaking verification
+   (checked with stand-in evidence). No root from this connector has been published.
+3. **Peer discovery is not exercised.** The transport is tested with two Hypercores connected
+   in-process. Finding the seller's log over a network (Hyperswarm) has not been run.
+4. **The transport is not evidence.** A Hypercore's writer can rewrite it and a reader adopts
+   the new history silently (`research/hypercore-mini-e0-2026-11-27.md`). Only the buyer's
+   retained checkpoint and retained bundles expose that.
+5. **A refusal has no Core event yet.** Profile v1.1 expresses it and the mapper emits it, but
+   the Profile defines no Core mapping for its new kinds, and none is invented here.
+6. **The buyer's own spending limits are not committed.** The seller never sees them, so they
    cannot sit in a manifest both parties share. Only the buyer's `PAYMENT-REQUIRED` copy is
    retained in its record, uncommitted.
-5. **The seller's three work events share one timestamp.** The HTTP layer cannot separate
+7. **The seller's three work events share one timestamp.** The HTTP layer cannot separate
    work, response and settlement request in time. Their order is carried by the Chronos chain.
-6. **Identities are self-declared.** `recorder_ref` and `counterparty_ref` are whatever the
+8. **Identities are self-declared.** `recorder_ref` and `counterparty_ref` are whatever the
    operator of the recorder typed. `TR-SIGNER-SELF` and `TR-KEY-SELF-ASSERTED` stay in force.
-7. **Bare is untested.** The recorder avoids Node built-ins so it can load on Bare, the runtime
-   under Pear, but it has only been run on Node.js.
+
+Closed by measurement since the first submission: the recorder and the transport run on Bare
+1.39.0 (it took one fix — Bare has no `TextEncoder`), and a buyer holding only the seller's
+bundles completes the lifecycle.
 
 ## Retention
 
@@ -77,14 +84,17 @@ them changes the pins on purpose.
 ## Tests
 
 ```bash
-# Mapper: 10 tests over the retained fixtures
+# Mapper: 15 tests over the retained fixtures
 cd adapters/x402-wdk/rust && cargo test
 
-# Recorder, no dependencies needed
-cd adapters/x402-wdk/js && npm test
-
-# Real x402 + WDK exchange on localhost (installs the pinned packages)
-cd adapters/x402-wdk/js && npm ci && npm run test:local-exchange
+cd adapters/x402-wdk/js
+npm test                      # recorder, no dependencies needed
+npm ci                        # pinned third-party packages for everything below
+npm run test:transport        # Hypercore transport, including a seller rewrite
+npm run test:local-exchange   # real x402 + WDK exchange on localhost
+npm run test:bare             # recorder and transport on the Bare runtime
+npm run e2e                   # payment -> sealing -> transport -> verification -> rewrite
 ```
 
-Versions exercised: `@x402/*` 2.26.0, `@tetherto/wdk-wallet-evm` 1.0.0-beta.27, Node.js 22.
+Versions exercised: `@x402/*` 2.26.0, `@tetherto/wdk-wallet-evm` 1.0.0-beta.27, `hypercore`
+11.40.5, Node.js 22, Bare 1.39.0.

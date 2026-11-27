@@ -15,10 +15,16 @@ use acta_core::epoch::build_local_epoch_v0;
 use acta_core::hash::{hash_event_v0, hash_receipt_body_v0};
 use acta_core::receipt::receipt_v0_signing_payload;
 use acta_core::types::{ActaEventV0, ChronosRefV0, ReceiptV0, SignatureV0, PROTOCOL_VERSION};
-use acta_x402_wdk::{map_buyer_record_v0, map_seller_record_v0, X402ExchangeRecordV0};
+use acta_x402_wdk::{
+    map_buyer_from_seller_events_v0, map_buyer_record_v0, map_seller_record_v0,
+    X402ExchangeRecordV0,
+};
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::Engine;
 use ed25519_dalek::{Signer, SigningKey};
+use std::fs;
+use std::path::Path;
+use std::process::ExitCode;
 
 /// Public demo seeds. They prove mechanics, never identity.
 const SELLER_SEED: [u8; 32] = [7u8; 32];
@@ -118,7 +124,7 @@ fn third_party_check(seller: &Sealed, buyer: &Sealed) -> Result<usize, String> {
     Ok(linked)
 }
 
-fn main() {
+fn narrative() {
     let seller_record: X402ExchangeRecordV0 = serde_json::from_str(include_str!(
         "../../../adapters/x402-wdk/fixtures/exchange-weather.seller.json"
     ))
@@ -132,16 +138,16 @@ fn main() {
     let sold = map_seller_record_v0(&seller_record).unwrap();
     let seller = seal(
         &sold.core_events,
-        "s10-seller-epoch-0001",
-        "s10-seller-demo",
+        SELLER_EPOCH,
+        SELLER_ATTESTOR,
         &SELLER_SEED,
     )
     .unwrap();
     let bought = map_buyer_record_v0(&buyer_record, &sold).unwrap();
     let buyer = seal(
         &bought.core_events,
-        "s10-buyer-epoch-0001",
-        "s10-buyer-demo",
+        BUYER_EPOCH,
+        BUYER_ATTESTOR,
         &BUYER_SEED,
     )
     .unwrap();
@@ -170,8 +176,8 @@ fn main() {
     let resold = map_seller_record_v0(&rewritten).unwrap();
     let reseller = seal(
         &resold.core_events,
-        "s10-seller-epoch-0001",
-        "s10-seller-demo",
+        SELLER_EPOCH,
+        SELLER_ATTESTOR,
         &SELLER_SEED,
     )
     .unwrap();
@@ -212,7 +218,10 @@ fn main() {
         "  bytes it sent. Once the buyer holds those bundles, neither side can change its",
         "  story without the other's retained copy showing it.",
         "- x402 has no channel for handing the seller's bundles to the buyer. Here they are",
-        "  passed in-process; between real agents that transport is not built yet.",
+        "  passed in-process; `npm run e2e` in adapters/x402-wdk/js carries them over a",
+        "  Hypercore. Finding that log over a network has not been exercised.",
+        "- These bundles are not anchored. ACTA anchors epoch roots on Base Sepolia; no root",
+        "  from this demonstrator has been published.",
         "- The connector reports a mismatch as a finding. It does not decide who is right:",
         "  the buyer's claim above is the buyer's word against the seller's signed commitment.",
         "- `settlement_observed` means the buyer saw those PAYMENT-RESPONSE bytes, relayed by",
@@ -223,5 +232,143 @@ fn main() {
         "  TR-SIGNER-SELF and TR-KEY-SELF-ASSERTED apply to every bundle here.",
     ] {
         println!("{line}");
+    }
+}
+
+const SELLER_EPOCH: &str = "s10-seller-epoch-0001";
+const BUYER_EPOCH: &str = "s10-buyer-epoch-0001";
+const SELLER_ATTESTOR: &str = "s10-seller-demo";
+const BUYER_ATTESTOR: &str = "s10-buyer-demo";
+
+fn read_record(path: &str) -> Result<X402ExchangeRecordV0, String> {
+    let raw = fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+    serde_json::from_str(&raw).map_err(|e| format!("{path}: {e}"))
+}
+
+/// One bundle per file, named by position, so the directory order is the Chronos order.
+fn write_bundles(sealed: &Sealed, dir: &str) -> Result<(), String> {
+    fs::create_dir_all(dir).map_err(|e| format!("{dir}: {e}"))?;
+    for (index, bundle) in sealed.bundles.iter().enumerate() {
+        let path = Path::new(dir).join(format!("{index:04}.json"));
+        if path.exists() {
+            return Err(format!(
+                "{} already exists; refusing to overwrite",
+                path.display()
+            ));
+        }
+        let json = serde_json::to_string_pretty(bundle).map_err(|e| e.to_string())?;
+        fs::write(&path, json + "\n").map_err(|e| format!("{}: {e}", path.display()))?;
+    }
+    Ok(())
+}
+
+fn read_bundles(dir: &str) -> Result<Sealed, String> {
+    let mut paths: Vec<_> = fs::read_dir(dir)
+        .map_err(|e| format!("{dir}: {e}"))?
+        .filter_map(|entry| entry.ok().map(|e| e.path()))
+        .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
+        .collect();
+    paths.sort();
+    let mut bundles = Vec::with_capacity(paths.len());
+    for path in paths {
+        let raw = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        let bundle: VerifiableBundleV0 =
+            serde_json::from_str(&raw).map_err(|e| format!("{}: {e}", path.display()))?;
+        // Nothing read from disk is used before its signature and Merkle proof check.
+        verify_verifiable_bundle_v0(&bundle).map_err(|e| format!("{}: {e}", path.display()))?;
+        bundles.push(bundle);
+    }
+    let epoch_root = bundles
+        .first()
+        .map(|b| b.bundle.epoch_root.clone())
+        .ok_or_else(|| format!("{dir}: no bundles"))?;
+    if bundles.iter().any(|b| b.bundle.epoch_root != epoch_root) {
+        return Err(format!("{dir}: bundles from more than one epoch"));
+    }
+    Ok(Sealed {
+        epoch_root,
+        bundles,
+    })
+}
+
+const USAGE: &str = "usage:
+  acta-s10-x402-wdk-demo
+  acta-s10-x402-wdk-demo seal-seller <seller-record.json> <out-dir>
+  acta-s10-x402-wdk-demo seal-buyer <buyer-record.json> <seller-bundles-dir> <out-dir>
+  acta-s10-x402-wdk-demo verify <seller-bundles-dir> <buyer-bundles-dir>";
+
+fn run(args: &[String]) -> Result<(), String> {
+    match args {
+        [] => {
+            narrative();
+            Ok(())
+        }
+        [command, record, out] if command == "seal-seller" => {
+            let sold = map_seller_record_v0(&read_record(record)?).map_err(|e| e.to_string())?;
+            let sealed = seal(
+                &sold.core_events,
+                SELLER_EPOCH,
+                SELLER_ATTESTOR,
+                &SELLER_SEED,
+            )?;
+            write_bundles(&sealed, out)?;
+            println!("transaction={}", sold.transaction_id);
+            println!("events={}", sealed.bundles.len());
+            println!("epoch_root={}", sealed.epoch_root);
+            for entry in &sold.unrepresented {
+                println!("unrepresented={}", entry.code);
+            }
+            Ok(())
+        }
+        [command, record, seller_dir, out] if command == "seal-buyer" => {
+            let seller = read_bundles(seller_dir)?;
+            let events: Vec<ActaEventV0> = seller
+                .bundles
+                .iter()
+                .map(|b| b.bundle.event.clone())
+                .collect();
+            let bought = map_buyer_from_seller_events_v0(&read_record(record)?, &events)
+                .map_err(|e| e.to_string())?;
+            println!("transaction={}", bought.transaction_id);
+            println!("seller_epoch_root={}", seller.epoch_root);
+            for finding in &bought.findings {
+                println!("finding={}", serde_json::to_string(finding).unwrap());
+            }
+            if bought.core_events.is_empty() {
+                println!("events=0");
+                return Ok(());
+            }
+            let sealed = seal(
+                &bought.core_events,
+                BUYER_EPOCH,
+                BUYER_ATTESTOR,
+                &BUYER_SEED,
+            )?;
+            write_bundles(&sealed, out)?;
+            println!("events={}", sealed.bundles.len());
+            println!("epoch_root={}", sealed.epoch_root);
+            Ok(())
+        }
+        [command, seller_dir, buyer_dir] if command == "verify" => {
+            let seller = read_bundles(seller_dir)?;
+            let buyer = read_bundles(buyer_dir)?;
+            let linked = third_party_check(&seller, &buyer)?;
+            println!("THIRD_PARTY_CHECK=PASS signatures=ok buyer_events_linked={linked}");
+            println!("seller_epoch_root={}", seller.epoch_root);
+            println!("buyer_epoch_root={}", buyer.epoch_root);
+            Ok(())
+        }
+        _ => Err(USAGE.to_string()),
+    }
+}
+
+fn main() -> ExitCode {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match run(&args) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("{error}");
+            ExitCode::from(2)
+        }
     }
 }

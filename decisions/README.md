@@ -68,3 +68,7 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   and a mapper that commits to those bytes. Each party asserts only what it saw; a disagreement
   is reported as a finding and never adjudicated. Submitted with an implementation candidate
   and a demonstrator. Does not claim settlement, identity or anchoring.
+- `ADR-020-evidence-transport-hypercore-v0.md` — carries the seller's bundles to the buyer over
+  a Hypercore, as a channel and never as custody: measured, its writer can rewrite history and
+  a reader adopts it silently. The reader keeps a checkpoint and a later comparison reports the
+  rewrite. Peer discovery over a network is not exercised.

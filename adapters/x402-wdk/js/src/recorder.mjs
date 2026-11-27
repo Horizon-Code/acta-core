@@ -174,11 +174,20 @@ export function createSellerRecorder ({ recorderRef, counterpartyRef, now = Date
   return { middleware, records }
 }
 
+// UTF-8 by hand: Bare has no TextEncoder (measured), and the recorder must load there.
 function encodeText (text, encoding) {
   if (typeof encoding === 'string' && !/^utf-?8$/i.test(encoding)) {
     throw new Error(`acta x402 recorder: unsupported response encoding ${encoding}`)
   }
-  return new TextEncoder().encode(text)
+  const out = []
+  for (const char of text) {
+    const code = char.codePointAt(0)
+    if (code < 0x80) out.push(code)
+    else if (code < 0x800) out.push(0xc0 | (code >> 6), 0x80 | (code & 63))
+    else if (code < 0x10000) out.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 63), 0x80 | (code & 63))
+    else out.push(0xf0 | (code >> 18), 0x80 | ((code >> 12) & 63), 0x80 | ((code >> 6) & 63), 0x80 | (code & 63))
+  }
+  return new Uint8Array(out)
 }
 
 function concat (chunks) {

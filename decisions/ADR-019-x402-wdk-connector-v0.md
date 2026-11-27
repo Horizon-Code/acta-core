@@ -76,6 +76,10 @@ When the body the buyer received is not the body the seller committed, the mappe
 - `settlement_observed` records that the buyer saw receipt bytes relayed by the seller. It is
   not evidence of an on-chain transfer.
 - A refused payment produces no event under Profile v1.0 and is reported as unrepresented.
+  Under Profile v1.1 (`map_seller_record_v1_1`) a paid request answered with `402` becomes
+  `action_refused_against_mandate`. Any other non-2xx answer is a failure, not a refusal by a
+  control, and stays unrepresented. The Profile v1.1 crate defines no Core mapping for its new
+  kinds and the connector does not invent one.
 - Party references are self-declared.
 
 ## Consequences
@@ -86,8 +90,8 @@ When the body the buyer received is not the body the seller committed, the mappe
   1. a **settlement verification adapter** that checks the receipt against the chain it names.
      This adds a substrate and therefore needs an operator amendment, per the anchor-catalogue
      rule;
-  2. a **transport** for the seller's bundles to reach the buyer;
-  3. migration of the mapper to **Profile v1.1**, which can express a refusal.
+  2. a **transport** for the seller's bundles to reach the buyer — proposed in ADR-020;
+  3. a **Core mapping for the Profile v1.1 kinds**, which belongs to the Profile, not here.
 - A second runtime enters the repository's test surface (Node.js with pinned third-party
   packages). CI is not changed by this ADR: the isolated crates and the JavaScript tests are
   run by hand, as S9's are.
@@ -125,3 +129,5 @@ the reviewed commit.
 - `demos/s10-x402-wdk/Cargo.lock`
 - `demos/s10-x402-wdk/src/main.rs`
 - `demos/s10-x402-wdk/README.md`
+
+Files listed in Proposed ADR-020 are reviewed there.

@@ -20,7 +20,7 @@ export const STAND_IN_TRANSACTION = '0x' + 'ab'.repeat(32)
 // The public test mnemonic every EVM toolchain ships with. It holds nothing.
 const PUBLIC_TEST_SEED = 'test test test test test test test test test test test junk'
 
-export async function runLocalExchange () {
+export async function runLocalExchange ({ sellerMiddleware = [] } = {}) {
   const account = await new WalletManagerEvm(PUBLIC_TEST_SEED, { provider: 'http://127.0.0.1:1' }).getAccount()
   const buyerAddress = await account.getAddress()
   const buyerRef = `${NETWORK}:${buyerAddress}`
@@ -37,6 +37,7 @@ export async function runLocalExchange () {
 
   const app = express()
   app.use(sellerRecorder.middleware)
+  for (const middleware of sellerMiddleware) app.use(middleware)
   app.use(paymentMiddleware({
     'GET /weather': {
       accepts: [{
@@ -59,7 +60,7 @@ export async function runLocalExchange () {
     const fetchWithPayment = wrapFetchWithPayment(buyerRecorder.wrap(fetch), client)
     const response = await fetchWithPayment(`http://127.0.0.1:${server.address().port}/weather`)
     const body = await response.text()
-    return { status: response.status, body, buyer: buyerRecorder.records, seller: sellerRecorder.records }
+    return { status: response.status, body, headers: response.headers, buyer: buyerRecorder.records, seller: sellerRecorder.records }
   } finally {
     await new Promise((resolve) => server.close(resolve))
   }
