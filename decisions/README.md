@@ -50,6 +50,20 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   party, and mandate-declared expectation that makes silence countable without a terminal event.
   Accepted 2026-09-03; implemented under ADR-017.
 
+## Accepted S10 decisions (x402 / WDK evidence)
+
+- `ADR-019-x402-wdk-connector-v0.md` — thin connector from an x402 payment (signed with a Tether
+  WDK wallet) to `agent_commerce` events: a recorder that keeps the exchange as transmitted and a
+  mapper that commits to those bytes. Each party asserts only what it saw; a disagreement is
+  reported as a finding and never adjudicated. Accepted 2026-11-27 with `experimental` lifecycle
+  on its fixed eighteen-file hash set. Does not claim settlement, identity or anchoring; its
+  v1.1 refusal path inherits the Proposed status of ADR-017.
+- `ADR-020-evidence-transport-hypercore-v0.md` — carries the seller's bundles to the buyer over
+  a Hypercore, as a channel and never as custody: measured, its writer can rewrite history and
+  a reader adopts it silently. The reader keeps a checkpoint and a later comparison reports the
+  rewrite. Accepted 2026-11-27 with `experimental` lifecycle on its fixed six-file hash set.
+  Peer discovery over a network is not exercised.
+
 ## Proposed decisions awaiting operator review
 
 - `ADR-014-anchor-retention-policy-v1.md` — one retention rule for every anchor backend: what
@@ -63,12 +77,3 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
   structural conditions plus three detected ones whose checks it contains, and demonstrates the
   ADR-015 closure criterion by execution.
-- `ADR-019-x402-wdk-connector-v0.md` — thin connector from an x402 payment (signed with a Tether
-  WDK wallet) to `agent_commerce` v1.0 events: a recorder that keeps the exchange as transmitted
-  and a mapper that commits to those bytes. Each party asserts only what it saw; a disagreement
-  is reported as a finding and never adjudicated. Submitted with an implementation candidate
-  and a demonstrator. Does not claim settlement, identity or anchoring.
-- `ADR-020-evidence-transport-hypercore-v0.md` — carries the seller's bundles to the buyer over
-  a Hypercore, as a channel and never as custody: measured, its writer can rewrite history and
-  a reader adopts it silently. The reader keeps a checkpoint and a later comparison reports the
-  rewrite. Peer discovery over a network is not exercised.

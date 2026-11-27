@@ -1,12 +1,13 @@
 # ADR-020: Evidence transport over Hypercore v0
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-11-27
-- Decision authority requested: operator under ADR-001
-- Depends on: Proposed ADR-019
+- Accepted: 2026-11-27 by the operator under ADR-001
+- Ratified submission commit: `fad13ef0ee6788e0d429a9bee9fc5fd53203233d`
+- Lifecycle status: `experimental`
+- Depends on: Accepted ADR-019
 - Measured inputs: `research/hypercore-mini-e0-2026-11-27.md`
-- Implementation: **candidate present** in `adapters/x402-wdk/js/src/transport.mjs`. It does
-  not ratify itself.
+- Implementation: in `adapters/x402-wdk/js/src/transport.mjs`, ratified with this ADR.
 
 ## Context
 
@@ -19,7 +20,7 @@ finding: **the writer of a Hypercore can truncate it and write a different histo
 reader that keeps following the log adopts the new history silently.** Only a `fork` counter
 and the tree hash change.
 
-## Proposed decision
+## Decision
 
 ### 1. Hypercore is a channel, never custody
 
@@ -69,11 +70,25 @@ a defect.
   log reveals that a transaction happened and between which declared parties.
 - Any use of Hypercore as an anchor substrate. It is not one, and section 1 is the reason.
 
-## Fixed submission
+## Submission fixed for review
 
-- `adapters/x402-wdk/js/src/transport.mjs`
-- `adapters/x402-wdk/js/test/transport.test.mjs`
-- `adapters/x402-wdk/js/test/bare-smoke.mjs`
-- `adapters/x402-wdk/js/test/bare-transport-smoke.mjs`
-- `adapters/x402-wdk/js/scripts/e2e.mjs`
-- `research/hypercore-mini-e0-2026-11-27.md`
+Fixed at commit `fad13ef0ee6788e0d429a9bee9fc5fd53203233d`.
+
+| File | SHA-256 |
+|---|---|
+| `adapters/x402-wdk/js/src/transport.mjs` | `7fa1faea0eb3442e74ef7c25866ec66ee2d19e18f6ad126554167b4f0c1df40a` |
+| `adapters/x402-wdk/js/test/transport.test.mjs` | `c7f87da10a290648f5adb94a40f246130508a85a93eb7a870623dc0123db2fd6` |
+| `adapters/x402-wdk/js/test/bare-smoke.mjs` | `af91daed762bf8798ddac26ca536c0147588f94f1759c513f3bac49b49fcd04b` |
+| `adapters/x402-wdk/js/test/bare-transport-smoke.mjs` | `549372af82f1315a524886e958004608b0ee97b24715c124efcb9d02a6f8f5f1` |
+| `adapters/x402-wdk/js/scripts/e2e.mjs` | `a1806c1981153258731c7446c50ae1bfa71850cfdb300bf5ab4d6b3c445d71ac` |
+| `research/hypercore-mini-e0-2026-11-27.md` | `bce2e30a9a767847b90f19b9a0b7ed42b0b8afa67eb6c1108021b29aef818bb9` |
+
+## Ratification
+
+Ratified explicitly by the operator on 2026-11-27 under ADR-001 against commit
+`fad13ef0ee6788e0d429a9bee9fc5fd53203233d` and the 6 SHA-256 values above. The
+ratification accepts the exact submission with `experimental` lifecycle status. A byte change
+requires a refreshed table and review of the affected part before it remains ratified.
+
+What the ratification does not cover: peer discovery over a network, which was not exercised,
+and any reading of the log as custody, which section 1 excludes.
