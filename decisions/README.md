@@ -85,3 +85,9 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
   structural conditions plus three detected ones whose checks it contains, and demonstrates the
   ADR-015 closure criterion by execution.
+- `ADR-022-evm-chain-profile-and-settlement-check-v0.md` — checks the receipt of an x402 payment
+  against the chain it names: ten named checks, the chain taken from the payment itself, the
+  node's answers retained, residual trust returned with every verdict. Submitted with an
+  implementation candidate exercised on a local chain only. Also states, without doing it, what
+  making the EAS anchor chain-configurable would cost in ratified files, and that EAS on the
+  USD₮0 chains is not established.
