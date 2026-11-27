@@ -1,8 +1,10 @@
 use acta_agent_commerce_profile::types::validate_agent_commerce_lifecycle_v1;
+use acta_agent_commerce_profile_v1_1::AgentCommerceDomainEventV1_1;
 use acta_core::hash::hash_event_v0;
 use acta_x402_wdk::{
-    commit, map_buyer_record_v0, map_seller_record_v0, transaction_id_v0, BuyerFindingV0,
-    ConnectorError, ExchangeSideV0, X402ExchangeRecordV0,
+    commit, map_buyer_from_seller_events_v0, map_buyer_record_v0, map_seller_record_v0,
+    map_seller_record_v1_1, transaction_id_v0, BuyerFindingV0, ConnectorError, ExchangeSideV0,
+    X402ExchangeRecordV0, CONTROL_REF_PAID_REQUEST_ANSWERED_402,
 };
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
@@ -181,7 +183,7 @@ fn a_refused_payment_is_reported_not_invented() {
     let mapped = map_seller_record_v0(&record).unwrap();
     assert_eq!(kinds(&mapped.core_events), ["mandate_received"]);
     assert_eq!(mapped.unrepresented.len(), 1);
-    assert_eq!(mapped.unrepresented[0].code, "paid_request_not_served");
+    assert_eq!(mapped.unrepresented[0].code, "payment_refused");
 
     let bought = map_buyer_record_v0(&buyer(), &mapped).unwrap();
     assert!(bought.core_events.is_empty());
@@ -274,4 +276,106 @@ fn records_are_checked_before_anything_is_claimed() {
         ))
         .is_err()
     );
+}
+
+#[test]
+fn a_buyer_holding_only_the_seller_events_reaches_the_same_observations() {
+    let sold = map_seller_record_v0(&seller()).unwrap();
+    let with_both = map_buyer_record_v0(&buyer(), &sold).unwrap();
+    let with_events = map_buyer_from_seller_events_v0(&buyer(), &sold.core_events).unwrap();
+    let hashes = |events: &[acta_core::types::ActaEventV0]| -> Vec<String> {
+        events.iter().map(|e| hash_event_v0(e).unwrap()).collect()
+    };
+    assert_eq!(
+        hashes(&with_both.core_events),
+        hashes(&with_events.core_events)
+    );
+    assert_eq!(with_events.core_events.len(), 2);
+    assert!(with_events.findings.is_empty());
+}
+
+#[test]
+fn the_buyer_rejects_a_seller_that_committed_something_it_did_not_sign() {
+    let sold = map_seller_record_v0(&seller()).unwrap();
+
+    // A seller naming a different payer.
+    let mut other_payer = seller();
+    other_payer.counterparty_ref = "eip155:9745:0x0000000000000000000000000000000000000001".into();
+    let other = map_seller_record_v0(&other_payer).unwrap();
+    assert!(matches!(
+        map_buyer_from_seller_events_v0(&buyer(), &other.core_events).unwrap_err(),
+        ConnectorError::AuthorizationNotCommitted(_)
+    ));
+
+    // Seller events signed off by someone who is not the buyer's counterparty.
+    let mut impostor = sold.core_events.clone();
+    for event in &mut impostor {
+        event.actor_ref.actor_id = "eip155:9745:0x00000000000000000000000000000000000000ff".into();
+    }
+    assert!(matches!(
+        map_buyer_from_seller_events_v0(&buyer(), &impostor).unwrap_err(),
+        ConnectorError::ForeignSellerEvents(_)
+    ));
+
+    // A seller run that does not begin with the mandate.
+    assert_eq!(
+        map_buyer_from_seller_events_v0(&buyer(), &sold.core_events[1..]).unwrap_err(),
+        ConnectorError::SellerEventsIncomplete
+    );
+    assert_eq!(
+        map_buyer_from_seller_events_v0(&buyer(), &[]).unwrap_err(),
+        ConnectorError::SellerEventsIncomplete
+    );
+}
+
+#[test]
+fn profile_v1_1_expresses_a_refused_payment() {
+    let mut record = seller();
+    record.response_status = 402;
+    record.payment_response_header = None;
+    let mapped = map_seller_record_v1_1(&record).unwrap();
+
+    assert!(mapped.structural_conditions.is_empty());
+    assert!(mapped.base.unrepresented.is_empty(), "v1.1 can say it");
+    let kinds: Vec<String> = mapped.events.iter().map(|e| e.kind()).collect();
+    assert_eq!(
+        kinds,
+        ["mandate_received", "action_refused_against_mandate"]
+    );
+    match &mapped.events[1] {
+        AgentCommerceDomainEventV1_1::ActionRefusedAgainstMandate(refusal) => {
+            assert_eq!(refusal.control_ref, CONTROL_REF_PAID_REQUEST_ANSWERED_402);
+            assert_eq!(
+                refusal.mandate_manifest_commitment,
+                mapped.base.core_events[0].commitments.artifact_commitment
+            );
+            let body = STANDARD.decode(&record.response_body_b64).unwrap();
+            assert_eq!(refusal.grounds_commitment, commit(&body));
+        }
+        other => panic!("unexpected event: {other:?}"),
+    }
+    // No Core mapping is invented for the new kind.
+    assert_eq!(kinds_of(&mapped.base.core_events), ["mandate_received"]);
+}
+
+#[test]
+fn a_server_error_is_a_failure_and_never_a_refusal() {
+    let mut record = seller();
+    record.response_status = 500;
+    record.payment_response_header = None;
+    let mapped = map_seller_record_v1_1(&record).unwrap();
+    assert_eq!(mapped.events.len(), 1);
+    assert_eq!(mapped.base.unrepresented[0].code, "paid_request_failed");
+}
+
+#[test]
+fn a_served_exchange_is_identical_under_v1_1() {
+    let mapped = map_seller_record_v1_1(&seller()).unwrap();
+    assert_eq!(mapped.events.len(), 4);
+    assert_eq!(mapped.base.core_events.len(), 4);
+    assert!(mapped.base.unrepresented.is_empty());
+}
+
+fn kinds_of(events: &[acta_core::types::ActaEventV0]) -> Vec<&str> {
+    events.iter().map(|e| e.event_kind.kind.as_str()).collect()
 }

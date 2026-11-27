@@ -29,7 +29,11 @@ use acta_agent_commerce_profile::types::{
 };
 use acta_agent_commerce_profile::{
     mandate_manifest_policy_id_v1, mandate_manifest_v1_hash, map_agent_commerce_event_to_core_v1,
-    validate_reciprocal_source_v1,
+    validate_agent_mandate_policy_v1, validate_reciprocal_source_v1,
+};
+use acta_agent_commerce_profile_v1_1::conditions::{structural_conditions_for, ConditionV1};
+use acta_agent_commerce_profile_v1_1::{
+    ActionRefusedAgainstMandatePayloadV1, AgentCommerceDomainEventV1_1,
 };
 use acta_core::hash::hash_event_v0;
 use acta_core::types::{ActaEventV0, PolicySnapshotV0};
@@ -41,6 +45,12 @@ use sha2::{Digest, Sha256};
 pub const CONNECTOR_VERSION: &str = "acta.x402-wdk.v0";
 pub const EXCHANGE_SCHEMA_V0: &str = "acta.x402.exchange.v0";
 pub const MANDATE_TYPE_PAYMENT_AUTHORIZATION: &str = "x402_payment_authorization";
+pub const CODE_PAYMENT_REFUSED: &str = "payment_refused";
+pub const CODE_PAID_REQUEST_FAILED: &str = "paid_request_failed";
+pub const CODE_SERVED_WITHOUT_RECEIPT: &str = "served_without_settlement_receipt";
+/// What stopped the attempt, as far as the HTTP layer can tell: the seller answered a signed
+/// payment with `402`. Which internal check produced that answer is not visible here.
+pub const CONTROL_REF_PAID_REQUEST_ANSWERED_402: &str = "x402:paid-request-answered-402";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -97,6 +107,10 @@ pub enum ConnectorError {
     InvalidBody,
     #[error("seller events do not belong to this exchange: {0}")]
     ForeignSellerEvents(String),
+    #[error("seller events do not start with mandate_received")]
+    SellerEventsIncomplete,
+    #[error("the seller did not commit the authorization this buyer signed: {0}")]
+    AuthorizationNotCommitted(String),
     #[error("profile rejected the mapping: {0}")]
     Profile(#[from] AgentCommerceError),
     #[error("core rejected the mapping: {0}")]
@@ -174,6 +188,32 @@ fn delivery_ref(transaction_id: &str) -> String {
     format!("{transaction_id}:response")
 }
 
+/// The manifest both parties can build on their own: one entry, the buyer's signed payment
+/// authorization. `issued_at` is the seller's receipt time, which the buyer reads from the
+/// seller's `mandate_received` event.
+pub fn authorization_manifest_v0(
+    payment_signature_header: &str,
+    buyer_ref: &str,
+    seller_ref: &str,
+    issued_at: &str,
+) -> MandateManifestV1 {
+    MandateManifestV1 {
+        schema: MANDATE_MANIFEST_SCHEMA_V1.to_string(),
+        mandates: vec![MandateEntryV1 {
+            mandate_id: format!(
+                "{}:authorization",
+                transaction_id_v0(payment_signature_header)
+            ),
+            issuer_ref: buyer_ref.to_string(),
+            subject_ref: seller_ref.to_string(),
+            mandate_type: MANDATE_TYPE_PAYMENT_AUTHORIZATION.to_string(),
+            mandate_commitment: commit(payment_signature_header.as_bytes()),
+            issued_at: issued_at.to_string(),
+            expires_at: None,
+        }],
+    }
+}
+
 fn check_record(
     record: &X402ExchangeRecordV0,
     expected: ExchangeSideV0,
@@ -230,18 +270,12 @@ pub fn map_seller_record_v0(
     let transaction_id = transaction_id_v0(&record.payment_signature_header);
     let authorization_commitment = commit(record.payment_signature_header.as_bytes());
 
-    let manifest = MandateManifestV1 {
-        schema: MANDATE_MANIFEST_SCHEMA_V1.to_string(),
-        mandates: vec![MandateEntryV1 {
-            mandate_id: format!("{transaction_id}:authorization"),
-            issuer_ref: buyer.clone(),
-            subject_ref: seller.clone(),
-            mandate_type: MANDATE_TYPE_PAYMENT_AUTHORIZATION.to_string(),
-            mandate_commitment: authorization_commitment.clone(),
-            issued_at: record.signature_seen_at.clone(),
-            expires_at: None,
-        }],
-    };
+    let manifest = authorization_manifest_v0(
+        &record.payment_signature_header,
+        buyer,
+        seller,
+        &record.signature_seen_at,
+    );
     let policy_hash = mandate_manifest_v1_hash(&manifest)?;
     let policy = PolicySnapshotV0 {
         policy_id: mandate_manifest_policy_id_v1(&policy_hash)?,
@@ -286,13 +320,26 @@ pub fn map_seller_record_v0(
             },
         ));
     } else {
+        let (code, reason) = if record.response_status == 402 {
+            (
+                CODE_PAYMENT_REFUSED,
+                "the seller answered a signed payment with HTTP 402; Profile v1.0 has no event \
+                 for a refusal, so none is emitted"
+                    .to_string(),
+            )
+        } else {
+            (
+                CODE_PAID_REQUEST_FAILED,
+                format!(
+                    "the seller answered a signed payment with HTTP {}; that is a failure, not \
+                     a refusal by a control, and no Profile event describes it",
+                    record.response_status
+                ),
+            )
+        };
         unrepresented.push(UnrepresentedV0 {
-            code: "paid_request_not_served".to_string(),
-            reason: format!(
-                "the seller answered a signed payment with HTTP {}; Profile v1.0 has no event \
-                 for a refusal, so none is emitted",
-                record.response_status
-            ),
+            code: code.to_string(),
+            reason,
             record_commitment: record_commitment(record),
         });
     }
@@ -311,7 +358,7 @@ pub fn map_seller_record_v0(
         ));
     } else if served {
         unrepresented.push(UnrepresentedV0 {
-            code: "served_without_settlement_receipt".to_string(),
+            code: CODE_SERVED_WITHOUT_RECEIPT.to_string(),
             reason: "the seller served the request but sent no PAYMENT-RESPONSE header; no \
                      settlement request is evidenced, so none is emitted"
                 .to_string(),
@@ -331,36 +378,72 @@ pub fn map_seller_record_v0(
     })
 }
 
-/// Map the buyer's own record into the buyer's observations of the seller's events.
+/// Map the buyer's own record into the buyer's observations, given the seller's mapped run.
 ///
-/// `seller` is the seller's mapped run as the buyer received it. The buyer acknowledges a
-/// delivery only when the bytes it received are the bytes the seller committed, and reports
-/// every disagreement as a finding instead.
-///
-/// `settlement_observed` means exactly this: the buyer saw these `PAYMENT-RESPONSE` bytes,
-/// relayed by the seller. It does not mean a transfer was confirmed on any chain.
+/// Convenience over [`map_buyer_from_seller_events_v0`] for callers that hold both sides, which
+/// additionally validates the whole lifecycle under the Profile.
 pub fn map_buyer_record_v0(
     record: &X402ExchangeRecordV0,
     seller: &MappedSellerV0,
 ) -> Result<MappedBuyerV0, ConnectorError> {
+    let mapped = map_buyer_from_seller_events_v0(record, &seller.core_events)?;
+    let mut whole = seller.events.clone();
+    whole.extend(mapped.events.iter().cloned());
+    acta_agent_commerce_profile::types::validate_agent_commerce_lifecycle_v1(&whole)?;
+    Ok(mapped)
+}
+
+/// Map the buyer's own record into the buyer's observations of the seller's events, holding
+/// nothing but those events — which is what a buyer has after receiving the seller's bundles.
+///
+/// Before observing anything, the buyer rebuilds the mandate manifest from the bytes it signed
+/// and checks that the seller's policy snapshot commits exactly that. A seller that committed a
+/// different authorization, or named different parties, is rejected here.
+///
+/// The buyer acknowledges a delivery only when the bytes it received are the bytes the seller
+/// committed, and reports every disagreement as a finding instead.
+///
+/// `settlement_observed` means exactly this: the buyer saw these `PAYMENT-RESPONSE` bytes,
+/// relayed by the seller. It does not mean a transfer was confirmed on any chain.
+pub fn map_buyer_from_seller_events_v0(
+    record: &X402ExchangeRecordV0,
+    seller_events: &[ActaEventV0],
+) -> Result<MappedBuyerV0, ConnectorError> {
     let body = check_record(record, ExchangeSideV0::Buyer)?;
     let transaction_id = transaction_id_v0(&record.payment_signature_header);
-    if seller.transaction_id != transaction_id {
-        return Err(ConnectorError::ForeignSellerEvents(format!(
-            "seller transaction {} is not the buyer's {transaction_id}",
-            seller.transaction_id
-        )));
-    }
-    for event in &seller.core_events {
+    let first = seller_events
+        .first()
+        .ok_or(ConnectorError::SellerEventsIncomplete)?;
+    for event in seller_events {
         if event.process_ref.process_id != transaction_id
             || event.event_kind.namespace != AGENT_COMMERCE_NAMESPACE_V1
+            || event.actor_ref.actor_id != record.counterparty_ref
+            || event.policy_snapshot.policy_hash != first.policy_snapshot.policy_hash
+            || event.policy_snapshot.policy_id != first.policy_snapshot.policy_id
         {
             return Err(ConnectorError::ForeignSellerEvents(event.event_id.clone()));
         }
     }
+    if first.event_kind.kind != "mandate_received" {
+        return Err(ConnectorError::SellerEventsIncomplete);
+    }
+    let manifest = authorization_manifest_v0(
+        &record.payment_signature_header,
+        &record.recorder_ref,
+        &record.counterparty_ref,
+        &first.issued_at,
+    );
+    let policy = first.policy_snapshot.clone();
+    validate_agent_mandate_policy_v1(&policy, &manifest)
+        .map_err(|error| ConnectorError::AuthorizationNotCommitted(error.to_string()))?;
+    if first.commitments.artifact_commitment != format!("sha256:{}", policy.policy_hash) {
+        return Err(ConnectorError::AuthorizationNotCommitted(
+            "mandate_received does not commit the policy snapshot".to_string(),
+        ));
+    }
+
     let source = |kind: &str| {
-        seller
-            .core_events
+        seller_events
             .iter()
             .find(|event| event.event_kind.kind == kind)
     };
@@ -419,23 +502,71 @@ pub fn map_buyer_record_v0(
         }
     }
 
-    // The buyer's observations must extend the seller's lifecycle into a valid whole.
-    let mut whole = seller.events.clone();
-    whole.extend(events.iter().cloned());
-    acta_agent_commerce_profile::types::validate_agent_commerce_lifecycle_v1(&whole)?;
-
-    let core_events = to_core(
-        &events,
-        &transaction_id,
-        "buyer",
-        &seller.policy,
-        &seller.manifest,
-    )?;
+    let core_events = to_core(&events, &transaction_id, "buyer", &policy, &manifest)?;
     Ok(MappedBuyerV0 {
         transaction_id,
         events,
         core_events,
         findings,
+    })
+}
+
+/// A seller run expressed in `agent_commerce` Profile v1.1.
+///
+/// v1.1 adds the vocabulary for a refusal, so a payment the seller answered with `402` becomes
+/// `action_refused_against_mandate` instead of an unrepresented record.
+///
+/// The Profile v1.1 crate defines no Core mapping for its two new kinds. This connector does
+/// not invent one: `base.core_events` holds only the inherited v1.0 events, and the refusal
+/// stays a Profile-level event until the Profile says how it becomes a Core event.
+#[derive(Debug, Clone)]
+pub struct MappedSellerV1_1 {
+    pub base: MappedSellerV0,
+    pub events: Vec<AgentCommerceDomainEventV1_1>,
+    /// Structural conditions declared by the producing version. Empty for v1.1.
+    pub structural_conditions: Vec<ConditionV1>,
+}
+
+pub fn map_seller_record_v1_1(
+    record: &X402ExchangeRecordV0,
+) -> Result<MappedSellerV1_1, ConnectorError> {
+    let mut base = map_seller_record_v0(record)?;
+    let mut events: Vec<AgentCommerceDomainEventV1_1> = base
+        .events
+        .iter()
+        .cloned()
+        .map(AgentCommerceDomainEventV1_1::Inherited)
+        .collect();
+
+    if base
+        .unrepresented
+        .iter()
+        .any(|entry| entry.code == CODE_PAYMENT_REFUSED)
+    {
+        let body = BASE64_STANDARD
+            .decode(&record.response_body_b64)
+            .map_err(|_| ConnectorError::InvalidBody)?;
+        let attempted_ref = format!("{} {}", record.request.method, record.request.url);
+        events.push(AgentCommerceDomainEventV1_1::ActionRefusedAgainstMandate(
+            ActionRefusedAgainstMandatePayloadV1 {
+                transaction_id: base.transaction_id.clone(),
+                attempted_input_commitment: commit(attempted_ref.as_bytes()),
+                attempted_ref,
+                control_ref: CONTROL_REF_PAID_REQUEST_ANSWERED_402.to_string(),
+                // The seller's answer, exactly as sent, is the only statement of grounds there is.
+                grounds_commitment: commit(&body),
+                mandate_manifest_commitment: format!("sha256:{}", base.policy.policy_hash),
+                refused_at: record.response_seen_at.clone(),
+            },
+        ));
+        base.unrepresented
+            .retain(|entry| entry.code != CODE_PAYMENT_REFUSED);
+    }
+
+    Ok(MappedSellerV1_1 {
+        base,
+        events,
+        structural_conditions: structural_conditions_for(acta_agent_commerce_profile_v1_1::VERSION),
     })
 }
 
