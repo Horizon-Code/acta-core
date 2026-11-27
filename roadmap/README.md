@@ -31,5 +31,8 @@ Planning materials for current state, milestones, risks, and next execution step
   repositioning ACTA as the evidence and dispute layer for the agent economy; ratified by the
   operator under ADR-001 within the E-9 + E-1 + E-2 + E-6 package. Its future profile and
   adapter details still require individual ADRs.
+- `E-10-stack-tether-como-destino.md` — **Proposed** amendment taking Tether's stack (WDK first,
+  Pears as transport only, QVAC under watch) as ACTA's first concrete integration target
+  within E-9. Changes build order only; touches no Core, Protocol, Profile or Accepted ADR.
 - `acta-mvp-fases-tecnicas.md` — the ten MVP phases with a current status column.
 - `acta-roadmap-mejoras-futuras.md` — earlier post-MVP planning material.
