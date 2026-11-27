@@ -64,6 +64,14 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   rewrite. Accepted 2026-11-27 with `experimental` lifecycle on its fixed six-file hash set.
   Peer discovery over a network is not exercised.
 
+## Accepted S11 decision (WDK wallet over MCP)
+
+- `ADR-021-wdk-mcp-connector-v0.md` — records what an AI agent does with a Tether WDK wallet
+  over MCP, a server that keeps no record of its own: a transparent proxy keeps each tool call
+  as transmitted and a mapper turns the session into `ai_agent` v1.1 events. It never approves
+  or blocks. Accepted 2026-11-27 with `experimental` lifecycle on its fixed nineteen-file hash
+  set; the mapping inherits the Proposed status of ADR-017.
+
 ## Proposed decisions awaiting operator review
 
 - `ADR-014-anchor-retention-policy-v1.md` — one retention rule for every anchor backend: what
