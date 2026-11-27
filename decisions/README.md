@@ -63,3 +63,8 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
   structural conditions plus three detected ones whose checks it contains, and demonstrates the
   ADR-015 closure criterion by execution.
+- `ADR-021-wdk-mcp-connector-v0.md` — records what an AI agent does with a Tether WDK wallet
+  over MCP, a server that keeps no record of its own: a transparent proxy keeps each tool call
+  as transmitted and a mapper turns the session into `ai_agent` v1.1 events. It never approves
+  or blocks. Submitted with an implementation candidate and a demonstrator. (ADR-019 and
+  ADR-020 are Proposed on another branch.)

@@ -1,0 +1,20 @@
+{
+  "name": "@acta/wdk-mcp-recorder",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "exports": "./src/recorder.mjs",
+  "bin": { "acta-mcp-proxy": "bin/acta-mcp-proxy.mjs" },
+  "scripts": {
+    "test": "node --test test/recorder.test.mjs",
+    "test:bare": "node node_modules/bare/bin/bare test/bare-smoke.mjs",
+    "test:local-session": "node --test test/local-session.test.mjs",
+    "fixtures": "node scripts/generate-fixtures.mjs"
+  },
+  "devDependencies": {
+    "@tetherto/wdk-cli": "1.0.0-beta.9",
+    "bare": "1.39.0",
+    "ganache": "7.9.2"
+  }
+}
