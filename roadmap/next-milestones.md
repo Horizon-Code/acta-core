@@ -119,7 +119,9 @@ ADRs to move from Proposed to Accepted before their implementation fixes normati
 | **S7 — accepted** | Exact `agent_commerce` Profile and named cross-attestation forms in ADR-010/011 | Both ADRs Accepted on fixed hashes; external identity/report integration remains future work |
 | **S8 — closed** | EVM/EAS `AnchorBackend` + Base Sepolia publisher/verifier and machine-consumer report; schema registered and S6 root anchored for real | ADR-012/013 ratified `experimental`; seven-check predicate passes over the third-party path. Demonstration custody only: testnet, and the attester identity is not established |
 | **S9 — unblocked** | OpenWorker emission connector and public level-1 Artefact 1 | S8 gate/report dependencies resolved on 2026-09-03 |
-| **S10** | x402/AP2 evidence-extension proposal | Working demo required |
+| **S10 — closed** | x402/WDK evidence connector and evidence transport over Hypercore. The AP2 half of the original scope was not addressed | ADR-019/020 ratified `experimental` on 2026-11-27. No payment settled; nothing anchored; peer discovery not exercised |
+| **S11 — closed** | WDK wallet MCP connector: transparent proxy and mapper to `ai_agent` v1.1 | ADR-021 ratified `experimental` on 2026-11-27. Depends on the ADR-017 implementation, still Proposed |
+| **S12** | Configurable EVM chain profile, settlement-receipt verification, anchor-modularity proposal (E-10, Accepted) | Proposed ADRs; no ratified file is modified |
 | **Parallel [RUB]** | E-9.8 conversations, ratifications and community contacts | Non-delegable where specified |
 | **Parallel [EJEC]** | Remaining documentary debt; freeze AML in its current internal-reference regime | No dedicated C1 session |
 
