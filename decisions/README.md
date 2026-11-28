@@ -50,6 +50,14 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   party, and mandate-declared expectation that makes silence countable without a terminal event.
   Accepted 2026-09-03; implemented under ADR-017.
 
+## Accepted v1.1 implementation
+
+- `ADR-017-profile-v1-1-implementation.md` — implementation of both v1.1 profiles, in new
+  crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
+  structural conditions plus three detected ones whose checks it contains, and demonstrates the
+  ADR-015 closure criterion by execution. Accepted 2026-11-28 with `experimental` lifecycle on
+  its seventeen-file hash set, unchanged since its 2026-09-03 submission.
+
 ## Accepted S10 decisions (x402 / WDK evidence)
 
 - `ADR-019-x402-wdk-connector-v0.md` — thin connector from an x402 payment (signed with a Tether
@@ -57,7 +65,7 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   mapper that commits to those bytes. Each party asserts only what it saw; a disagreement is
   reported as a finding and never adjudicated. Accepted 2026-11-27 with `experimental` lifecycle
   on its fixed eighteen-file hash set. Does not claim settlement, identity or anchoring; its
-  v1.1 refusal path inherits the Proposed status of ADR-017.
+  v1.1 refusal path rests on ADR-017, Accepted 2026-11-28.
 - `ADR-020-evidence-transport-hypercore-v0.md` — carries the seller's bundles to the buyer over
   a Hypercore, as a channel and never as custody: measured, its writer can rewrite history and
   a reader adopts it silently. The reader keeps a checkpoint and a later comparison reports the
@@ -70,7 +78,7 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   over MCP, a server that keeps no record of its own: a transparent proxy keeps each tool call
   as transmitted and a mapper turns the session into `ai_agent` v1.1 events. It never approves
   or blocks. Accepted 2026-11-27 with `experimental` lifecycle on its fixed nineteen-file hash
-  set; the mapping inherits the Proposed status of ADR-017.
+  set; the mapping rests on ADR-017, Accepted 2026-11-28.
 
 ## Accepted S12 decision (settlement check)
 
@@ -90,7 +98,3 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
 - `ADR-018-report-condition-integration.md` — proposal to surface the v1.1 conditions in the
   machine dossier, and the hash-table refresh it requires. Notes that `Cargo.lock` sits in both
   the ADR-012 and ADR-013 tables, so refreshing ADR-013 alone would silently break ADR-012.
-- `ADR-017-profile-v1-1-implementation.md` — implementation submission for both v1.1 profiles,
-  in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
-  structural conditions plus three detected ones whose checks it contains, and demonstrates the
-  ADR-015 closure criterion by execution.
