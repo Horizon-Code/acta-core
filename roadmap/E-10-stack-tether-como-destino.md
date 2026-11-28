@@ -2,15 +2,17 @@
 
 **Fecha:** 27 de noviembre de 2026
 **Tipo:** enmienda de rumbo al roadmap, dentro del marco de E-9
-**Estado:** **Proposed — pendiente de ratificación del operador bajo ADR-001**
+**Estado:** **Accepted — ratificada por el operador bajo ADR-001**
+**Ratificación:** 28 de noviembre de 2026, sobre el commit
+`596442b3b79c142b1d00ebc9175a75d4a70f010d`
 **Autoridad:** enmienda a `roadmap/next-milestones.md` (secuencia de sesiones y orden de
 construcción). Subordinada a E-9, a las Foundations y al Protocol. **No toca el Core, el
 Protocol v0 ni ningún Profile. No modifica ninguna ADR aceptada.**
 
-> **Qué hay y qué no hay decidido.** El operador indicó el 27-nov-2026 que ACTA apunta al
-> stack de Tether y pidió dejarlo escrito como enmienda propuesta. Los tres conectores que la
-> motivan están ratificados (ADR-019, ADR-020, ADR-021). Lo que esta enmienda propone, y aún no
-> está ratificado, es el **orden de construcción** que se deriva de ello.
+> **Qué está decidido.** El operador indicó el 27-nov-2026 que ACTA apunta al stack de Tether
+> y ratificó esta enmienda el 28-nov-2026. Los tres conectores que la motivan están ratificados
+> (ADR-019, ADR-020, ADR-021). Aceptar E-10 fija el **orden de construcción**; no ratifica
+> ninguna ADR posterior, que sigue su propio paso.
 
 ---
 
@@ -117,4 +119,7 @@ toma en la ADR de modularidad del anclaje, no aquí.
 
 ## Ratificación
 
-Pendiente. Esta enmienda no se autoratifica.
+El operador ratificó explícitamente esta enmienda bajo ADR-001 el 28 de noviembre de 2026,
+contra el commit `596442b3b79c142b1d00ebc9175a75d4a70f010d`. La ratificación acepta el orden de construcción y la tabla de
+impacto tal como están escritos. No ratifica ADR-022 ni ninguna otra propuesta posterior, ni
+convierte en hecho ninguna de las inferencias marcadas en §0.

@@ -121,7 +121,7 @@ ADRs to move from Proposed to Accepted before their implementation fixes normati
 | **S9 — unblocked** | OpenWorker emission connector and public level-1 Artefact 1 | S8 gate/report dependencies resolved on 2026-09-03 |
 | **S10 — closed** | x402/WDK evidence connector and evidence transport over Hypercore. The AP2 half of the original scope was not addressed | ADR-019/020 ratified `experimental` on 2026-11-27. No payment settled; nothing anchored; peer discovery not exercised |
 | **S11 — closed** | WDK wallet MCP connector: transparent proxy and mapper to `ai_agent` v1.1 | ADR-021 ratified `experimental` on 2026-11-27. Depends on the ADR-017 implementation, still Proposed |
-| **S12** | Configurable EVM chain profile, settlement-receipt verification, anchor-modularity proposal (Proposed E-10) | Proposed ADRs; no ratified file is modified |
+| **S12** | Configurable EVM chain profile, settlement-receipt verification, anchor-modularity proposal (E-10, Accepted) | Proposed ADRs; no ratified file is modified |
 | **Parallel [RUB]** | E-9.8 conversations, ratifications and community contacts | Non-delegable where specified |
 | **Parallel [EJEC]** | Remaining documentary debt; freeze AML in its current internal-reference regime | No dedicated C1 session |
 

@@ -108,5 +108,5 @@
   against commit `4c6cd51ae99847cd305a2aa9c18abfa4fc01996c` and its nineteen-file hash set,
   lifecycle `experimental`. The whole mapping depends on the ADR-017 implementation.
 - Nothing produced by S10 or S11 is anchored. Both run on Node.js and on Bare.
-- E-10, "El stack de Tether como destino de integración", is **Proposed**. The operator stated
-  the direction on 2026-11-27; the build order it implies is not ratified.
+- E-10, "El stack de Tether como destino de integración", was ratified by the operator on
+  2026-11-28 under ADR-001. It fixes build order only; S12 (ADR-022) remains Proposed.
