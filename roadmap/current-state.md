@@ -110,3 +110,8 @@
 - Nothing produced by S10 or S11 is anchored. Both run on Node.js and on Bare.
 - E-10, "El stack de Tether como destino de integración", was ratified by the operator on
   2026-11-28 under ADR-001. It fixes build order only; S12 (ADR-022) remains Proposed.
+- S12 part A is closed in executable work as of 2026-11-28. `adapters/evm-settlement-check/`
+  checks the receipt of an x402 payment against the chain the payment names. ADR-022 part A was
+  ratified by the operator on 2026-11-28, lifecycle `experimental`. It was exercised on a local
+  chain only, with a payment that really settled there. Anchor modularity (part B) and anchoring
+  on the USD₮0 chains (part C) are not done.

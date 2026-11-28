@@ -1,0 +1,31 @@
+[package]
+name = "acta-evm-settlement-check"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+# Isolated from the repository workspace on purpose, like the other connectors. It keeps the
+# root Cargo.toml and Cargo.lock — both fixed by ratified hash tables — untouched.
+[workspace]
+
+[lib]
+name = "acta_evm_settlement_check"
+path = "src/lib.rs"
+
+[features]
+# A JSON-RPC client over HTTP. Off by default: the checks themselves need no network, and
+# the tests run against retained answers.
+http = ["dep:ureq"]
+
+[dependencies]
+acta-x402-wdk = { path = "../../x402-wdk/rust" }
+base64 = "0.22"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+thiserror = "2.0"
+ureq = { version = "2.12", optional = true }
+
+[[example]]
+name = "check"
+path = "examples/check.rs"
