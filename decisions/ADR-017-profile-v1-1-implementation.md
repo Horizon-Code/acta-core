@@ -1,8 +1,10 @@
 # ADR-017: Profile v1.1 implementation submission
 
-- Status: **Proposed**
+- Status: **Accepted**
 - Date: 2026-09-03
-- Decision authority requested: operator under ADR-001
+- Accepted: 2026-11-28 by the operator under ADR-001
+- Ratified submission commit: `644a34727bcf82ef08ff1deee4d69512bbd0cffd`
+- Lifecycle status: `experimental`
 - Implements: Accepted ADR-015 (`ai_agent` v1.1) and Accepted ADR-016 (`agent_commerce` v1.1)
 - Governed by: principles 4.16, 4.17 and 4.18 of `architecture/profile-architecture-v1.0.md`
 
@@ -122,8 +124,17 @@ This ADR does not reopen ADR-015 or ADR-016, does not modify any v1.0 profile, d
 Core or Protocol v0, does not integrate any condition into the machine dossier, and does not
 implement `TR-COVERAGE-GAP`.
 
-## Ratification requested
+## Ratification
 
-The operator may ratify this submission only against the complete fixed hash sets above. Until
-then v1.1 is an implementation candidate: the code runs and its tests pass, but no producer is
-told to emit v1.1 and no dossier claims it.
+Ratified explicitly by the operator on 2026-11-28 under ADR-001 against commit
+`644a34727bcf82ef08ff1deee4d69512bbd0cffd` and the complete fixed hash sets above (seventeen files). Before ratification
+every one of the seventeen files was checked byte for byte against its recorded SHA-256 on
+`main`; none had changed since submission.
+
+The ratification accepts the implementation with `experimental` lifecycle status. It does not
+reopen ADR-015 or ADR-016, does not integrate any condition into the machine dossier (that is
+Proposed ADR-018), and does not implement `TR-COVERAGE-GAP`.
+
+Consequence for later decisions: the ADR-019 v1.1 refusal path and the whole ADR-021 mapping,
+which were ratified while this implementation was Proposed, no longer carry that dependency
+as an open status.
