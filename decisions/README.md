@@ -72,6 +72,15 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   or blocks. Accepted 2026-11-27 with `experimental` lifecycle on its fixed nineteen-file hash
   set; the mapping inherits the Proposed status of ADR-017.
 
+## Accepted S12 decision (settlement check)
+
+- `ADR-022-evm-chain-profile-and-settlement-check-v0.md` — checks the receipt of an x402 payment
+  against the chain it names: ten named checks, the chain taken from the payment itself, the
+  node's answers retained, residual trust returned with every verdict. **Part A accepted**
+  2026-11-28 with `experimental` lifecycle on its fixed sixteen-file hash set; exercised on a
+  local chain only. Parts B (anchor modularity, which would touch ADR-012 files) and C (EAS on
+  the USD₮0 chains, unestablished) remain proposals.
+
 ## Proposed decisions awaiting operator review
 
 - `ADR-014-anchor-retention-policy-v1.md` — one retention rule for every anchor backend: what
@@ -85,9 +94,3 @@ Architecture Decision Records (ADRs) that freeze important boundaries and avoid 
   in new crates so every file fixed by the ADR-009/010 tables stays byte-identical. Carries the
   structural conditions plus three detected ones whose checks it contains, and demonstrates the
   ADR-015 closure criterion by execution.
-- `ADR-022-evm-chain-profile-and-settlement-check-v0.md` — checks the receipt of an x402 payment
-  against the chain it names: ten named checks, the chain taken from the payment itself, the
-  node's answers retained, residual trust returned with every verdict. Submitted with an
-  implementation candidate exercised on a local chain only. Also states, without doing it, what
-  making the EAS anchor chain-configurable would cost in ratified files, and that EAS on the
-  USD₮0 chains is not established.

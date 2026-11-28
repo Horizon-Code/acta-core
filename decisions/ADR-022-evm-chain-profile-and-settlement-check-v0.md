@@ -1,14 +1,16 @@
 # ADR-022: EVM chain profile, settlement check, and the cost of anchor modularity
 
-- Status: **Proposed**
+- Status: **Accepted — part A only**
 - Date: 2026-11-27
-- Decision authority requested: operator under ADR-001
+- Accepted: 2026-11-28 by the operator under ADR-001
+- Ratified submission commit: `3d9ae8e4e6a5d332ea80219026f5ad627dbdab43`
+- Lifecycle status: `experimental`
 - Operator instructions of 2026-11-27 that this answers: "make anchoring modular; we will
   anchor to both when the time comes", and the authorization to check the payment on the chain
   where USD₮0 lives
-- Depends on: Accepted ADR-019. Direction: Proposed E-10
-- Implementation: **candidate present** for part A in `adapters/evm-settlement-check/`. Parts B
-  and C are proposals with no code. It does not ratify itself.
+- Depends on: Accepted ADR-019. Direction: Accepted E-10
+- Implementation: part A in `adapters/evm-settlement-check/`, ratified with this ADR. Parts B
+  and C remain proposals with no code and are **not** ratified.
 
 ## Context
 
@@ -115,23 +117,39 @@ rule.
 - Any addition to the anchor catalogue.
 - Finality rules, multi-node agreement, or an asset allowlist.
 
-## Fixed submission (part A)
+## Submission fixed for review (part A)
 
-The hash table is left for the ratification pass.
+Fixed at commit `3d9ae8e4e6a5d332ea80219026f5ad627dbdab43`.
 
-- `adapters/evm-settlement-check/README.md`
-- `adapters/evm-settlement-check/contracts/TestToken.sol`
-- `adapters/evm-settlement-check/contracts/TestToken.json`
-- `adapters/evm-settlement-check/js/package.json`
-- `adapters/evm-settlement-check/js/package-lock.json`
-- `adapters/evm-settlement-check/js/scripts/compile.mjs`
-- `adapters/evm-settlement-check/js/scripts/generate-fixtures.mjs`
-- `adapters/evm-settlement-check/js/scripts/live-check.mjs`
-- `adapters/evm-settlement-check/js/test/settled-exchange.mjs`
-- `adapters/evm-settlement-check/js/test/settled-exchange.test.mjs`
-- `adapters/evm-settlement-check/fixtures/settled-exchange.json`
-- `adapters/evm-settlement-check/rust/Cargo.toml`
-- `adapters/evm-settlement-check/rust/Cargo.lock`
-- `adapters/evm-settlement-check/rust/src/lib.rs`
-- `adapters/evm-settlement-check/rust/tests/check_v0.rs`
-- `adapters/evm-settlement-check/rust/examples/check.rs`
+| File | SHA-256 |
+|---|---|
+| `adapters/evm-settlement-check/README.md` | `baf8e846ecac78706f60c8f16aed9f148fc46bbc2cde4275b346cc5de3bad58e` |
+| `adapters/evm-settlement-check/contracts/TestToken.sol` | `dd74466e50bca29593716bbb3134404442c56f8dfbffca547b2442672515de12` |
+| `adapters/evm-settlement-check/contracts/TestToken.json` | `593c13fe48e53b6834a59447f291838f8b1262ac371aee9a2af2a4e8ab05d484` |
+| `adapters/evm-settlement-check/js/package.json` | `1dfad8818ff51f3848ce207b63ff3ea198a3688aa565acc75317bf88db1faeda` |
+| `adapters/evm-settlement-check/js/package-lock.json` | `7c791dc014c18ca309f89f189b3a66ced3b3fc5afa5bd2720a3796262317172b` |
+| `adapters/evm-settlement-check/js/scripts/compile.mjs` | `4e4c87b1f5c3871df1dfae3b4415c7d20a8980a3710582026e53851f620f0f00` |
+| `adapters/evm-settlement-check/js/scripts/generate-fixtures.mjs` | `90c6437e6a35b7195677c393726c9701937f3c8e97df242326a4ad4587d591bb` |
+| `adapters/evm-settlement-check/js/scripts/live-check.mjs` | `73b6182d37304650dcac0f30009c6ffd4d564f5a78e3d74eb515a902fb705800` |
+| `adapters/evm-settlement-check/js/test/settled-exchange.mjs` | `e89f24a61bcd48924910f01214be7d2fe54f3bbfce531f1ad978602d506903e2` |
+| `adapters/evm-settlement-check/js/test/settled-exchange.test.mjs` | `2044f820d56f684907eab8eba9d12c9ac7a9ce18a3300ce2bbafa89385d915e3` |
+| `adapters/evm-settlement-check/fixtures/settled-exchange.json` | `6d124a1b83d4a41ebbf516c03a31c29b987708e68223a60b69b9d40421781937` |
+| `adapters/evm-settlement-check/rust/Cargo.toml` | `8c633fdeac5cd0c00c9df2fe6153a182c37bfb6de5ee3a20aea545426aa99be5` |
+| `adapters/evm-settlement-check/rust/Cargo.lock` | `1ddc8541113a5b19c710cc660d1282d8ca2a6b18e5c4eeeffe0c331c827d2876` |
+| `adapters/evm-settlement-check/rust/src/lib.rs` | `6f17a30743f107e4a7aaad537ae7d2dcc9477f249f8026d8f81831636e7996b0` |
+| `adapters/evm-settlement-check/rust/tests/check_v0.rs` | `58fa1f4c5139d4808c93543db6cb03bb312971082690e29f12f7445e4ad54da1` |
+| `adapters/evm-settlement-check/rust/examples/check.rs` | `eda69ee000ec345673bae3d03185061c5747a45c93c8c4b377c38db326d297f6` |
+
+## Ratification
+
+Ratified explicitly by the operator on 2026-11-28 under ADR-001 against commit
+`3d9ae8e4e6a5d332ea80219026f5ad627dbdab43` and the 16 SHA-256 values above, with `experimental` lifecycle status.
+
+**Scope: part A only.** The ratification accepts the settlement check as submitted. It does
+not accept part B (anchor modularity), which would modify files fixed by ADR-012 and needs its
+own implementation ADR and refreshed table, nor part C, which waits on whether EAS exists on
+the USD₮0 chains. No chain is added to the anchor catalogue.
+
+What part A still does not establish is stated in every result it returns: a single node was
+asked, finality was not examined, and the asset contract's identity was not examined. Only a
+local chain has been exercised.
