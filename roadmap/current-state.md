@@ -89,3 +89,24 @@
 - The full documentary triad is in the repo: `acta-estado-consolidado.md`,
   `directiva-construccion-2026-08-31.md`, and `E0-protocolo-y-enmiendas.md`. The §1.2
   vocabulary-scale and §3.1 canonicalization references now resolve.
+- S10 is closed in executable work as of 2026-11-27. `adapters/x402-wdk/` turns an x402 v2
+  payment signed with a Tether WDK wallet into `agent_commerce` events: a recorder that keeps
+  the exchange as transmitted and a mapper that commits to those bytes, each party asserting
+  only what it saw. ADR-019 was ratified by the operator on 2026-11-27 against commit
+  `fad13ef0ee6788e0d429a9bee9fc5fd53203233d` and its eighteen-file hash set, lifecycle
+  `experimental`. **No payment was settled**: the retained fixtures come from a stand-in
+  facilitator. The connector's v1.1 refusal path depends on the implementation submitted under
+  ADR-017, which remains Proposed.
+- The seller's bundles reach the buyer over a Hypercore under ADR-020, ratified the same day on
+  its six-file hash set. Hypercore was measured before use
+  (`research/hypercore-mini-e0-2026-11-27.md`): its writer can rewrite history and a reader
+  adopts it silently, so it is a channel and never custody. Peer discovery over a network has
+  not been exercised.
+- S11 is closed in executable work as of 2026-11-27. `adapters/wdk-mcp/` records what an AI
+  agent does with a WDK wallet over MCP — a transparent stdio proxy plus a mapper to `ai_agent`
+  v1.1 events. It never approves or blocks. ADR-021 was ratified by the operator on 2026-11-27
+  against commit `4c6cd51ae99847cd305a2aa9c18abfa4fc01996c` and its nineteen-file hash set,
+  lifecycle `experimental`. The whole mapping depends on the ADR-017 implementation.
+- Nothing produced by S10 or S11 is anchored. Both run on Node.js and on Bare.
+- E-10, "El stack de Tether como destino de integración", was ratified by the operator on
+  2026-11-28 under ADR-001. It fixes build order only; S12 (ADR-022) remains Proposed.
